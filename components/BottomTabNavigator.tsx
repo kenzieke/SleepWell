@@ -1,12 +1,14 @@
 // BottomTabNavigator.tsx
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
+import Ionicons from '@expo/vector-icons/build/Ionicons';
+
 import SleepTrackerScreen from '../app/screens/SleepTracker';
 import HealthTrackerScreen from '../app/screens/HealthTracker';
 import WeeklyGoals from '../app/screens/WeeklyGoals';
 import ResourceLibraryScreen from '../app/screens/ResourceLibrary';
 import WeeklyLessonsScreen from '../app/screens/WeeklyLessonsScreen';
-import Ionicons from '@expo/vector-icons/build/Ionicons';
 
 type screenType={
   SleepTrackerScreen:undefined,
@@ -17,6 +19,33 @@ type screenType={
 }
 
 const Tab = createBottomTabNavigator<screenType>();
+const Stack = createStackNavigator();
+
+function SleepTrackerStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="SleepTrackerScreen"
+        component={SleepTrackerScreen}
+        options={{ title: 'Sleep Tracker' }}
+      />
+      {/* other screens specific to this stack */}
+    </Stack.Navigator>
+  );
+}
+
+function HealthTrackerStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="HealthTrackerScreen"
+        component={HealthTrackerScreen}
+        options={{ title: 'Health Tracker' }}
+      />
+      {/* other screens specific to this stack */}
+    </Stack.Navigator>
+  );
+}
 
 const BottomTabNavigator: React.FC = () => {
   return (
@@ -54,12 +83,12 @@ const BottomTabNavigator: React.FC = () => {
       >
       <Tab.Screen
         name="SleepTrackerScreen"
-        component={SleepTrackerScreen}
-        options={{ title: 'Sleep Tracker' }}
+        component={SleepTrackerStack}
+        options={{ tabBarLabel: 'Sleep Tracker' }}
       />
       <Tab.Screen
         name="HealthTrackerScreen"
-        component={HealthTrackerScreen}
+        component={HealthTrackerStack}
         options={{ title: 'Health Tracker' }}
       />
       <Tab.Screen
@@ -82,3 +111,4 @@ const BottomTabNavigator: React.FC = () => {
 };
 
 export default BottomTabNavigator;
+// export default { SleepTrackerStack, HealthTrackerStack, BottomTabNavigator };
