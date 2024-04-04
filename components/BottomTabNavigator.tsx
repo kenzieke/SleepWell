@@ -6,14 +6,14 @@ import Ionicons from '@expo/vector-icons/build/Ionicons';
 
 import SleepTrackerScreen from '../app/screens/SleepTracker';
 import HealthTrackerScreen from '../app/screens/HealthTracker';
-import WeeklyGoals from '../app/screens/WeeklyGoals';
+import WeeklyGoalsScreen from '../app/screens/WeeklyGoalsScreen';
 import ResourceLibraryScreen from '../app/screens/ResourceLibrary';
 import WeeklyLessonsScreen from '../app/screens/WeeklyLessonsScreen';
 
 type screenType={
   SleepTrackerScreen:undefined,
   HealthTrackerScreen:undefined,
-  WeeklyGoals:undefined,
+  WeeklyGoalsScreen:undefined,
   ResourceLibraryScreen:undefined,
   WeeklyLessonsScreen:undefined,
 }
@@ -25,7 +25,7 @@ function SleepTrackerStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="SleepTrackerScreen"
+        name="SleepTrackerStackScreen"
         component={SleepTrackerScreen}
         options={{ title: 'Sleep Tracker' }}
       />
@@ -38,9 +38,48 @@ function HealthTrackerStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="HealthTrackerScreen"
+        name="HealthTrackerStackScreen"
         component={HealthTrackerScreen}
         options={{ title: 'Health Tracker' }}
+      />
+      {/* other screens specific to this stack */}
+    </Stack.Navigator>
+  );
+}
+
+function WeeklyGoalsStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="WeeklyGoalsStackScreen"
+        component={WeeklyGoalsScreen}
+        options={{ title: 'Weekly Goals' }}
+      />
+      {/* other screens specific to this stack */}
+    </Stack.Navigator>
+  );
+}
+
+function WeeklyLessonsStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="WeeklyLessonsStackScreen"
+        component={WeeklyLessonsScreen}
+        options={{ title: 'Improve My Screen' }}
+      />
+      {/* other screens specific to this stack */}
+    </Stack.Navigator>
+  );
+}
+
+function ResourceLibraryStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="ResourceLibraryStackScreen"
+        component={ResourceLibraryScreen}
+        options={{ title: 'Resource Library' }}
       />
       {/* other screens specific to this stack */}
     </Stack.Navigator>
@@ -66,7 +105,7 @@ const BottomTabNavigator: React.FC = () => {
                 ? 'ios-ellipse' : 'ios-ellipse';
             } else if (route.name === 'HealthTrackerScreen') {
               iconName = focused ? 'ios-ellipse' : 'ios-ellipse';
-            } else if (route.name === 'WeeklyGoals') {
+            } else if (route.name === 'WeeklyGoalsScreen') {
               iconName = focused ? 'ios-ellipse' : 'ios-ellipse';
             } else if (route.name === 'WeeklyLessonsScreen') {
               iconName = focused ? 'ios-ellipse' : 'ios-ellipse';
@@ -82,7 +121,7 @@ const BottomTabNavigator: React.FC = () => {
         })}
       >
       <Tab.Screen
-        name="SleepTrackerScreen"
+        name="SleepTrackerScreen" // Unique name for the tab screen
         component={SleepTrackerStack}
         options={{ tabBarLabel: 'Sleep Tracker' }}
       />
@@ -93,17 +132,17 @@ const BottomTabNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="WeeklyLessonsScreen"
-        component={WeeklyLessonsScreen}
+        component={WeeklyLessonsStack}
         options={{ title: 'Weekly Lessons' }}
       />
       <Tab.Screen
-        name="WeeklyGoals"
-        component={WeeklyGoals}
+        name="WeeklyGoalsScreen"
+        component={WeeklyGoalsStack}
         options={{ title: 'Weekly Goals' }}
       />
       <Tab.Screen
         name="ResourceLibraryScreen"
-        component={ResourceLibraryScreen}
+        component={ResourceLibraryStack}
         options={{ title: 'Resource Library' }}
       />
     </Tab.Navigator>

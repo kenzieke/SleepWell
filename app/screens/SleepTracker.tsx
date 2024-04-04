@@ -71,12 +71,21 @@ const getSleepRating = (value: number): string => {
   const labelPosition = (sliderValue / 5) * (sliderWidth - labelWidth) + 20; // Adjusted for padding
 
   // Sleep time related questions
-  const [hours, setHours] = useState<string>('0');
-  const [minutes, setMinutes] = useState<string>('0');
+  // const [hours, setHours] = useState<string>('0');
+  // const [minutes, setMinutes] = useState<string>('0');
   const [timesWokeUp, setTimesWokeUp] = useState<string>('');
   const [naps, setNaps] = useState<string>('0');
   const [sleepMedications, setSleepMedications] = useState<string>('0');
   const [comments, setComments] = useState<string>('');
+
+  const [bedHours, setBedHours] = useState<string>('');
+  const [bedMinutes, setBedMinutes] = useState<string>('');
+  const [sleepHours, setSleepHours] = useState<string>('');
+  const [sleepMinutes, setSleepMinutes] = useState<string>('');
+  const [fallAsleepHours, setFallAsleepHours] = useState<string>('');
+  const [fallAsleepMinutes, setFallAsleepMinutes] = useState<string>('');
+  const [napHours, setNapHours] = useState<string>('');
+  const [napMinutes, setNapMinutes] = useState<string>('');
 
     return (
       <ScrollView style={styles.scrollView}>
@@ -173,49 +182,53 @@ const getSleepRating = (value: number): string => {
           <Text style={styles.questionText}>
             How long were you in bed/cot/mat in total?
           </Text>
+
+          {/* Input for bed time */}
           <View style={styles.timeContainer}>
-            <TextInput
-              style={styles.timeInput}
-              onChangeText={setHours}
-              value={hours}
-              keyboardType="numeric"
-              maxLength={2} // Assuming we want to limit to 99 hours
-            />
-            <Text style={styles.unitText}>hours</Text>
-            <TextInput
-              style={styles.timeInput}
-              onChangeText={setMinutes}
-              value={minutes}
-              keyboardType="numeric"
-              maxLength={2} // Assuming we want to limit to 59 minutes
-            />
-            <Text style={styles.unitText}>min</Text>
+              <TextInput
+                style={styles.timeInput}
+                onChangeText={setBedHours}
+                value={bedHours}
+                keyboardType="numeric"
+                maxLength={2}
+              />
+              <Text style={styles.unitText}>hours</Text>
+              <TextInput
+                style={styles.timeInput}
+                onChangeText={setBedMinutes}
+                value={bedMinutes}
+                keyboardType="numeric"
+                maxLength={2}
+              />
+              <Text style={styles.unitText}>mins</Text>
+            </View>
           </View>
-        </View>
 
         <View style={styles.questionContainer}>
           <Text style={styles.questionText}>
             How long did you actually sleep in total?
           </Text>
+
+          {/* Input for actual sleep time */}
           <View style={styles.timeContainer}>
-            <TextInput
-              style={styles.timeInput}
-              onChangeText={setHours}
-              value={hours}
-              keyboardType="numeric"
-              maxLength={2} // Assuming we want to limit to 99 hours
-            />
-            <Text style={styles.unitText}>hours</Text>
-            <TextInput
-              style={styles.timeInput}
-              onChangeText={setMinutes}
-              value={minutes}
-              keyboardType="numeric"
-              maxLength={2} // Assuming we want to limit to 59 minutes
-            />
-            <Text style={styles.unitText}>min</Text>
+              <TextInput
+                style={styles.timeInput}
+                onChangeText={setSleepHours}
+                value={sleepHours}
+                keyboardType="numeric"
+                maxLength={2}
+              />
+              <Text style={styles.unitText}>hours</Text>
+              <TextInput
+                style={styles.timeInput}
+                onChangeText={setSleepMinutes}
+                value={sleepMinutes}
+                keyboardType="numeric"
+                maxLength={2}
+              />
+              <Text style={styles.unitText}>mins</Text>
+            </View>
           </View>
-        </View>
 
         <View style={styles.questionContainer}>
           <Text style={styles.questionText}>
@@ -224,20 +237,20 @@ const getSleepRating = (value: number): string => {
           <View style={styles.timeContainer}>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setHours}
-              value={hours}
+              onChangeText={setFallAsleepHours}
+              value={fallAsleepHours}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 99 hours
             />
             <Text style={styles.unitText}>hours</Text>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setMinutes}
-              value={minutes}
+              onChangeText={setFallAsleepMinutes}
+              value={fallAsleepMinutes}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 59 minutes
             />
-            <Text style={styles.unitText}>min</Text>
+            <Text style={styles.unitText}>mins</Text>
           </View>
         </View>
 
@@ -299,20 +312,20 @@ const getSleepRating = (value: number): string => {
           <View style={styles.timeContainer}>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setHours}
-              value={hours}
+              onChangeText={setNapHours}
+              value={napHours}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 99 hours
             />
             <Text style={styles.unitText}>hours</Text>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setMinutes}
-              value={minutes}
+              onChangeText={setNapMinutes}
+              value={napMinutes}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 59 minutes
             />
-            <Text style={styles.unitText}>min</Text>
+            <Text style={styles.unitText}>mins</Text>
           </View>
         </View>
 

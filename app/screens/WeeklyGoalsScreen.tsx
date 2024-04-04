@@ -47,7 +47,7 @@ const WeeklyGoals: React.FC = () => {
     <View style={styles.container}>
       <Image
         source={require('../../assets/wheel_without_header.png')}
-        style={[styles.image, { height: calculatedHeight, marginTop: insets.top }]} // Add marginTop to account for status bar height
+        style={[styles.image, { height: calculatedHeight }]}
         resizeMode="contain"
       />
       {adjustedTouchableAreas.map((area) => (
