@@ -1,24 +1,44 @@
 import React, { useState } from 'react';
-import { Link, router } from "expo-router";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { Amplify } from "aws-amplify";
+import { Auth } from 'aws-amplify';
+import config from '../../src/aws-exports.js';
+Amplify.configure(config);
 
-const SignUpScreen = () => {
-  // const navigation = useNavigation();
+export default function SignUpScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignUp = () => {
-    // Implement sign-up logic here
-    console.log('Name:', name);
-    console.log('Email:', email);
-    console.log('Password:', password);
+  const handleSignUp = async () => {
+    // Implement sign-up logic with AWS Amplify Auth
+    try {
+      const { user } = await Auth.signUp({
+        username: email,
+        password,
+        attributes: {
+          email, // optional
+          // other custom attributes can be added here
+          // 'custom:name': name, // if you have configured it as a custom attribute in Cognito
+        }
+      });
+      console.log('Sign up successful!', user);
+      // Here you can redirect the user to a confirmation screen, if necessary
+      navigation.navigate('ConfirmSignUp', { email });
+    } catch (error) {
+      console.error('Error signing up:', error);
+      Alert.alert('Sign Up Error', error.message || 'An error occurred during sign up');
+    }
+  };
+
+  // The SignUp button onPress handler
+  const onPressLogin = () => {
+    navigation.navigate('Login'); // Use navigate with the name of the screen
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.push("/screens/LoginScreen")} style={styles.loginContainer}>
+      <TouchableOpacity onPress={onPressLogin} style={styles.loginContainer}>
         <Text style={styles.loginText}>Login</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Sign Up</Text>
@@ -94,7 +114,7 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     position: 'absolute',
-    top: 30,
+    top: 60,
     right: 40,
   },
   loginText: {
@@ -115,5 +135,3 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
-
-export default SignUpScreen;

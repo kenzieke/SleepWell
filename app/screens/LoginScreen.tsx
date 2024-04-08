@@ -1,4 +1,3 @@
-import { useRouter } from "expo-router";
 import {
   StyleSheet,
   Text,
@@ -10,8 +9,8 @@ import {
 import React, { useState } from 'react';
 import { Auth } from 'aws-amplify'; // Make sure you've imported Auth from AWS Amplify
 
-export default function LoginScreen() {
-  const router = useRouter();
+export default function LoginScreen({ navigation }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,26 +18,21 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     try {
       await Auth.signIn(email, password);
-      // On successful login, navigate to your protected route, e.g., BottomTabNavigator
-      router.push("/screens/WeeklyLessonsScreen");
+      setIsAuthenticated(true); // If you keep authentication logic here, otherwise move it to App.tsx
+      // No need to navigate, isAuthenticated change will handle it
     } catch (error) {
       setError(error.message);
-      Alert.alert('Login Error', error.message); // Provide user feedback
     }
   };
 
-  const onPressLogin = () => {
-    // Do something about login operation, this doesn't work and the tabs navigation bar doesn't show up if you put it directly in function
-    router.push("/screens/WeeklyLessonsScreen");
+  // The SignUp button onPress handler
+  const onPressSignUp = () => {
+    navigation.navigate('SignUp'); // Use navigate with the name of the screen
   };
 
   const onPressForgotPassword = () => {
     // Do something about forgot password operation
-  };
-
-  const onPressSignUp = () => {
-    router.push("/screens/SignUpScreen");
-  };  
+  }; 
 
   const [state, setState] = useState({
     email: '',
