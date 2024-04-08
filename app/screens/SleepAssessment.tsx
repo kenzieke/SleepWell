@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { ScrollView, View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, Pressable } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 import { Ionicons } from '@expo/vector-icons';
