@@ -1,35 +1,22 @@
-import { useRouter } from "expo-router";
+import { StatusBar } from 'expo-status-bar';
+import { Link, router } from "expo-router";
 import {
+  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
+  useColorScheme,
   View,
   TextInput,
   TouchableOpacity,
-  Alert
+  Pressable,
 } from 'react-native';
 import React, { useState } from 'react';
-import { Auth } from 'aws-amplify'; // Make sure you've imported Auth from AWS Amplify
 
 export default function LoginScreen() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const handleLogin = async () => {
-    try {
-      await Auth.signIn(email, password);
-      // On successful login, navigate to your protected route, e.g., BottomTabNavigator
-      router.push("/screens/WeeklyLessonsScreen");
-    } catch (error) {
-      setError(error.message);
-      Alert.alert('Login Error', error.message); // Provide user feedback
-    }
-  };
-
   const onPressLogin = () => {
     // Do something about login operation, this doesn't work and the tabs navigation bar doesn't show up if you put it directly in function
-    router.push("/screens/WeeklyLessonsScreen");
+    <Pressable onPress={() => router.push("/screens/WeeklyLessonsScreen")}></Pressable>
   };
 
   const onPressForgotPassword = () => {
@@ -37,8 +24,8 @@ export default function LoginScreen() {
   };
 
   const onPressSignUp = () => {
-    router.push("/screens/SignUpScreen");
-  };  
+    // Do something about signup operation
+  };
 
   const [state, setState] = useState({
     email: '',
@@ -53,8 +40,7 @@ export default function LoginScreen() {
           style={styles.inputText}
           placeholder="Email"
           placeholderTextColor="#BDBDBD"
-          value={email}
-          onChangeText={setEmail}
+          // onChangeText={text => setState({ email: text })}
         />
       </View>
       <View style={styles.inputView}>
@@ -63,17 +49,16 @@ export default function LoginScreen() {
           secureTextEntry
           placeholder="Password"
           placeholderTextColor="#BDBDBD"
-          value={password}
-          onChangeText={setPassword}
+          // onChangeText={text => setState({ password: text })}
         />
       </View>
       <TouchableOpacity onPress={onPressForgotPassword}>
         <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={handleLogin} style={styles.loginBtn}>
+      <TouchableOpacity onPress={onPressLogin} style={styles.loginBtn}>
         <Text style={styles.loginText}>Login</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={onPressSignUp} style={styles.signUpContainer}>
+      <TouchableOpacity onPress={() => router.push("/screens/SignUpScreen")} style={styles.signUpContainer}>
         <Text style={styles.signUpText}>Sign Up</Text>
       </TouchableOpacity>
     </View>
@@ -114,7 +99,7 @@ const styles = StyleSheet.create({
   },
   signUpContainer: {
     position: 'absolute',
-    top: 60,
+    top: 30,
     right: 40,
   },
   signUpText: {

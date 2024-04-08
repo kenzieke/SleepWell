@@ -10,14 +10,6 @@
       "StackName": "amplify-restq-dev-1d6c3",
       "StackId": "arn:aws:cloudformation:us-west-1:992382746425:stack/amplify-restq-dev-1d6c3/c0406af0-f21b-11ee-928a-061d36fda535",
       "AmplifyAppId": "dsmqwmpgllcio"
-    },
-    "categories": {
-      "api": {
-        "restq": {}
-      },
-      "auth": {
-        "restq1723ee56": {}
-      }
     }
   }
 }
