@@ -12,6 +12,7 @@ const WeeklyLessonsScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
+      <Text style={styles.header}>Improve My Sleep</Text>
       <Text style={styles.subheader}>Daily Progress</Text>
       <View style={styles.progressContainer}>
         {progressData.map((item, index) => (
@@ -31,6 +32,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 16,
   },
   subheader: {
     fontSize: 18,
