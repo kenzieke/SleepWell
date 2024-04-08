@@ -1,19 +1,23 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import BottomTabNavigator from "./components/BottomTabNavigator";
 import { NavigationContainer } from "@react-navigation/native";
-import React, { useState } from 'react';
+import LoginScreen from './app/screens/LoginScreen';
+import React, { useEffect, useState } from 'react';
+import { generateClient } from 'aws-amplify/api';
 import { Auth } from 'aws-amplify'; // Import Auth from AWS Amplify
-import AppNavigator from './navigation/AppNavigator'; // Import the AuthStack you created
 
 import { Amplify } from 'aws-amplify';
 import amplifyconfig from './src/amplifyconfiguration.json';
 Amplify.configure(amplifyconfig);
 
+const initialState = { name: '', description: '' };
+const client = generateClient();
+
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   async function handleLogin() {
     try {
@@ -32,7 +36,7 @@ export default function App() {
         {isAuthenticated ? (
           <BottomTabNavigator />
         ) : (
-          <AppNavigator />
+          <LoginScreen />
         )}
       </NavigationContainer>
     </SafeAreaProvider>
