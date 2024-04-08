@@ -35,6 +35,7 @@ export default function LoginScreen({ navigation }) {
         <TextInput
           style={styles.inputText}
           placeholder="Email"
+          autoCapitalize="none"
           placeholderTextColor="#BDBDBD"
           // onChangeText={text => setState({ email: text })}
         />
@@ -44,6 +45,7 @@ export default function LoginScreen({ navigation }) {
           style={styles.inputText}
           secureTextEntry
           placeholder="Password"
+          autoCapitalize="none"
           placeholderTextColor="#BDBDBD"
           // onChangeText={text => setState({ password: text })}
         />

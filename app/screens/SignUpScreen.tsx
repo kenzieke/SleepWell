@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function SignUpScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -33,6 +33,7 @@ export default function SignUpScreen({ navigation }) {
         <TextInput
           style={styles.inputView}
           placeholder="Email"
+          autoCapitalize="none"
           placeholderTextColor="#BDBDBD"
           onChangeText={(text) => setEmail(text)}
           value={email}
@@ -40,6 +41,7 @@ export default function SignUpScreen({ navigation }) {
         <TextInput
           style={styles.inputView}
           placeholder="Password"
+          autoCapitalize="none"
           placeholderTextColor="#BDBDBD"
           secureTextEntry={true}
           onChangeText={(text) => setPassword(text)}
