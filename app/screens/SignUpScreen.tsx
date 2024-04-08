@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { Link, router } from "expo-router";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
-const SignUpScreen = () => {
-  // const navigation = useNavigation();
+export default function SignUpScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,9 +13,13 @@ const SignUpScreen = () => {
     console.log('Password:', password);
   };
 
+  const onPressLogin = () => {
+    navigation.navigate('Login'); // Use navigate with the name of the screen
+  };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.push("/screens/LoginScreen")} style={styles.loginContainer}>
+      <TouchableOpacity onPress={onPressLogin} style={styles.loginContainer}>
         <Text style={styles.loginText}>Login</Text>
       </TouchableOpacity>
       <Text style={styles.title}>Sign Up</Text>
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     position: 'absolute',
-    top: 30,
+    top: 60,
     right: 40,
   },
   loginText: {
@@ -115,5 +116,3 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
-
-export default SignUpScreen;

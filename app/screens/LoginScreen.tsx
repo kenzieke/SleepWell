@@ -1,19 +1,15 @@
-import { StatusBar } from 'expo-status-bar';
-import { Link, router } from "expo-router";
+import { useRouter, router } from "expo-router";
 import {
-  SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
   TextInput,
   TouchableOpacity,
   Pressable,
 } from 'react-native';
 import React, { useState } from 'react';
-
-export default function LoginScreen() {
+  
+export default function LoginScreen({ navigation }) {
   const onPressLogin = () => {
     // Do something about login operation, this doesn't work and the tabs navigation bar doesn't show up if you put it directly in function
     <Pressable onPress={() => router.push("/screens/WeeklyLessonsScreen")}></Pressable>
@@ -24,7 +20,7 @@ export default function LoginScreen() {
   };
 
   const onPressSignUp = () => {
-    // Do something about signup operation
+    navigation.navigate('SignUp'); // Use navigate with the name of the screen
   };
 
   const [state, setState] = useState({
@@ -58,7 +54,7 @@ export default function LoginScreen() {
       <TouchableOpacity onPress={onPressLogin} style={styles.loginBtn}>
         <Text style={styles.loginText}>Login</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push("/screens/SignUpScreen")} style={styles.signUpContainer}>
+      <TouchableOpacity onPress={onPressSignUp} style={styles.signUpContainer}>
         <Text style={styles.signUpText}>Sign Up</Text>
       </TouchableOpacity>
     </View>
@@ -99,7 +95,7 @@ const styles = StyleSheet.create({
   },
   signUpContainer: {
     position: 'absolute',
-    top: 30,
+    top: 60,
     right: 40,
   },
   signUpText: {
