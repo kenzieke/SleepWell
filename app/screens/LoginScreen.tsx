@@ -1,32 +1,41 @@
-import { useRouter, router } from "expo-router";
 import {
   StyleSheet,
   Text,
   View,
   TextInput,
   TouchableOpacity,
-  Pressable,
 } from 'react-native';
 import React, { useState } from 'react';
+import { FIREBASE_AUTH } from '../../FirebaseConfig';
+import { signInWithEmailAndPassword } from 'firebase/auth';
   
 export default function LoginScreen({ navigation }) {
-  const onPressLogin = () => {
-    // Do something about login operation, this doesn't work and the tabs navigation bar doesn't show up if you put it directly in function
-    <Pressable onPress={() => router.push("/screens/WeeklyLessonsScreen")}></Pressable>
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
+
+  const onPressLogin = async () => {
+    setLoading(true);
+    try {
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      console.log(response);
+    } catch (error: any) {
+      console.log(error);
+      alert('Login failed: ' + error.message)
+    } finally {
+      setLoading(false);
+    }
+    // navigation.navigate('WeeklyGoals');
   };
 
-  const onPressForgotPassword = () => {
+  const onPressForgotPassword = async () => {
     // Do something about forgot password operation
   };
 
-  const onPressSignUp = () => {
+  const onPressSignUp = async () => {
     navigation.navigate('SignUp'); // Use navigate with the name of the screen
   };
-
-  const [state, setState] = useState({
-    email: '',
-    password: '',
-  })
 
   return (
     <View style={styles.container}>
@@ -37,17 +46,19 @@ export default function LoginScreen({ navigation }) {
           placeholder="Email"
           autoCapitalize="none"
           placeholderTextColor="#BDBDBD"
-          // onChangeText={text => setState({ email: text })}
+          onChangeText={(text) => setEmail(text)}
+          value={email}
         />
       </View>
       <View style={styles.inputView}>
         <TextInput
           style={styles.inputText}
-          secureTextEntry
+          secureTextEntry={true}
           placeholder="Password"
           autoCapitalize="none"
           placeholderTextColor="#BDBDBD"
-          // onChangeText={text => setState({ password: text })}
+          onChangeText={(text) => setPassword(text)}
+          value={password}
         />
       </View>
       <TouchableOpacity onPress={onPressForgotPassword}>

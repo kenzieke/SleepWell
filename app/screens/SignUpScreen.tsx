@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { FIREBASE_AUTH } from '../../FirebaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function SignUpScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
 
-  const handleSignUp = () => {
-    // Implement sign-up logic here
-    console.log('Name:', name);
-    console.log('Email:', email);
-    console.log('Password:', password);
+  const onPressSignUp = async () => {
+    setLoading(true);
+    try {
+      const response = await createUserWithEmailAndPassword(auth, email, password);
+      console.log(response);
+      alert('Check your emails!');
+    } catch (error: any) {
+      console.log(error);
+      alert('Sign in failed: ' + error.message)
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onPressLogin = () => {
@@ -47,7 +58,7 @@ export default function SignUpScreen({ navigation }) {
           onChangeText={(text) => setPassword(text)}
           value={password}
         />
-      <TouchableOpacity style={styles.signUpBtn} onPress={handleSignUp}>
+      <TouchableOpacity style={styles.signUpBtn} onPress={onPressSignUp}>
         <Text style={styles.signUpText}>Sign Up</Text>
       </TouchableOpacity>
     </View>

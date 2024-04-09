@@ -6300,7 +6300,7 @@ react-native-svg@^15.1.0:
 
 react-native-switch-selector@^2.3.0:
   version "2.3.0"
-  resolved "https://registry.npmjs.org/react-native-switch-selector/-/react-native-switch-selector-2.3.0.tgz"
+  resolved "https://registry.yarnpkg.com/react-native-switch-selector/-/react-native-switch-selector-2.3.0.tgz#1f87758cf973da947cae8c8a8062fa7a8f701992"
   integrity sha512-BnhbC7vRu5HIanANszNS5rbrXqYwDggJGg/Xik2NXDA1FSzId/WrxU5hicmmZzTrQSh9N5TS76YsnG1swNzBpA==
   dependencies:
     prop-types "^15.7.2"
