@@ -4,12 +4,11 @@ import { ScrollView, View, Text, TextInput, StyleSheet, Switch, TouchableOpacity
 import SwitchSelector from 'react-native-switch-selector';
 import { Ionicons } from '@expo/vector-icons';
 
-type Severity = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' | '';
-type Satisfaction = 'Very Satisfied' | 'Satisfied' | 'Somewhat' | 'Dissatisfied' | 'Very Dissatisfied' | '';
-type Noticeable = 'Not Noticeable' | 'Rarely' | 'Somewhat' | 'Noticeable' | 'Very Noticeable' | '';
-type Worried = 'Never' | 'Rarely' | 'Somewhat' | 'Often' | 'Always' | '';
-type Stress = 'None' | 'Low' | 'Moderate' | 'High' | 'Very High' | '';
-type CatchAll = 'Never' | 'Rarely' | 'Sometimes' | 'Often' | 'Always' | '';
+type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
+                  'Very Satisfied' | 'Satisfied' | 'Somewhat' | 'Dissatisfied' | 'Very Dissatisfied' |
+                  'Not Noticeable' | 'Rarely' | 'Noticeable' | 'Very Noticeable' |
+                  'Never' | 'Often' | 'Always' |
+                  'Low' | 'High' | 'Very High' | 'null';
 
 const OptionButton: React.FC<{
     label: string;
@@ -39,19 +38,20 @@ const OptionButton: React.FC<{
 const SleepAssessmentScreen: React.FC = () => {
   const [isDeployed, setIsDeployed] = useState(false);
   const [isOnDuty, setIsOnDuty] = useState(false);
-  const [difficultyFallingAsleep, setDifficultyFallingAsleep] = useState<Severity>('');
-  const [difficultyStayingAsleep, setDifficultyStayingAsleep] = useState<Severity>('');
-  const [problemsWakingUpEarly, setProblemsWakingUpEarly] = useState<Severity>('');
-  const [sleepSatisfaction, setSleepSatisfaction] = useState<Satisfaction>('');
-  const [noticeableSleep, setNoticeableSleep] = useState<Noticeable>('')
-  const [worriedAboutSleep, setWorriedAboutSleep] = useState<Worried>('');
-  const [interferingWithSleep, setInterferingWithSleep] = useState<CatchAll>('');
-  const [snoreLoudly, setSnoreLoudly] = useState<CatchAll>('');
-  const [feelTired, setFeelTired] = useState<CatchAll>('');
-  const [stopBreathing, setStopBreathing] = useState<CatchAll>('');
+  const [difficultyFallingAsleep, setDifficultyFallingAsleep] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [difficultyStayingAsleep, setDifficultyStayingAsleep] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [problemsWakingUpEarly, setProblemsWakingUpEarly] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [sleepSatisfaction, setSleepSatisfaction] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [noticeableSleep, setNoticeableSleep] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [worriedAboutSleep, setWorriedAboutSleep] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [interferingWithSleep, setInterferingWithSleep] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [snoreLoudly, setSnoreLoudly] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [feelTired, setFeelTired] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [stopBreathing, setStopBreathing] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+  const [stressLevel, setStressLevel] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
+
   const [caffeinatedBeverages, setCaffeinatedBeverages] = useState<string>('');
   const [sugaryBeverages, setSugaryBeverages] = useState<string>('');
-  const [stressLevel, setStressLevel] = useState<Stress>('');
   const [timesWakeUp, setTimesWakeUp] = useState<string>('');
   const [hours, setHours] = useState<string>('0');
   const [minutes, setMinutes] = useState<string>('0');
@@ -61,52 +61,55 @@ const SleepAssessmentScreen: React.FC = () => {
   const [weightUnit, setWeightUnit] = useState<string>('kgs');
 
   // Define a mapping
-  const severityMapping = {
+  const severityMapping: { [key in OptionType]: number } = {
     'None': 1,
     'Mild': 2,
     'Moderate': 3,
     'Severe': 4,
     'Very Severe': 5,
-    
     'Very Satisfied': 1, // Very satisfied assumes minimal problems with sleep
     'Satisfied': 2,
     'Somewhat': 3,
     'Dissatisfied': 4,
     'Very Dissatisfied': 5,
-
     'Not Noticeable': 1,
     'Rarely': 2,
     'Noticeable': 4,
-    'Very Noticeable:': 5,
-
+    'Very Noticeable': 5,
     'Never': 1,
     'Often': 4,
     'Always': 5,
-
     'Low': 2,
     'High': 4,
-    'Very High': 5
+    'Very High': 5,
+    'null': -1,
   };
 
-  // Generic function to render option buttons for a question
-  const renderOptions = <T extends string>(
+  // This function will now expect an object with text and value
+  const renderOptions = (
     question: string,
-    value: T,
-    setValue: React.Dispatch<React.SetStateAction<T>>,
-    options: T[]
+    selectedOption: { text: OptionType, value: number },
+    setSelectedOption: React.Dispatch<React.SetStateAction<{ text: OptionType, value: number }>>,
+    options: string[]
   ) => {
+    // When an option is selected, find its corresponding numeric value and update state
+    const handlePress = (option: OptionType) => {
+      const numericValue = severityMapping[option];
+      setSelectedOption({ text: option, value: numericValue });
+    };
+
     return (
       <View style={styles.questionContainer}>
         <Text style={styles.questionText}>{question}</Text>
         <View style={styles.optionsRow}>
           {options.map((option) => (
             <OptionButton
-                key={option}
-                label={option}
-                onPress={() => setValue(option)}
-                isSelected={value === option && value !== ''}
+              key={option}
+              label={option}
+              onPress={() => handlePress(option)}
+              isSelected={selectedOption.text === option}
             />
-            ))}
+          ))}
         </View>
       </View>
     );
@@ -119,7 +122,7 @@ const SleepAssessmentScreen: React.FC = () => {
         <Pressable onPress={() => router.push("/screens/LoginScreen")} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#52796F" />
         </Pressable>
-        <Text style={styles.title}>Sleep Assessment</Text>
+        {/* <Text style={styles.title}>Sleep Assessment</Text> */}
         
         <View style={styles.switchContainer}>
           <Text style={styles.questionText}>Are you currently deployed?</Text>
