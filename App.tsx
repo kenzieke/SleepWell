@@ -29,10 +29,6 @@ function App() {
   }, [])
 
   return (
-    // <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-    //   <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-    //   <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-    // </Stack.Navigator>
     <NavigationContainer>
       <Stack.Navigator initialRouteName="SignUp" screenOptions={{ headerShown: false }}>
         {user ? (
@@ -46,28 +42,3 @@ function App() {
 }
 
 export default App; 
-
-// import React from 'react';
-// import { SafeAreaProvider } from 'react-native-safe-area-context';
-// import AppNavigator from './navigation/AppNavigator';
-// import { NavigationContainer } from "@react-navigation/native";
-
-// export default function App() {
-//   // return (
-//   //   <SafeAreaProvider>
-//   //     <NavigationContainer>
-//   //       <BottomTabNavigator/>
-//   //     </NavigationContainer>
-//   //   </SafeAreaProvider>
-//   // );
-//   return (
-//     <SafeAreaProvider>
-//       <NavigationContainer>
-//         {/* <BottomTabNavigator />
-//         ) : (
-//           <LoginScreen /> */}
-//         <AppNavigator />
-//       </NavigationContainer>
-//     </SafeAreaProvider>
-//   );
-// }

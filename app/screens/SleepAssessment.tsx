@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 type Severity = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' | '';
 type Satisfaction = 'Very Satisfied' | 'Satisfied' | 'Somewhat' | 'Dissatisfied' | 'Very Dissatisfied' | '';
 type Noticeable = 'Not Noticeable' | 'Rarely' | 'Somewhat' | 'Noticeable' | 'Very Noticeable' | '';
-type Worried = 'Not Worried' | 'Rarely' | 'Somewhat' | 'Often' | 'Always Worried' | '';
+type Worried = 'Never' | 'Rarely' | 'Somewhat' | 'Often' | 'Always' | '';
 type Stress = 'None' | 'Low' | 'Moderate' | 'High' | 'Very High' | '';
 type CatchAll = 'Never' | 'Rarely' | 'Sometimes' | 'Often' | 'Always' | '';
 
@@ -59,6 +59,34 @@ const SleepAssessmentScreen: React.FC = () => {
   const [heightUnit, setHeightUnit] = useState<string>('cm');
   const [weight, setWeight] = useState<string>('');
   const [weightUnit, setWeightUnit] = useState<string>('kgs');
+
+  // Define a mapping
+  const severityMapping = {
+    'None': 1,
+    'Mild': 2,
+    'Moderate': 3,
+    'Severe': 4,
+    'Very Severe': 5,
+    
+    'Very Satisfied': 1, // Very satisfied assumes minimal problems with sleep
+    'Satisfied': 2,
+    'Somewhat': 3,
+    'Dissatisfied': 4,
+    'Very Dissatisfied': 5,
+
+    'Not Noticeable': 1,
+    'Rarely': 2,
+    'Noticeable': 4,
+    'Very Noticeable:': 5,
+
+    'Never': 1,
+    'Often': 4,
+    'Always': 5,
+
+    'Low': 2,
+    'High': 4,
+    'Very High': 5
+  };
 
   // Generic function to render option buttons for a question
   const renderOptions = <T extends string>(
@@ -138,7 +166,7 @@ const SleepAssessmentScreen: React.FC = () => {
         {renderOptions('Problems waking up too early:', problemsWakingUpEarly, setProblemsWakingUpEarly, ['None', 'Mild', 'Moderate', 'Severe', 'Very Severe'])}
         {renderOptions('How satisfied are you with your current sleep pattern?', sleepSatisfaction, setSleepSatisfaction, ['Very Satisfied', 'Satisfied', 'Somewhat', 'Dissatisfied', 'Very Dissatisfied'])}
         {renderOptions('How noticeable to others do you think your sleep problem is in terms of impairing the quality of your life?', noticeableSleep, setNoticeableSleep, ['Not Noticeable', 'Rarely', 'Somewhat', 'Noticeable', 'Very Noticeable'])}
-        {renderOptions('How worried are you about your current sleep problem?', worriedAboutSleep, setWorriedAboutSleep, ['Not Worried', 'Rarely', 'Somewhat', 'Often', 'Always Worried'])}
+        {renderOptions('How worried are you about your current sleep problem?', worriedAboutSleep, setWorriedAboutSleep, ['Never', 'Rarely', 'Somewhat', 'Often', 'Always'])}
         {renderOptions('To what extent do you consider your sleep problem to interfere with your daily functioning currently?', interferingWithSleep, setInterferingWithSleep, ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'])}
         {renderOptions('Do you snore loudly?', snoreLoudly, setSnoreLoudly, ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'])}
         {renderOptions('Do you often feel tired, fatigued, or sleepy during the day?', feelTired, setFeelTired, ['Never', 'Rarely', 'Sometimes', 'Often', 'Always'])}
