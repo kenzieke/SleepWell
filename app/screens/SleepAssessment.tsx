@@ -119,9 +119,9 @@ const SleepAssessmentScreen: React.FC = () => {
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         {/* This works for the routing I just can't go back to the index screen for some reason */}
-        <Pressable onPress={() => router.push("/screens/LoginScreen")} style={styles.backButton}>
+        {/* <Pressable onPress={() => router.push("/screens/LoginScreen")} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#52796F" />
-        </Pressable>
+        </Pressable> */}
         {/* <Text style={styles.title}>Sleep Assessment</Text> */}
         
         <View style={styles.switchContainer}>
