@@ -51,8 +51,16 @@ const SleepAssessmentScreen: React.FC = () => {
   const [caffeinatedBeverages, setCaffeinatedBeverages] = useState<string>('');
   const [sugaryBeverages, setSugaryBeverages] = useState<string>('');
   const [timesWakeUp, setTimesWakeUp] = useState<string>('');
+  const [sleepHours, setSleepHours] = useState<string>('0');
+  const [sleepMinutes, setSleepMinutes] = useState<string>('0');
+  const [fallAsleepHours, setFallAsleepHours] = useState<string>('0');
+  const [fallAsleepMinutes, setFallAsleepMinutes] = useState<string>('0');
+  const [timeAwakeHours, setTimeAwakeHours] = useState<string>('0');
+  const [timeAwakeMinutes, setTimeAwakeMinutes] = useState<string>('0');
   const [hours, setHours] = useState<string>('0');
   const [minutes, setMinutes] = useState<string>('0');
+  const [fastFood, setFastFood] = useState<string>('');
+  const [servings, setServings] = useState<string>('');
   const [height, setHeight] = useState<string>('');
   const [heightUnit, setHeightUnit] = useState<string>('cm');
   const [weight, setWeight] = useState<string>('');
@@ -86,6 +94,16 @@ const SleepAssessmentScreen: React.FC = () => {
   const getMappedValue = (option: OptionType): number => {
     return severityMapping[option] || -1; // Return -1 as default if the option is not found
   };
+
+  const hoursToMinutes = (hoursString: string): number => {
+    const hours = parseInt(hoursString, 10); // Convert string to integer base 10
+    if (!isNaN(hours)) {
+      return hours * 60; // Convert hours to minutes
+    } else {
+      console.log('Invalid input for hours:', hoursString);
+      return 0; // Return 0 or some error value if the input is not a number
+    }
+  };  
 
   // This will return a numerical score, which will need to be mapped to the result image
   // TODO: replace console returns with a mapping to an image displayed on the results screen
@@ -125,7 +143,47 @@ const SleepAssessmentScreen: React.FC = () => {
     } else if (total >= 22) {
       console.log('Clinical insomnia (severe), score:', total);
     }
-  };  
+  };
+
+  const getSleepApneaRisk = () => {
+    console.log('Function getSleepApneaRisk started'); // For debugging
+
+    const scores = {
+      snoreLoudlyScore: getMappedValue(snoreLoudly.text),
+      feelTiredScore: getMappedValue(feelTired.text),
+      stopBreathingScore: getMappedValue(stopBreathing.text),
+    };
+
+    // if stopBreathingScore != 1 regardless of all answers, then high risk
+    // if (snoreLoudlyScore >= 3 and feelTiredScore >= 3) OR ((snoreLoudlyScore >= 3 or feelTiredScore >= 3) and bmiScore >= 25), then at risk
+    // else low risk
+  };
+
+  const getSleepEfficiency = () => {
+    console.log('Function getSleepEfficiency started'); // For debugging
+    // Your Sleep Efficiency is: XX [Total Sleep time/[fall asleep time + total sleep time + (staying asleep minutes)] x 100
+    const totalTimes = {
+      totalSleepMinutes: hoursToMinutes(sleepHours) + parseInt(sleepMinutes, 10),
+      totalFallAsleepMinutes: hoursToMinutes(fallAsleepHours) + parseInt(fallAsleepMinutes, 10),
+      totalTimeAwakeMinutes: hoursToMinutes(timeAwakeHours) + parseInt(timeAwakeMinutes, 10),
+      numberOfTimesAwake: parseInt(timesWakeUp, 10),
+    };
+
+    // TODO: Check this math, it should be a percentage so it shouldn't be larger than 100
+
+    const sleepEfficiency = (totalTimes.totalSleepMinutes / (totalTimes.totalFallAsleepMinutes + totalTimes.totalSleepMinutes - (totalTimes.totalTimeAwakeMinutes * totalTimes.numberOfTimesAwake))) * 100;
+    if (!isNaN(sleepEfficiency)) {
+      console.log('Your sleep efficiency is:', sleepEfficiency.toFixed(2));
+    } else {
+      console.log('One of the inputs is not a valid number.');
+    }
+  }
+
+  const calculateResults = () => {
+    getInsomniaSeverityIndex(),
+    getSleepApneaRisk(),
+    getSleepEfficiency()
+  };
 
   // This function will now expect an object with text and value
   const renderOptions = (
@@ -219,16 +277,38 @@ const SleepAssessmentScreen: React.FC = () => {
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setHours}
-            value={hours}
+            onChangeText={setSleepHours}
+            value={sleepHours}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 99 hours
           />
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setMinutes}
-            value={minutes}
+            onChangeText={setSleepMinutes}
+            value={sleepMinutes}
+            keyboardType="numeric"
+            maxLength={2} // Assuming we want to limit to 59 minutes
+          />
+          <Text style={styles.unitText}>min</Text>
+        </View>
+
+        <Text style={styles.questionText}>
+          How long does it take you to fall asleep in a typical night?
+        </Text>
+        <View style={styles.timeContainer}>
+          <TextInput
+            style={styles.timeInput}
+            onChangeText={setFallAsleepHours}
+            value={fallAsleepHours}
+            keyboardType="numeric"
+            maxLength={2} // Assuming we want to limit to 99 hours
+          />
+          <Text style={styles.unitText}>hours</Text>
+          <TextInput
+            style={styles.timeInput}
+            onChangeText={setFallAsleepMinutes}
+            value={fallAsleepMinutes}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 59 minutes
           />
@@ -247,6 +327,28 @@ const SleepAssessmentScreen: React.FC = () => {
         />
 
         <Text style={styles.questionText}>
+          Due to the wake-up(s), how long are you awake during a typical night. This is time away from all the wake-ups combined.
+        </Text>
+        <View style={styles.timeContainer}>
+          <TextInput
+            style={styles.timeInput}
+            onChangeText={setTimeAwakeHours}
+            value={timeAwakeHours}
+            keyboardType="numeric"
+            maxLength={2} // Assuming we want to limit to 99 hours
+          />
+          <Text style={styles.unitText}>hours</Text>
+          <TextInput
+            style={styles.timeInput}
+            onChangeText={setTimeAwakeMinutes}
+            value={timeAwakeMinutes}
+            keyboardType="numeric"
+            maxLength={2} // Assuming we want to limit to 59 minutes
+          />
+          <Text style={styles.unitText}>min</Text>
+        </View>
+
+        <Text style={styles.questionText}>
           How many caffeinated beverages do you consume in a typical day?
         </Text>
         <TextInput
@@ -258,6 +360,29 @@ const SleepAssessmentScreen: React.FC = () => {
         />
 
         <Text style={styles.questionText}>
+          How many times do you eat food from a fast-food restaurant in a typical week?
+        </Text>
+        <TextInput
+          style={styles.healthInput}
+          onChangeText={setFastFood}
+          value={fastFood}
+          keyboardType="numeric"
+          placeholder="# times in a week"
+        />
+
+        <Text style={styles.questionText}>
+          How many servings of fruits and vegetables do you typically have per day?
+        </Text>
+        <TextInput
+          style={styles.healthInput}
+          onChangeText={setServings}
+          value={servings}
+          keyboardType="numeric"
+          placeholder="# of servings per day"
+          maxLength={2} // Assuming we want to limit to 9 servings, 5 is recommended
+        />
+
+        <Text style={styles.questionText}>
           How many sugary beverages like soda, juices, or Kool-Aid do you consume in a typical day?
         </Text>
         <TextInput
@@ -266,6 +391,7 @@ const SleepAssessmentScreen: React.FC = () => {
           value={sugaryBeverages}
           keyboardType="numeric"
           placeholder="# of beverages"
+          maxLength={2}
         />
 
         <Text style={styles.questionText}>
@@ -348,7 +474,7 @@ const SleepAssessmentScreen: React.FC = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={getInsomniaSeverityIndex}>
+      <TouchableOpacity style={styles.button} onPress={calculateResults}>
         <Text style={styles.buttonText}>Finish</Text>
       </TouchableOpacity>
       </View>
