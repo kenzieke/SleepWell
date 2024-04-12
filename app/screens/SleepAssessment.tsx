@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { router } from "expo-router";
 import { ScrollView, View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, Pressable } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
-import { Ionicons } from '@expo/vector-icons';
 
 type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
                   'Very Satisfied' | 'Satisfied' | 'Somewhat' | 'Dissatisfied' | 'Very Dissatisfied' |
@@ -85,6 +83,50 @@ const SleepAssessmentScreen: React.FC = () => {
     'null': -1,
   };
 
+  const getMappedValue = (option: OptionType): number => {
+    return severityMapping[option] || -1; // Return -1 as default if the option is not found
+  };
+
+  // This will return a numerical score, which will need to be mapped to the result image
+  // TODO: replace console returns with a mapping to an image displayed on the results screen
+  // TODO: implement error checking to ensure function calls attention to user if they skip a question, otherwise results won't be accurate
+  const getInsomniaSeverityIndex = () => {
+    console.log('Function getInsomniaSeverityIndex started'); // For debugging
+  
+    const scores = {
+      difficultyStayingAsleepScore: getMappedValue(difficultyStayingAsleep.text),
+      difficultyFallingAsleepScore: getMappedValue(difficultyFallingAsleep.text),
+      problemsWakingUpEarlyScore: getMappedValue(problemsWakingUpEarly.text),
+      sleepSatisfactionScore: getMappedValue(sleepSatisfaction.text),
+      interferingWithSleepScore: getMappedValue(interferingWithSleep.text),
+      noticeableSleepScore: getMappedValue(noticeableSleep.text),
+      worriedAboutSleepScore: getMappedValue(worriedAboutSleep.text),
+    };
+    
+    let total = 0;
+  
+    // Go through each score, add to total if not -1, otherwise log it was skipped
+    Object.entries(scores).forEach(([question, score]) => {
+      if (score !== -1) {
+        total += score;
+      } else {
+        console.log(`${question} was skipped.`);
+      }
+    });
+  
+    console.log('Total ISI Score:', total);
+  
+    if (total >= 0 && total <= 7) {
+      console.log('No clinically significant insomnia, score:', total);
+    } else if (total >= 8 && total <= 14) {
+      console.log('Subthreshold insomnia, score:', total);
+    } else if (total >= 15 && total <= 21) {
+      console.log('Clinical insomnia (moderate severity), score:', total);
+    } else if (total >= 22) {
+      console.log('Clinical insomnia (severe), score:', total);
+    }
+  };  
+
   // This function will now expect an object with text and value
   const renderOptions = (
     question: string,
@@ -118,11 +160,6 @@ const SleepAssessmentScreen: React.FC = () => {
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
-        {/* This works for the routing I just can't go back to the index screen for some reason */}
-        {/* <Pressable onPress={() => router.push("/screens/LoginScreen")} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#52796F" />
-        </Pressable> */}
-        {/* <Text style={styles.title}>Sleep Assessment</Text> */}
         
         <View style={styles.switchContainer}>
           <Text style={styles.questionText}>Are you currently deployed?</Text>
@@ -311,7 +348,7 @@ const SleepAssessmentScreen: React.FC = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={getInsomniaSeverityIndex}>
         <Text style={styles.buttonText}>Finish</Text>
       </TouchableOpacity>
       </View>

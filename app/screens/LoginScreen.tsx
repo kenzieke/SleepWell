@@ -15,20 +15,6 @@ export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
 
-  // const onPressLogin = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await signInWithEmailAndPassword(auth, email, password);
-  //     console.log(response);
-  //   } catch (error: any) {
-  //     console.log(error);
-  //     alert('Login failed: ' + error.message)
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  //   // navigation.navigate('WeeklyGoals');
-  // };
-
   const onPressLogin = async () => {
     setLoading(true);
     try {
