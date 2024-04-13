@@ -145,6 +145,37 @@ const SleepAssessmentScreen: React.FC = () => {
     }
   };
 
+  const calculateBMI = () => {
+    let weightInKg;
+    let heightInMeters;
+  
+    // Parse the weight, which is expected to be in string format
+    const parsedWeight = parseFloat(weight);
+    if (isNaN(parsedWeight)) {
+      console.log('Invalid weight input:', weight);
+      return;
+    }
+  
+    // Convert the weight to kilograms if it's in pounds
+    weightInKg = weightUnit === 'lbs' ? parsedWeight * 0.45359237 : parsedWeight;
+  
+    // Parse the height, which is expected to be in string format
+    const parsedHeight = parseFloat(height);
+    if (isNaN(parsedHeight)) {
+      console.log('Invalid height input:', height);
+      return;
+    }
+  
+    // Convert the height to meters if it's in inches
+    heightInMeters = heightUnit === 'in' ? parsedHeight * 0.0254 : parsedHeight / 100;
+  
+    // BMI = weight in kg / (height in meters)^2
+    const bmi = weightInKg / Math.pow(heightInMeters, 2);
+    console.log('Your BMI is:', bmi);
+  
+    return bmi;
+  };  
+
   const getSleepApneaRisk = () => {
     console.log('Function getSleepApneaRisk started'); // For debugging
 
@@ -152,19 +183,28 @@ const SleepAssessmentScreen: React.FC = () => {
       snoreLoudlyScore: getMappedValue(snoreLoudly.text),
       feelTiredScore: getMappedValue(feelTired.text),
       stopBreathingScore: getMappedValue(stopBreathing.text),
+      bmi: calculateBMI(),
     };
 
-    // if stopBreathingScore != 1 regardless of all answers, then high risk
-    // if (snoreLoudlyScore >= 3 and feelTiredScore >= 3) OR ((snoreLoudlyScore >= 3 or feelTiredScore >= 3) and bmiScore >= 25), then at risk
-    // else low risk
+    // if stopBreathingScore != 1 regardless of all answers, then high risk -> console.log('You're at a high risk')
+    // if (snoreLoudlyScore >= 3 and feelTiredScore >= 3) OR ((snoreLoudlyScore >= 3 or feelTiredScore >= 3) and bmiScore >= 25), then at risk -> console.log('You're at risk')
+    // else low risk -> console.log('You're at a low risk')
+
+    if (scores.stopBreathingScore !== 1) {
+      console.log("You're at a high risk of sleep apnea.");
+    } else if ((scores.snoreLoudlyScore >= 3 && scores.feelTiredScore >= 3) || ((scores.snoreLoudlyScore >= 3 || scores.feelTiredScore >= 3) && scores.bmi >= 25)) { // potentially undefined if incorrect user input
+      console.log("You're at risk of sleep apnea.");
+    } else {
+      console.log("You're at a low risk of sleep apnea.");
+    }
   };
 
   const getSleepEfficiency = () => {
     console.log('Function getSleepEfficiency started'); // For debugging
-    // Your Sleep Efficiency is: XX [Total Sleep time/[fall asleep time + total sleep time + (staying asleep minutes)] x 100
+    // Your Sleep Efficiency is: XX [Total Sleep time/[sleep latency + total sleep time + (staying asleep minutes)] x 100
     const totalTimes = {
       totalSleepMinutes: hoursToMinutes(sleepHours) + parseInt(sleepMinutes, 10),
-      totalFallAsleepMinutes: hoursToMinutes(fallAsleepHours) + parseInt(fallAsleepMinutes, 10),
+      totalFallAsleepMinutes: hoursToMinutes(fallAsleepHours) + parseInt(fallAsleepMinutes, 10), // sleep latency
       totalTimeAwakeMinutes: hoursToMinutes(timeAwakeHours) + parseInt(timeAwakeMinutes, 10),
       numberOfTimesAwake: parseInt(timesWakeUp, 10),
     };
@@ -177,12 +217,13 @@ const SleepAssessmentScreen: React.FC = () => {
     } else {
       console.log('One of the inputs is not a valid number.');
     }
-  }
+  };
 
   const calculateResults = () => {
     getInsomniaSeverityIndex(),
     getSleepApneaRisk(),
-    getSleepEfficiency()
+    getSleepEfficiency(),
+    calculateBMI()
   };
 
   // This function will now expect an object with text and value
@@ -416,20 +457,20 @@ const SleepAssessmentScreen: React.FC = () => {
           <Text style={styles.unitText}>min</Text>
         </View>
 
-        <View style={styles.questionContainer}>
-        <Text style={styles.questionText}>What is your height?</Text>
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.healthInput}
-            onChangeText={setHeight}
-            value={height}
-            maxLength={3}
-            keyboardType="numeric"
-            placeholder="Enter here"
-          />
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>What is your height?</Text>
+          <View style={styles.inputRow}>
+            <TextInput
+              style={styles.healthInput}
+              onChangeText={setHeight}
+              value={height}
+              maxLength={3}
+              keyboardType="numeric"
+              placeholder="Enter here"
+            />
           <SwitchSelector
             initial={0}
-            onPress={value => setHeightUnit(value)}
+            onPress={value => setHeightUnit(value === 'cm' ? 'cm' : 'in')}
             textColor={'#BDBDBD'} // your active text color
             selectedColor={'#52796F'} // the color for the label text when it is selected
             buttonColor={'#BDBDBD'} // the color for the button when it is selected
@@ -441,9 +482,9 @@ const SleepAssessmentScreen: React.FC = () => {
             ]}
             style={styles.switchSelector}
             buttonStyle={styles.switchButton}
-          />
+            />
+          </View>
         </View>
-      </View>
 
       <View style={styles.questionContainer}>
         <Text style={styles.questionText}>What is your weight?</Text>
@@ -458,7 +499,7 @@ const SleepAssessmentScreen: React.FC = () => {
           />
           <SwitchSelector
             initial={0}
-            onPress={value => setWeightUnit(value)}
+            onPress={value => setWeightUnit(value === 'kgs' ? 'kgs' : 'lbs')}
             textColor={'#BDBDBD'} // your active text color
             selectedColor={'#52796F'} // the color for the label text when it is selected
             buttonColor={'#BDBDBD'} // the color for the button when it is selected
@@ -489,8 +530,9 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 24,
-    paddingBottom: 50, // Add padding to the bottom to ensure the 'Next' button is not cut off
-  },
+    paddingBottom: 50,
+    width: '100%', // Ensure this view takes full width
+  },  
   title: {
     // I would like this to be in line with the back arrow
     fontSize: 28,
@@ -508,6 +550,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
     paddingHorizontal: 8,
+    width: '100%', 
   },
   switchSelector: {
     width: 80, // Adjust the width as needed
@@ -521,6 +564,7 @@ const styles = StyleSheet.create({
   },
   inputRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   optionButton: {
