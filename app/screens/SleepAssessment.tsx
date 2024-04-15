@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, Pressable } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 
 type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
@@ -33,7 +33,7 @@ const OptionButton: React.FC<{
     </TouchableOpacity>
   );
 
-const SleepAssessmentScreen: React.FC = () => {
+const SleepAssessmentScreen: React.FC = ({ navigation }) => {
   const [isDeployed, setIsDeployed] = useState(false);
   const [isOnDuty, setIsOnDuty] = useState(false);
   const [difficultyFallingAsleep, setDifficultyFallingAsleep] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
@@ -255,7 +255,8 @@ const SleepAssessmentScreen: React.FC = () => {
     calculateBMI(),
     getDiet(),
     getPhysicalActivity(),
-    getStress()
+    getStress(),
+    navigation.navigate('ResultsScreen'); // Use navigate with the name of the screen
   };
 
   // This function will now expect an object with text and value
