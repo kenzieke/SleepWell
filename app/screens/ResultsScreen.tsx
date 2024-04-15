@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
 const scaleImage = require('../../assets/scale.png');
 
@@ -21,32 +21,45 @@ const ResultsScreen = ({ navigation }) => {
     console.log(`Navigating to details of ${category}`);
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.instructionText}>
-        Click on any of the following categories to see more about your results.
-      </Text>
+  const onFinishPressed = () => {
+    navigation.navigate('WeeklyLessons');
+  }
 
-      {/* Loop through the categories array */}
-      {categories.map((category) => (
-        <TouchableOpacity
-          key={category.name}
-          style={styles.categoryContainer}
-          onPress={() => handleCategoryPress(category.name)}
-        >
-          <Text style={styles.categoryText}>{category.name}</Text>
-          <Image
-            source={category.image}
-            style={styles.scaleImage}
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      ))}
-    </View>
+  return (
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        <Text style={styles.instructionText}>
+          Click on any of the following categories to see more about your results.
+        </Text>
+
+        {/* Loop through the categories array */}
+        {categories.map((category) => (
+          <TouchableOpacity
+            key={category.name}
+            style={styles.categoryContainer}
+            onPress={() => handleCategoryPress(category.name)}
+          >
+            <Text style={styles.categoryText}>{category.name}</Text>
+            <Image
+              source={category.image}
+              style={styles.scaleImage}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+      {/* <TouchableOpacity style={styles.button} onPress={onFinishPressed}>
+        <Text style={styles.buttonText}>Finish</Text>
+      </TouchableOpacity> */}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -75,6 +88,19 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 40,
     marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#52796F',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    marginTop: 24,
+  },
+  buttonText: {
+    fontWeight: 'bold',
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 
