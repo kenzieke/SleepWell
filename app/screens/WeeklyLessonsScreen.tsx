@@ -3,6 +3,7 @@ import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import ProgressCircle from '../../components/ProgressCircle';
 
 const WeeklyLessonsScreen: React.FC = () => {
+  // Example data, replace with your actual state or props
   const progressData = [
     { label: 'Sleep Duration', value: 72.4 },
     { label: 'Sleep Quality', value: 50.0 },
@@ -22,6 +23,7 @@ const WeeklyLessonsScreen: React.FC = () => {
           />
         ))}
       </View>
+      {/* Other UI elements */}
     </ScrollView>
   );
 };
@@ -47,6 +49,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: 16,
   },
+  // ... other styles
 });
 
 export default WeeklyLessonsScreen;
