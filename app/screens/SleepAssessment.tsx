@@ -148,31 +148,21 @@ const SleepAssessmentScreen: React.FC = () => {
   const calculateBMI = () => {
     let weightInKg;
     let heightInMeters;
-  
-    // Parse the weight, which is expected to be in string format
     const parsedWeight = parseFloat(weight);
     if (isNaN(parsedWeight)) {
       console.log('Invalid weight input:', weight);
       return;
     }
-  
-    // Convert the weight to kilograms if it's in pounds
     weightInKg = weightUnit === 'lbs' ? parsedWeight * 0.45359237 : parsedWeight;
-  
-    // Parse the height, which is expected to be in string format
     const parsedHeight = parseFloat(height);
     if (isNaN(parsedHeight)) {
       console.log('Invalid height input:', height);
       return;
     }
-  
-    // Convert the height to meters if it's in inches
     heightInMeters = heightUnit === 'in' ? parsedHeight * 0.0254 : parsedHeight / 100;
-  
     // BMI = weight in kg / (height in meters)^2
     const bmi = weightInKg / Math.pow(heightInMeters, 2);
     console.log('Your BMI is:', bmi);
-  
     return bmi;
   };  
 
@@ -210,7 +200,6 @@ const SleepAssessmentScreen: React.FC = () => {
     };
 
     // TODO: Check this math, it should be a percentage so it shouldn't be larger than 100
-
     const sleepEfficiency = (totalTimes.totalSleepMinutes / (totalTimes.totalFallAsleepMinutes + totalTimes.totalSleepMinutes - (totalTimes.totalTimeAwakeMinutes * totalTimes.numberOfTimesAwake))) * 100;
     if (!isNaN(sleepEfficiency)) {
       console.log('Your sleep efficiency is:', sleepEfficiency.toFixed(2));
@@ -219,11 +208,54 @@ const SleepAssessmentScreen: React.FC = () => {
     }
   };
 
+  // Healthy Eating  [> 4 drinks (caffeine and/OR sugary) is red;0 –1 (caffein and/or sugary) is green, 1-2 is yellow.  
+  const getDiet = () => {
+    console.log('Function getDiet started'); // For debugging
+    const parsedSugaryBeverages = parseFloat(sugaryBeverages);
+    const parsedCaffeinatedBeverages = parseFloat(caffeinatedBeverages);
+    const totalDrinks = parsedSugaryBeverages + parsedCaffeinatedBeverages;
+    if (totalDrinks > 4) {
+      console.log('Red.');
+    } else if (totalDrinks >= 2 && totalDrinks <= 3) {
+      console.log('Yellow.');
+    } else {
+      console.log('Green.');
+    }
+  }
+
+  // Physical Activity (0-50 is red; 50-100 is yellow, 100 and above is green)
+  const getPhysicalActivity = () => {
+    console.log('Function getPhysicalActivity started'); // For debugging
+    const totalPAMinutes = Math.round(hoursToMinutes(hours) + parseInt(minutes, 10));
+    if (totalPAMinutes >= 0 && totalPAMinutes <= 50) {
+      console.log('Red.');
+    } else if (totalPAMinutes >= 51 && totalPAMinutes <= 100) {
+      console.log('Yellow.');
+    } else {
+      console.log('Green.');
+    }
+  }
+
+  const getStress = () => {
+    console.log('Function getStress started'); // For debugging
+    const stressScore = getMappedValue(stressLevel.text);
+    if (stressScore >= 0 && stressScore <= 1) {
+      console.log('Green.', stressScore); // For debugging
+    } else if (stressScore >= 2 && stressScore <= 3) {
+      console.log('Yellow.', stressScore); // For debugging
+    } else {
+      console.log('Red.', stressScore); // For debugging
+    }
+  }
+
   const calculateResults = () => {
     getInsomniaSeverityIndex(),
     getSleepApneaRisk(),
     getSleepEfficiency(),
-    calculateBMI()
+    calculateBMI(),
+    getDiet(),
+    getPhysicalActivity(),
+    getStress()
   };
 
   // This function will now expect an object with text and value
@@ -368,7 +400,7 @@ const SleepAssessmentScreen: React.FC = () => {
         />
 
         <Text style={styles.questionText}>
-          Due to the wake-up(s), how long are you awake during a typical night. This is time away from all the wake-ups combined.
+          Due to the wake-up(s), how long are you awake during a typical night. This is time awake from all the wake-ups combined.
         </Text>
         <View style={styles.timeContainer}>
           <TextInput
