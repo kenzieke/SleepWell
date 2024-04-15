@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 
@@ -91,6 +91,16 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     'null': -1,
   };
 
+  const [assessmentResults, setAssessmentResults] = useState({
+    insomniaSeverityIndex: 0,
+    sleepApneaRisk: 0,
+    sleepEfficiency: 0,
+    diet: 0,
+    physicalActivity: 0,
+    bmi: 0,
+    stress: 0
+  });  
+
   const getMappedValue = (option: OptionType): number => {
     return severityMapping[option] || -1; // Return -1 as default if the option is not found
   };
@@ -143,6 +153,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     } else if (total >= 22) {
       console.log('Clinical insomnia (severe), score:', total);
     }
+    return total;
   };
 
   const calculateBMI = () => {
@@ -176,17 +187,23 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
       bmi: calculateBMI(),
     };
 
+    let sleepApneaRisk = 0;
+
+    // TODO: need to know the correct way to calculate this score
     // if stopBreathingScore != 1 regardless of all answers, then high risk -> console.log('You're at a high risk')
     // if (snoreLoudlyScore >= 3 and feelTiredScore >= 3) OR ((snoreLoudlyScore >= 3 or feelTiredScore >= 3) and bmiScore >= 25), then at risk -> console.log('You're at risk')
     // else low risk -> console.log('You're at a low risk')
 
     if (scores.stopBreathingScore !== 1) {
       console.log("You're at a high risk of sleep apnea.");
+      sleepApneaRisk = 2;
     } else if ((scores.snoreLoudlyScore >= 3 && scores.feelTiredScore >= 3) || ((scores.snoreLoudlyScore >= 3 || scores.feelTiredScore >= 3) && scores.bmi >= 25)) { // potentially undefined if incorrect user input
       console.log("You're at risk of sleep apnea.");
+      sleepApneaRisk = 1;
     } else {
       console.log("You're at a low risk of sleep apnea.");
     }
+    return sleepApneaRisk;
   };
 
   const getSleepEfficiency = () => {
@@ -206,6 +223,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     } else {
       console.log('One of the inputs is not a valid number.');
     }
+    return sleepEfficiency;
   };
 
   // Healthy Eating  [> 4 drinks (caffeine and/OR sugary) is red;0 –1 (caffein and/or sugary) is green, 1-2 is yellow.  
@@ -221,6 +239,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     } else {
       console.log('Green.');
     }
+    return totalDrinks;
   }
 
   // Physical Activity (0-50 is red; 50-100 is yellow, 100 and above is green)
@@ -234,6 +253,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     } else {
       console.log('Green.');
     }
+    return totalPAMinutes;
   }
 
   const getStress = () => {
@@ -246,8 +266,29 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     } else {
       console.log('Red.', stressScore); // For debugging
     }
+    return stressScore;
   }
 
+  useEffect(() => {
+    // Calculate the assessment results and update state
+    const newAssessmentResults = {
+      insomniaSeverityIndex: getInsomniaSeverityIndex(),
+      sleepApneaRisk: getSleepApneaRisk(),
+      sleepEfficiency: getSleepEfficiency(),
+      diet: getDiet(),
+      physicalActivity: getPhysicalActivity(),
+      bmi: calculateBMI(),
+      stress: getStress()
+    };
+  
+    setAssessmentResults(newAssessmentResults);
+  }, [
+    // Include all state variables that the calculation depends on:
+    difficultyFallingAsleep, 
+    difficultyStayingAsleep, 
+    // ...and so on for all dependencies
+  ]);
+  
   const calculateResults = () => {
     getInsomniaSeverityIndex(),
     getSleepApneaRisk(),

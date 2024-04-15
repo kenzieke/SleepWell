@@ -1,5 +1,16 @@
 import React from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import MarkerComponent from '../../components/MarkerComponent';
+import { Dimensions } from 'react-native';
+
+// Get the full width of the device screen
+const screenWidth = Dimensions.get('window').width;
+
+// Set a padding value if you want some space on the sides
+const paddingHorizontal = 20; // Total padding for both sides
+
+// Calculate the scale image width
+const scaleImageWidth = screenWidth - (paddingHorizontal * 2);
 
 const scaleImage = require('../../assets/scale.png');
 
@@ -14,7 +25,8 @@ const categories = [
   { name: 'Stress', image: scaleImage },
 ];
 
-const ResultsScreen = ({ navigation }) => {
+const ResultsScreen = ({ navigation, route }) => {
+  const { assessmentResults } = route.params;
   // Handler for when a result category is clicked
   const handleCategoryPress = (category) => {
     // Navigate to the detail view for the category
@@ -33,7 +45,7 @@ const ResultsScreen = ({ navigation }) => {
         </Text>
 
         {/* Loop through the categories array */}
-        {categories.map((category) => (
+        {/* {categories.map((category) => (
           <TouchableOpacity
             key={category.name}
             style={styles.categoryContainer}
@@ -46,7 +58,25 @@ const ResultsScreen = ({ navigation }) => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-        ))}
+        ))} */}
+        {categories.map((category) => (
+        <View key={category.name} style={styles.categoryContainer}>
+          <Text style={styles.categoryText}>{category.name}</Text>
+          <View style={{ width: scaleImageWidth, height: 40, position: 'relative' }}>
+            <Image
+              source={category.image}
+              style={[styles.scaleImage, { width: scaleImageWidth }]}
+              resizeMode="contain"
+            />
+            {/* Render the marker with the user's score */}
+            <MarkerComponent
+              score={assessmentResults.insomniaSeverityIndex}
+              totalScore={22} // Or whatever your total score is for that category
+              scaleWidth={scaleImageWidth}
+            />
+          </View>
+        </View>
+    ))}
       </View>
       {/* <TouchableOpacity style={styles.button} onPress={onFinishPressed}>
         <Text style={styles.buttonText}>Finish</Text>
