@@ -21,10 +21,6 @@ const ResultsScreen = ({ navigation }) => {
     console.log(`Navigating to details of ${category}`);
   };
 
-  const onFinishPressed = () => {
-    navigation.navigate('WeeklyLessons');
-  }
-
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
@@ -48,9 +44,6 @@ const ResultsScreen = ({ navigation }) => {
           </TouchableOpacity>
         ))}
       </View>
-      {/* <TouchableOpacity style={styles.button} onPress={onFinishPressed}>
-        <Text style={styles.buttonText}>Finish</Text>
-      </TouchableOpacity> */}
     </ScrollView>
   );
 };

@@ -25,11 +25,10 @@ function SleepTrackerStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="SleepTrackerScreen"
+        name="SleepTrackerMain"
         component={SleepTrackerScreen}
         options={{ title: 'Sleep Tracker' }}
       />
-      {/* other screens specific to this stack */}
     </Stack.Navigator>
   );
 }
@@ -38,11 +37,46 @@ function HealthTrackerStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="HealthTrackerScreen"
+        name="HealthTrackerMain"
         component={HealthTrackerScreen}
         options={{ title: 'Health Tracker' }}
       />
-      {/* other screens specific to this stack */}
+    </Stack.Navigator>
+  );
+}
+
+function WeeklyLessonsStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="WeeklyLessonsMain"
+        component={WeeklyLessonsScreen}
+        options={{ title: 'Improve My Sleep' }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function WeeklyGoalsStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="WeeklyGoalsMain"
+        component={WeeklyGoals}
+        options={{ title: 'Weekly Goals' }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function ResourceLibraryStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="ResourceLibraryMain"
+        component={ResourceLibraryScreen}
+        options={{ title: 'Resource Library' }}
+      />
     </Stack.Navigator>
   );
 }
@@ -84,26 +118,30 @@ const BottomTabNavigator: React.FC = () => {
       <Tab.Screen
         name="SleepTrackerScreen"
         component={SleepTrackerStack}
-        options={{ tabBarLabel: 'Sleep Tracker' }}
+        options={{ 
+          headerShown: true,
+          tabBarLabel: 'Sleep Tracker' }}
       />
       <Tab.Screen
         name="HealthTrackerScreen"
         component={HealthTrackerStack}
-        options={{ title: 'Health Tracker' }}
+        options={{ 
+          headerShown: true,
+          title: 'Health Tracker' }}
       />
       <Tab.Screen
         name="WeeklyLessonsScreen"
-        component={WeeklyLessonsScreen}
+        component={WeeklyLessonsStack}
         options={{ title: 'Weekly Lessons' }}
       />
       <Tab.Screen
         name="WeeklyGoals"
-        component={WeeklyGoals}
+        component={WeeklyGoalsStack}
         options={{ title: 'Weekly Goals' }}
       />
       <Tab.Screen
         name="ResourceLibraryScreen"
-        component={ResourceLibraryScreen}
+        component={ResourceLibraryStack}
         options={{ title: 'Resource Library' }}
       />
     </Tab.Navigator>
@@ -111,4 +149,3 @@ const BottomTabNavigator: React.FC = () => {
 };
 
 export default BottomTabNavigator;
-// export default { SleepTrackerStack, HealthTrackerStack, BottomTabNavigator };

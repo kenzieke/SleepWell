@@ -14,18 +14,28 @@ const calculatedHeight = (originalHeight / originalWidth) * screenWidth;
 
 // Define the positions and sizes of the touchable areas based on the above measurements
 const touchableAreas = [
-  { id: 'sleepDuration', top: 4, left: 21, width: 44, height: 8 },
-  { id: 'sleepQuality', top: 18, left: 43, width: 36, height: 10 },
-  { id: 'bodyComposition', top: 36, left: 53, width: 45, height: 9 },
-  { id: 'nutrition', top: 52, left: 53, width: 34, height: 15 },
-  { id: 'stress', top: 72, left: 45, width: 43, height: 10 },
-  { id: 'physicalActivity', top: 87, left: 22, width: 75, height: 11 },
+  { id: 'sleepDuration', top: -5, left: 21, width: 44, height: 8 },
+  { id: 'sleepQuality', top: 9, left: 43, width: 36, height: 10 },
+  { id: 'bodyComposition', top: 28, left: 53, width: 45, height: 9 },
+  { id: 'nutrition', top: 44, left: 53, width: 34, height: 15 },
+  { id: 'stress', top: 65, left: 45, width: 43, height: 10 },
+  { id: 'physicalActivity', top: 80, left: 23, width: 75, height: 11 },
 ];
 
-
 const WeeklyGoals: React.FC = () => {
-  // To center the image at the top of the screen and not in the middle of the screen
-  const insets = useSafeAreaInsets(); // Hook to get safe area insets
+  const insets = useSafeAreaInsets();
+
+  // Calculate available height by subtracting top and bottom insets
+  const screenHeight = Dimensions.get('window').height;
+  const topBarHeight = -60; // Adjust this based on your actual top bar height
+  const bottomBarHeight = 148; // Adjust this based on your actual bottom bar height
+
+  // Calculate the top offset to position the image right below the top bar
+  const imageTopOffset = insets.top + topBarHeight;
+
+  // Adjust image height to leave space for bottom bar, maintaining aspect ratio
+  const adjustedHeight = screenHeight - imageTopOffset - insets.bottom - bottomBarHeight;
+  const adjustedWidth = adjustedHeight * (originalWidth / originalHeight);
 
   // Adjust the top position of each touchable area based on the image's actual position
   const adjustedTouchableAreas = touchableAreas.map((area) => ({
@@ -44,10 +54,17 @@ const WeeklyGoals: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <Image
         source={require('../../assets/wheel_without_header.png')}
-        style={[styles.image, { height: calculatedHeight, marginTop: insets.top }]} // Add marginTop to account for status bar height
+        style={[
+          styles.image,
+          {
+            top: imageTopOffset, // Position image below the top bar
+            height: adjustedHeight, // Adjust height based on available space
+            width: adjustedWidth, // Maintain aspect ratio
+          },
+        ]}
         resizeMode="contain"
       />
       {adjustedTouchableAreas.map((area) => (
@@ -93,12 +110,12 @@ const WeeklyGoals: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start', // Align items to the top
-    alignItems: 'center',
+    position: 'relative', // Use relative for the parent to use absolute positioning for children
   },
   image: {
-    width: screenWidth,
-    // height will be set dynamically
+    position: 'absolute', // Position the image absolutely to control its exact location
+    left: 0, // Align image to the left edge of the container
+    right: 0, // Align image to the right edge of the container
   },
   touchableArea: {
     position: 'absolute',
