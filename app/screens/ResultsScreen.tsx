@@ -15,6 +15,7 @@ const categories = [
 ];
 
 // Define the categories as an array of objects with additional description and score
+// TODO: Replace the XX with the user's score by querying from the database
 const categoryDetails = {
   'Insomnia Severity Index': {
     image: scaleImage,
@@ -41,6 +42,16 @@ const categoryDetails = {
     score: 'XX',
     description: 'A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.',
   },
+  'Physical Activity': {
+    image: scaleImage,
+    score: 'XX',
+    description: 'Regular physical activity has been linked with improved sleep quality (but avoid vigorous activity right before bed).',
+  },
+  'Stress': {
+    image: scaleImage,
+    score: 'XX',
+    description: 'Managing stress is a key part of sleep health.  Our program provides tools to help manage stress both on and off duty.',
+  }
 };
 
 const ResultsScreen = ({ navigation }) => {

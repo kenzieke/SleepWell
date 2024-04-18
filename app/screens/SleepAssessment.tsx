@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import { doc, setDoc, collection } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
+
+// const userId = FIREBASE_AUTH.currentUser.uid; // possibly null, but won't be
 
 type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
                   'Very Satisfied' | 'Satisfied' | 'Somewhat' | 'Dissatisfied' | 'Very Dissatisfied' |
@@ -32,6 +36,8 @@ const OptionButton: React.FC<{
       </Text>
     </TouchableOpacity>
   );
+
+  // TODO: Make all of the functions return the score so that you can store the values when you calculate the results
 
 const SleepAssessmentScreen: React.FC = ({ navigation }) => {
   const [isDeployed, setIsDeployed] = useState(false);
@@ -143,6 +149,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     } else if (total >= 22) {
       console.log('Clinical insomnia (severe), score:', total);
     }
+    return total;
   };
 
   const calculateBMI = () => {
@@ -163,7 +170,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     // BMI = weight in kg / (height in meters)^2
     const bmi = weightInKg / Math.pow(heightInMeters, 2);
     console.log('Your BMI is:', bmi);
-    return bmi;
+    return Math.round(bmi);
   };  
 
   const getSleepApneaRisk = () => {
@@ -176,22 +183,28 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
       bmi: calculateBMI(),
     };
 
+    let risk = 0;
+
     // if stopBreathingScore != 1 regardless of all answers, then high risk -> console.log('You're at a high risk')
     // if (snoreLoudlyScore >= 3 and feelTiredScore >= 3) OR ((snoreLoudlyScore >= 3 or feelTiredScore >= 3) and bmiScore >= 25), then at risk -> console.log('You're at risk')
     // else low risk -> console.log('You're at a low risk')
 
     if (scores.stopBreathingScore !== 1) {
       console.log("You're at a high risk of sleep apnea.");
+      risk = 5;
     } else if ((scores.snoreLoudlyScore >= 3 && scores.feelTiredScore >= 3) || ((scores.snoreLoudlyScore >= 3 || scores.feelTiredScore >= 3) && scores.bmi >= 25)) { // potentially undefined if incorrect user input
       console.log("You're at risk of sleep apnea.");
+      risk = (scores.snoreLoudlyScore + scores.feelTiredScore) / 2;
     } else {
       console.log("You're at a low risk of sleep apnea.");
+      risk = (scores.snoreLoudlyScore + scores.feelTiredScore) / 2;
     }
+    return risk;
   };
 
   const getSleepEfficiency = () => {
     console.log('Function getSleepEfficiency started'); // For debugging
-    // Your Sleep Efficiency is: XX [Total Sleep time/[sleep latency + total sleep time + (staying asleep minutes)] x 100
+    // [Total sleep time/(total sleep time + time to fall asleep + time you're waking up)] * 100
     const totalTimes = {
       totalSleepMinutes: hoursToMinutes(sleepHours) + parseInt(sleepMinutes, 10),
       totalFallAsleepMinutes: hoursToMinutes(fallAsleepHours) + parseInt(fallAsleepMinutes, 10), // sleep latency
@@ -200,40 +213,52 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     };
 
     // TODO: Check this math, it should be a percentage so it shouldn't be larger than 100
-    const sleepEfficiency = (totalTimes.totalSleepMinutes / (totalTimes.totalFallAsleepMinutes + totalTimes.totalSleepMinutes - (totalTimes.totalTimeAwakeMinutes * totalTimes.numberOfTimesAwake))) * 100;
+    const sleepEfficiency = (totalTimes.totalSleepMinutes / (totalTimes.totalSleepMinutes + totalTimes.totalFallAsleepMinutes + totalTimes.totalSleepMinutes)) * 100;
     if (!isNaN(sleepEfficiency)) {
       console.log('Your sleep efficiency is:', sleepEfficiency.toFixed(2));
     } else {
       console.log('One of the inputs is not a valid number.');
     }
+    return Math.round(sleepEfficiency);
   };
 
-  // Healthy Eating  [> 4 drinks (caffeine and/OR sugary) is red;0 –1 (caffein and/or sugary) is green, 1-2 is yellow.  
+  // Healthy Eating [> 4 drinks (caffeine and/OR sugary)is red; 0 –1 (caffein and/or sugary) is green, 1-2 is yellow.
+  // We will have their worst score be the nutrition goal they need to focus on
   const getDiet = () => {
+    let diet = 0;
     console.log('Function getDiet started'); // For debugging
     const parsedSugaryBeverages = parseFloat(sugaryBeverages);
     const parsedCaffeinatedBeverages = parseFloat(caffeinatedBeverages);
     const totalDrinks = parsedSugaryBeverages + parsedCaffeinatedBeverages;
     if (totalDrinks > 4) {
       console.log('Red.');
+      diet = 5;
     } else if (totalDrinks >= 2 && totalDrinks <= 3) {
       console.log('Yellow.');
+      diet = totalDrinks / 2;
     } else {
       console.log('Green.');
+      diet = 1;
     }
+    return diet;
   }
 
   // Physical Activity (0-50 is red; 50-100 is yellow, 100 and above is green)
   const getPhysicalActivity = () => {
     console.log('Function getPhysicalActivity started'); // For debugging
     const totalPAMinutes = Math.round(hoursToMinutes(hours) + parseInt(minutes, 10));
+    let physical_activity = 0;
     if (totalPAMinutes >= 0 && totalPAMinutes <= 50) {
       console.log('Red.');
+      physical_activity = 5;
     } else if (totalPAMinutes >= 51 && totalPAMinutes <= 100) {
       console.log('Yellow.');
+      physical_activity = 3;
     } else {
       console.log('Green.');
+      physical_activity = 1;
     }
+    return physical_activity;
   }
 
   const getStress = () => {
@@ -246,18 +271,64 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     } else {
       console.log('Red.', stressScore); // For debugging
     }
+    return stressScore;
   }
 
-  const calculateResults = () => {
-    getInsomniaSeverityIndex(),
-    getSleepApneaRisk(),
-    getSleepEfficiency(),
-    calculateBMI(),
-    getDiet(),
-    getPhysicalActivity(),
-    getStress(),
-    navigation.navigate('ResultsScreen'); // Use navigate with the name of the screen
+  const calculateResults = async () => {
+    const insomniaSeverityIndex = getInsomniaSeverityIndex();
+    const sleepApneaRisk = getSleepApneaRisk();
+    const sleepEfficiency = getSleepEfficiency();
+    const bmi = calculateBMI();
+    const diet = getDiet();
+    const physicalActivity = getPhysicalActivity();
+    const stress = getStress();
+
+    const results = {
+      bmi: calculateBMI(),
+      diet: getDiet(),
+      insomniaSeverityIndex: getInsomniaSeverityIndex(),
+      physicalActivity: getPhysicalActivity(),
+      sleepApneaRisk: getSleepApneaRisk(),
+      sleepEfficiency: getSleepEfficiency(),
+      stress: getStress(),
+    };
+  
+    try {
+      const user = FIREBASE_AUTH.currentUser;
+      if (user) {
+        // User is signed in, we have a uid
+        const userId = user.uid;
+        const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+        const resultsDocRef = doc(collection(userDocRef, 'results'), `scores_${userId}`);
+        await setDoc(resultsDocRef, results);
+        console.log('Results stored successfully!');
+        navigation.navigate('ResultsScreen');
+      } else {
+        // No user is signed in.
+        console.log('No user logged in');
+        // Handle this case as per your app's flow
+      }
+    } catch (error) {
+      console.error('Error storing results:', error);
+    }
   };
+
+  useEffect(() => {
+    const unsubscribe = FIREBASE_AUTH.onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        const uid = user.uid;
+        // ...
+      } else {
+        // User is signed out
+        // ...
+      }
+    });
+  
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
   // This function will now expect an object with text and value
   const renderOptions = (
