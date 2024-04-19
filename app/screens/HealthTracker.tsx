@@ -3,6 +3,8 @@ import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Dimens
 import SwitchSelector from 'react-native-switch-selector';
 import Slider from '@react-native-community/slider';
 import { DateComponent } from '../../components/DateComponent';
+import { collection, doc, setDoc } from 'firebase/firestore';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 
 const OptionButton: React.FC<{
     label: string;
@@ -30,197 +32,226 @@ const OptionButton: React.FC<{
   );
 
 const HealthTrackerScreen: React.FC = () => {
-    // Generic function to render option buttons for a question
-    const renderOptions = <T extends string>(
-        question: string,
-        value: T,
-        setValue: React.Dispatch<React.SetStateAction<T>>,
-        options: T[]
-    ) => {
-        return (
-        <View style={styles.questionContainer}>
-            <Text style={styles.questionText}>{question}</Text>
-            <View style={styles.optionsRow}>
-            {options.map((option) => (
-                <OptionButton
-                    key={option}
-                    label={option}
-                    onPress={() => setValue(option)}
-                    isSelected={value === option && value !== ''}
-                />
-                ))}
+  // Generic function to render option buttons for a question
+  const renderOptions = <T extends string>(
+      question: string,
+      value: T,
+      setValue: React.Dispatch<React.SetStateAction<T>>,
+      options: T[]
+  ) => {
+      return (
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>{question}</Text>
+          <View style={styles.optionsRow}>
+          {options.map((option) => (
+              <OptionButton
+                  key={option}
+                  label={option}
+                  onPress={() => setValue(option)}
+                  isSelected={value === option && value !== ''}
+              />
+              ))}
+          </View>
+      </View>
+      );
+  };
+
+  const [date, setDate] = useState(new Date());
+  const [caffeine, setCaffeine] = useState<string>('');
+  const [vegetables, setVegetables] = useState<string>('');
+  const [sugaryDrinks, setSugaryDrinks] = useState<string>('');
+  const [fastFood, setFastFood] = useState<string>('');
+  const [steps, setSteps] = useState<string>('');
+  const [goals, setGoals] = useState<string>('');
+  const [dailyWeight, setDailyWeight] = useState<string>('');
+  const [weightUnit, setWeightUnit] = useState<string>('kgs');
+
+  const [sliderValue, setSliderValue] = useState<number>(5);
+
+  // Function to convert slider value to a string
+  const getSleepRating = (value: number): string => {
+    const ratings = ['1', '2', '3', '4', '5'];
+    return ratings[Math.floor(value / 1)]; // Since we have 5 steps, each step corresponds to one label
+  };
+
+  const saveData = async () => {
+    const userId = FIREBASE_AUTH.currentUser?.uid;
+    if (!userId) {
+      alert("You must be logged in to save your health data.");
+      return;
+    }
+  
+    const formattedDate = date.toISOString().split('T')[0]; // Format the date to 'YYYY-MM-DD'
+  
+    const healthData = {
+      date: formattedDate, // Include the selected date
+      caffeine,
+      vegetables,
+      sugaryDrinks,
+      fastFood,
+      steps,
+      goals,
+      weight: {
+        value: dailyWeight,
+        unit: weightUnit
+      },
+    };
+  
+    const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+    const healthDataRef = doc(collection(userDocRef, 'healthData'), formattedDate);
+  
+    try {
+      await setDoc(healthDataRef, healthData);
+      console.log('Health data saved successfully.');
+    } catch (error) {
+      console.error('Error saving health data:', error);
+    }
+  };  
+  
+  const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
+  const [labelWidth, setLabelWidth] = useState(0);
+  const labelPosition = (sliderValue / 5) * (sliderWidth - labelWidth) + 20; // Adjusted for padding
+
+  return (
+      <ScrollView style={styles.scrollView}>
+          <View style={styles.container}>
+            <View style={styles.questionContainer}>
+              <DateComponent date={date} setDate={setDate} />
             </View>
-        </View>
-        );
-    };
-
-    const [caffeine, setCaffeine] = useState<string>('');
-    const [vegetables, setVegetables] = useState<string>('');
-    const [sugaryDrinks, setSugaryDrinks] = useState<string>('');
-    const [fastFood, setFastFood] = useState<string>('');
-    const [steps, setSteps] = useState<string>('');
-    const [goals, setGoals] = useState<string>('');
-    const [dailyWeight, setDailyWeight] = useState<string>('');
-    const [weightUnit, setWeightUnit] = useState<string>('kgs');
-
-    const [sliderValue, setSliderValue] = useState<number>(5);
-
-    // Function to convert slider value to a string
-    const getSleepRating = (value: number): string => {
-      const ratings = ['1', '2', '3', '4', '5'];
-      return ratings[Math.floor(value / 1)]; // Since we have 5 steps, each step corresponds to one label
-    };
-    
-    const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
-    const [labelWidth, setLabelWidth] = useState(0);
-    const labelPosition = (sliderValue / 5) * (sliderWidth - labelWidth) + 20; // Adjusted for padding
-
-    return (
-        <ScrollView style={styles.scrollView}>
-            <View style={styles.container}>
-                {/* <Pressable onPress={() => router.push("/screens/SleepAssessment")} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#52796F" />
-                </Pressable>
-                <Text style={styles.title}>Health Tracker</Text> */}
 
               <View style={styles.questionContainer}>
-                <DateComponent></DateComponent>
+                  <Text style={styles.questionText}>Rate your stress level:</Text>
+                  <View style={styles.sliderContainer}>
+                      <Slider
+                          style={styles.slider}
+                          minimumValue={0}
+                          maximumValue={4}
+                          step={1}
+                          value={sliderValue}
+                          onValueChange={value => setSliderValue(value)}
+                          minimumTrackTintColor="#52796F"
+                          maximumTrackTintColor="#BDBDBD"
+                          thumbTintColor="#FFFFFF"
+                      />
+                      <View style={[styles.labelContainer, { left: labelPosition }]}>
+                          <Text style={styles.labelText}>{getSleepRating(sliderValue)}</Text>
+                      </View>
+                  </View>
               </View>
 
-                <View style={styles.questionContainer}>
-                    <Text style={styles.questionText}>Rate your stress level:</Text>
-                    <View style={styles.sliderContainer}>
-                        <Slider
-                            style={styles.slider}
-                            minimumValue={0}
-                            maximumValue={4}
-                            step={1}
-                            value={sliderValue}
-                            onValueChange={value => setSliderValue(value)}
-                            minimumTrackTintColor="#52796F"
-                            maximumTrackTintColor="#BDBDBD"
-                            thumbTintColor="#FFFFFF"
-                        />
-                        <View style={[styles.labelContainer, { left: labelPosition }]}>
-                            <Text style={styles.labelText}>{getSleepRating(sliderValue)}</Text>
-                        </View>
-                    </View>
-                </View>
+              <View style={styles.questionContainer}>
+                  <Text style={styles.questionText}>Weight:</Text>
+                  <View style={styles.inputRow}>
+                  <TextInput
+                      style={styles.healthInput}
+                      onChangeText={setDailyWeight}
+                      value={dailyWeight}
+                      keyboardType="numeric"
+                      placeholder="Enter here"
+                  />
+                  <SwitchSelector
+                      initial={0}
+                      onPress={value => setWeightUnit(value)}
+                      textColor={'#BDBDBD'} // your active text color
+                      selectedColor={'#52796F'} // the color for the label text when it is selected
+                      buttonColor={'#BDBDBD'} // the color for the button when it is selected
+                      borderColor={'#BDBDBD'} // border color
+                      hasPadding
+                      maxLength={3}
+                      options={[
+                      { label: 'kgs', value: 'lbs' },
+                      { label: 'lbs', value: 'kgs' },
+                      ]}
+                      style={styles.switchSelector}
+                      buttonStyle={styles.switchButton}
+                  />
+                  </View>
+              </View>
 
-                <View style={styles.questionContainer}>
-                    <Text style={styles.questionText}>Weight:</Text>
-                    <View style={styles.inputRow}>
-                    <TextInput
-                        style={styles.healthInput}
-                        onChangeText={setDailyWeight}
-                        value={dailyWeight}
-                        keyboardType="numeric"
-                        placeholder="Enter here"
-                    />
-                    <SwitchSelector
-                        initial={0}
-                        onPress={value => setWeightUnit(value)}
-                        textColor={'#BDBDBD'} // your active text color
-                        selectedColor={'#52796F'} // the color for the label text when it is selected
-                        buttonColor={'#BDBDBD'} // the color for the button when it is selected
-                        borderColor={'#BDBDBD'} // border color
-                        hasPadding
-                        maxLength={3}
-                        options={[
-                        { label: 'kgs', value: 'lbs' },
-                        { label: 'lbs', value: 'kgs' },
-                        ]}
-                        style={styles.switchSelector}
-                        buttonStyle={styles.switchButton}
-                    />
-                    </View>
-                </View>
+              <View style={styles.questionContainer}>
+                  <Text style={styles.questionText}>
+                      Drinks with caffeine:
+                  </Text>
+                  <TextInput
+                      style={styles.healthInput}
+                      onChangeText={setCaffeine}
+                      value={caffeine}
+                      keyboardType="numeric"
+                      placeholder="# of drinks"
+                  />
+              </View>
 
-                <View style={styles.questionContainer}>
-                    <Text style={styles.questionText}>
-                        Drinks with caffeine:
-                    </Text>
-                    <TextInput
-                        style={styles.healthInput}
-                        onChangeText={setCaffeine}
-                        value={caffeine}
-                        keyboardType="numeric"
-                        placeholder="# of drinks"
-                    />
-                </View>
+              <View style={styles.questionContainer}>
+                  <Text style={styles.questionText}>
+                      Vegetable servings:
+                  </Text>
+                  <TextInput
+                      style={styles.healthInput}
+                      onChangeText={setVegetables}
+                      value={vegetables}
+                      keyboardType="numeric"
+                      placeholder="# of vegetable servings"
+                  />
+              </View>
 
-                <View style={styles.questionContainer}>
-                    <Text style={styles.questionText}>
-                        Vegetable servings:
-                    </Text>
-                    <TextInput
-                        style={styles.healthInput}
-                        onChangeText={setVegetables}
-                        value={vegetables}
-                        keyboardType="numeric"
-                        placeholder="# of vegetable servings"
-                    />
-                </View>
+              <View style={styles.questionContainer}>
+                  <Text style={styles.questionText}>
+                      Sugary drinks:
+                  </Text>
+                  <TextInput
+                      style={styles.healthInput}
+                      onChangeText={setSugaryDrinks}
+                      value={sugaryDrinks}
+                      keyboardType="numeric"
+                      placeholder="# of sugary drinks"
+                  />
+              </View>
 
-                <View style={styles.questionContainer}>
-                    <Text style={styles.questionText}>
-                        Sugary drinks:
-                    </Text>
-                    <TextInput
-                        style={styles.healthInput}
-                        onChangeText={setSugaryDrinks}
-                        value={sugaryDrinks}
-                        keyboardType="numeric"
-                        placeholder="# of sugary drinks"
-                    />
-                </View>
+              <View style={styles.questionContainer}>
+                  <Text style={styles.questionText}>
+                      Fast food:
+                  </Text>
+                  <TextInput
+                      style={styles.healthInput}
+                      onChangeText={setFastFood}
+                      value={fastFood}
+                      keyboardType="numeric"
+                      placeholder="# of fast food items"
+                  />
+              </View>
 
-                <View style={styles.questionContainer}>
-                    <Text style={styles.questionText}>
-                        Fast food:
-                    </Text>
-                    <TextInput
-                        style={styles.healthInput}
-                        onChangeText={setFastFood}
-                        value={fastFood}
-                        keyboardType="numeric"
-                        placeholder="# of fast food items"
-                    />
-                </View>
+              <View style={styles.questionContainer}>
+                  <Text style={styles.questionText}>
+                      Steps:
+                  </Text>
+                  <TextInput
+                      style={styles.healthInput}
+                      onChangeText={setSteps}
+                      value={steps}
+                      keyboardType="numeric"
+                      placeholder="# of steps"
+                  />
+              </View>
 
-                <View style={styles.questionContainer}>
-                    <Text style={styles.questionText}>
-                        Steps:
-                    </Text>
-                    <TextInput
-                        style={styles.healthInput}
-                        onChangeText={setSteps}
-                        value={steps}
-                        keyboardType="numeric"
-                        placeholder="# of steps"
-                    />
-                </View>
+              <View style={styles.questionContainer}>
+                  <Text style={styles.questionText}>
+                      Other goals:
+                  </Text>
+                  <TextInput
+                      style={styles.healthInput}
+                      onChangeText={setGoals}
+                      value={goals}
+                      keyboardType="numeric"
+                      placeholder="Enter your goals here"
+                  />
+              </View>
 
-                <View style={styles.questionContainer}>
-                    <Text style={styles.questionText}>
-                        Other goals:
-                    </Text>
-                    <TextInput
-                        style={styles.healthInput}
-                        onChangeText={setGoals}
-                        value={goals}
-                        keyboardType="numeric"
-                        placeholder="Enter your goals here"
-                    />
-                </View>
-
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Save</Text>
-                </TouchableOpacity>
-
-            </View>
-        </ScrollView>
-    );
+              <TouchableOpacity style={styles.button} onPress={saveData}>
+                  <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+          </View>
+      </ScrollView>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -231,13 +262,6 @@ const styles = StyleSheet.create({
     container: {
       padding: 24,
       paddingBottom: 50, // Add padding to the bottom to ensure the 'Next' button is not cut off
-    },
-    title: {
-      // I would like this to be in line with the back arrow
-      fontSize: 28,
-      fontWeight: 'bold',
-      marginBottom: 24,
-      textAlign: 'center',
     },
     backButton: {
       padding: 8, // Padding to make it easier to press

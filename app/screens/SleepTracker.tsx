@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, Pressable, Dimensions } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Pressable, Dimensions } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector'; // Import the switch selector
 import Slider from '@react-native-community/slider';
 import { DateComponent } from '../../components/DateComponent';
@@ -30,30 +30,31 @@ const OptionButton: React.FC<{
   );
 
 const SleepTrackerScreen: React.FC = () => {
-    // Generic function to render option buttons for a question
-    const renderOptions = <T extends string>(
-        question: string,
-        value: T,
-        setValue: React.Dispatch<React.SetStateAction<T>>,
-        options: T[]
-    ) => {
-        return (
-        <View style={styles.questionContainer}>
-            <Text style={styles.questionText}>{question}</Text>
-            <View style={styles.optionsRow}>
-            {options.map((option) => (
-                <OptionButton
-                    key={option}
-                    label={option}
-                    onPress={() => setValue(option)}
-                    isSelected={value === option && value !== ''}
-                />
-                ))}
-            </View>
-        </View>
-        );
-    };
+  // Generic function to render option buttons for a question
+  const renderOptions = <T extends string>(
+      question: string,
+      value: T,
+      setValue: React.Dispatch<React.SetStateAction<T>>,
+      options: T[]
+  ) => {
+      return (
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>{question}</Text>
+          <View style={styles.optionsRow}>
+          {options.map((option) => (
+              <OptionButton
+                  key={option}
+                  label={option}
+                  onPress={() => setValue(option)}
+                  isSelected={value === option && value !== ''}
+              />
+              ))}
+          </View>
+      </View>
+      );
+  };
 
+  const [date, setDate] = useState(new Date());
   const [isDeployed, setIsDeployed] = useState(false);
   const [isOnDuty, setIsOnDuty] = useState(false);
   const [isAtHome, setIsAtHome] = useState(false);
@@ -78,6 +79,10 @@ const getSleepRating = (value: number): string => {
   const [sleepMedications, setSleepMedications] = useState<string>('0');
   const [comments, setComments] = useState<string>('');
 
+  const saveData = async () => {
+    return;
+  }
+
     return (
       <ScrollView style={styles.scrollView}>
         <View style={styles.container}>
@@ -87,8 +92,8 @@ const getSleepRating = (value: number): string => {
                 <Text style={styles.title}>Sleep Tracker</Text> */}
 
                 {/* Day of the week goes here */}
-            <View style={styles.questionContainer}>
-              <DateComponent></DateComponent>
+                <View style={styles.questionContainer}>
+              <DateComponent date={date} setDate={setDate} />
             </View>
 
             <View style={styles.switchContainer}>
@@ -328,7 +333,7 @@ const getSleepRating = (value: number): string => {
           />
         </View>
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={saveData}>
           <Text style={styles.buttonText}>Save</Text>
         </TouchableOpacity>
           

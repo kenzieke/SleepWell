@@ -2,45 +2,49 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-export const DateComponent = () => {
-    const [date, setDate] = useState(new Date(1598051730000));
-    const [show, setShow] = useState(false);
+export const DateComponent = ({ date, setDate }) => {
+  const [show, setShow] = useState(false);
   
-    const onChange = (event, selectedDate) => {
-      const currentDate = selectedDate || date;
-      setShow(false);
-      setDate(currentDate);
-    };
-  
-    const showDatepicker = () => {
-      setShow(true);
-    };
-  
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.row}>
-          <TouchableOpacity
-            onPress={showDatepicker} 
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>Select Date</Text>
-          </TouchableOpacity>
-          <Text style={styles.selectedDateText}>
-            Selected: {date.toLocaleDateString()}
-          </Text>
-        </View>
-        {show && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={date}
-            mode='date'
-            display="default"
-            onChange={onChange}
-            accentColor="#52796F" // This is for Android, change accordingly if you are on a different platform
-          />
-        )}
-      </SafeAreaView>
-    );
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date; // selectedDate can be null if the picker is dismissed
+    setShow(false);
+    if (currentDate) {
+      setDate(currentDate); // Update the date only if it's not null
+    }
+  };  
+
+  const showDatepicker = () => {
+    setShow(true);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.row}>
+        <TouchableOpacity
+          onPress={showDatepicker} 
+          style={styles.button}
+        >
+          <Text style={styles.buttonText}>Select Date</Text>
+        </TouchableOpacity>
+        {/* <Text style={styles.selectedDateText}>
+          Selected: {date.toLocaleDateString()}
+        </Text> */}
+        <Text style={styles.selectedDateText}>
+          Selected: {date ? date.toLocaleDateString() : 'No date selected'}
+        </Text>
+      </View>
+      {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode='date'
+          display="default"
+          onChange={onChange}
+          accentColor="#52796F" // This is for Android, change accordingly if you are on a different platform
+        />
+      )}
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
