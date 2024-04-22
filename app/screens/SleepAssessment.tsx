@@ -4,8 +4,6 @@ import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 
 import SwitchSelector from 'react-native-switch-selector';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 
-// const userId = FIREBASE_AUTH.currentUser.uid; // possibly null, but won't be
-
 type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
                   'Very Satisfied' | 'Satisfied' | 'Somewhat' | 'Dissatisfied' | 'Very Dissatisfied' |
                   'Not Noticeable' | 'Rarely' | 'Noticeable' | 'Very Noticeable' |
@@ -291,12 +289,12 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
       sleepApneaRisk: getSleepApneaRisk(),
       sleepEfficiency: getSleepEfficiency(),
       stress: getStress(),
+      completedAssessment: true
     };
   
     try {
       const user = FIREBASE_AUTH.currentUser;
       if (user) {
-        // User is signed in, we have a uid
         const userId = user.uid;
         const userDocRef = doc(FIRESTORE_DB, 'users', userId);
         const resultsDocRef = doc(collection(userDocRef, 'results'), `scores_${userId}`);
@@ -304,9 +302,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
         console.log('Results stored successfully!');
         navigation.navigate('ResultsScreen');
       } else {
-        // No user is signed in.
         console.log('No user logged in');
-        // Handle this case as per your app's flow
       }
     } catch (error) {
       console.error('Error storing results:', error);

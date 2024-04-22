@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 import Slider from '@react-native-community/slider';
 import { DateComponent } from '../../components/DateComponent';
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 
 const OptionButton: React.FC<{
@@ -63,10 +63,52 @@ const HealthTrackerScreen: React.FC = () => {
   const [fastFood, setFastFood] = useState<string>('');
   const [steps, setSteps] = useState<string>('');
   const [goals, setGoals] = useState<string>('');
-  const [dailyWeight, setDailyWeight] = useState<string>('');
+  const [dailyWeight, setDailyWeight] = useState('');
   const [weightUnit, setWeightUnit] = useState<string>('kgs');
+  const [sliderValue, setSliderValue] = useState<number>(3);
 
-  const [sliderValue, setSliderValue] = useState<number>(5);
+  // Function to clear form fields
+  const clearForm = () => {
+    setCaffeine('');
+    setVegetables('');
+    setSugaryDrinks('');
+    setFastFood('');
+    setSteps('');
+    setGoals('');
+    setDailyWeight('');
+    setWeightUnit('kgs');
+    setSliderValue(5);
+  };
+
+  useEffect(() => {
+    const userId = FIREBASE_AUTH.currentUser?.uid;
+    if (!userId) return;
+  
+    const formattedDate = date.toISOString().split('T')[0];
+    const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'healthData'), formattedDate);
+  
+    console.log(`Saving weight unit as: ${weightUnit}`);
+    const unsubscribe = onSnapshot(healthDataRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setCaffeine(data.caffeine);
+        setVegetables(data.vegetables);
+        setSugaryDrinks(data.sugaryDrinks);
+        setFastFood(data.fastFood);
+        setSteps(data.steps);
+        setGoals(data.goals);
+        setDailyWeight(data.dailyWeight);
+        setWeightUnit(data.weightUnit);
+        setSliderValue(data.sliderValue);
+      } else {
+        clearForm();
+      }
+    });
+  
+    // Cleanup listener on unmount or when date changes
+    return unsubscribe;
+  
+  }, [date]);
 
   // Function to convert slider value to a string
   const getSleepRating = (value: number): string => {
@@ -81,10 +123,16 @@ const HealthTrackerScreen: React.FC = () => {
       return;
     }
   
-    const formattedDate = date.toISOString().split('T')[0]; // Format the date to 'YYYY-MM-DD'
+    const formattedDate = date.toISOString().split('T')[0];
+  
+    // Check if weightUnit is not undefined or empty
+    if (!weightUnit) {
+      alert('Please select a weight unit.');
+      return;
+    }
   
     const healthData = {
-      date: formattedDate, // Include the selected date
+      date: formattedDate,
       caffeine,
       vegetables,
       sugaryDrinks,
@@ -110,8 +158,8 @@ const HealthTrackerScreen: React.FC = () => {
   
   const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
   const [labelWidth, setLabelWidth] = useState(0);
-  const labelPosition = (sliderValue / 5) * (sliderWidth - labelWidth) + 20; // Adjusted for padding
-
+  const labelPosition = sliderValue / 5 * (sliderWidth - (isNaN(labelWidth) ? 0 : labelWidth)) + 20;
+  
   return (
       <ScrollView style={styles.scrollView}>
           <View style={styles.container}>
@@ -133,38 +181,53 @@ const HealthTrackerScreen: React.FC = () => {
                           maximumTrackTintColor="#BDBDBD"
                           thumbTintColor="#FFFFFF"
                       />
-                      <View style={[styles.labelContainer, { left: labelPosition }]}>
+                      {/* <View style={[styles.labelContainer, { left: labelPosition }]}>
                           <Text style={styles.labelText}>{getSleepRating(sliderValue)}</Text>
-                      </View>
+                      </View> */}
                   </View>
               </View>
 
               <View style={styles.questionContainer}>
                   <Text style={styles.questionText}>Weight:</Text>
                   <View style={styles.inputRow}>
-                  <TextInput
-                      style={styles.healthInput}
-                      onChangeText={setDailyWeight}
-                      value={dailyWeight}
-                      keyboardType="numeric"
-                      placeholder="Enter here"
-                  />
-                  <SwitchSelector
-                      initial={0}
-                      onPress={value => setWeightUnit(value)}
+                    <TextInput
+                        style={styles.healthInput}
+                        onChangeText={setDailyWeight}
+                        value={dailyWeight}
+                        keyboardType="numeric"
+                        placeholder="Enter here"
+                    />
+                    {/* <SwitchSelector
+                        initial={0}
+                        onPress={value => setWeightUnit(value)}
+                        textColor={'#BDBDBD'} // your active text color
+                        selectedColor={'#52796F'} // the color for the label text when it is selected
+                        buttonColor={'#BDBDBD'} // the color for the button when it is selected
+                        borderColor={'#BDBDBD'} // border color
+                        hasPadding
+                        maxLength={3}
+                        options={[
+                        { label: 'kgs', value: 'lbs' },
+                        { label: 'lbs', value: 'kgs' },
+                        ]}
+                        style={styles.switchSelector}
+                        buttonStyle={styles.switchButton}
+                    /> */}
+                    <SwitchSelector
+                      initial={weightUnit === 'kgs' ? 0 : 1}
+                      onPress={(value) => setWeightUnit(value)}
                       textColor={'#BDBDBD'} // your active text color
                       selectedColor={'#52796F'} // the color for the label text when it is selected
                       buttonColor={'#BDBDBD'} // the color for the button when it is selected
                       borderColor={'#BDBDBD'} // border color
                       hasPadding
-                      maxLength={3}
                       options={[
-                      { label: 'kgs', value: 'lbs' },
-                      { label: 'lbs', value: 'kgs' },
+                        { label: 'kgs', value: 'kgs' },
+                        { label: 'lbs', value: 'lbs' },
                       ]}
                       style={styles.switchSelector}
                       buttonStyle={styles.switchButton}
-                  />
+                    />
                   </View>
               </View>
 

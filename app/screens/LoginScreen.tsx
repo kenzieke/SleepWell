@@ -6,9 +6,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useState } from 'react';
-import { FIREBASE_AUTH } from '../../FirebaseConfig';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-  
+import { doc, getDoc } from 'firebase/firestore';
+ 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,10 +19,18 @@ export default function LoginScreen({ navigation }) {
   const onPressLogin = async () => {
     setLoading(true);
     try {
-      const response = await signInWithEmailAndPassword(auth, email, password);
-      console.log(response);
-      // Assuming navigation is correctly passed to your LoginScreen component
-      navigation.replace('Sleep Assessment');
+      await signInWithEmailAndPassword(auth, email, password);
+      // Navigate directly after login for now
+      const user = FIREBASE_AUTH.currentUser;
+      const userDocRef = doc(FIRESTORE_DB, 'users', user.uid, 'results', `scores_${user.uid}`);
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        const routeName = userData.completedAssessment ? 'Main' : 'Sleep Assessment';
+        navigation.replace(routeName);
+      } else {
+        navigation.replace('Sleep Assessment');
+      }
     } catch (error: any) {
       console.error(error);
       alert('Login failed: ' + error.message);

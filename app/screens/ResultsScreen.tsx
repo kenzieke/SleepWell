@@ -63,39 +63,26 @@ const ResultsScreen = ({ navigation }) => {
     setModalVisible(true);
   };
 
-  // // Function to render the modal content
-  // const renderModalContent = () => (
-  //   <View style={styles.modalContent}>
-  //     <Text style={styles.modalText}>Details of {selectedCategory}</Text>
-  //     {/* Add more content or buttons as needed */}
-  //     <TouchableOpacity
-  //       onPress={() => setModalVisible(false)}
-  //       style={styles.button}>
-  //       <Text style={styles.buttonText}>Close</Text>
-  //     </TouchableOpacity>
-  //   </View>
-  // );
-
-    // Function to render the modal content
-    const renderModalContent = () => {
-      // Get the details for the selected category
-      const details = categoryDetails[selectedCategory];
-      
-      return (
-        <View style={styles.modalContent}>
-          <Text style={styles.modalHeaderText}>
-            Your {selectedCategory} score is:
-          </Text>
-          <Text style={styles.modalScoreText}>{details.score}</Text>
-          <Text style={styles.modalDescriptionText}>{details.description}</Text>
-          <TouchableOpacity
-            onPress={() => setModalVisible(false)}
-            style={styles.button}>
-            <Text style={styles.buttonText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    };
+  // Function to render the modal content
+  const renderModalContent = () => {
+    // Get the details for the selected category
+    const details = categoryDetails[selectedCategory];
+    
+    return (
+      <View style={styles.modalContent}>
+        <Text style={styles.modalHeaderText}>
+          Your {selectedCategory} score is:
+        </Text>
+        <Text style={styles.modalScoreText}>{details.score}</Text>
+        <Text style={styles.modalDescriptionText}>{details.description}</Text>
+        <TouchableOpacity
+          onPress={() => setModalVisible(false)}
+          style={styles.button}>
+          <Text style={styles.buttonText}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <ScrollView style={styles.scrollView}>

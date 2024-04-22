@@ -69,7 +69,7 @@ const getSleepRating = (value: number): string => {
 
   const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
   const [labelWidth, setLabelWidth] = useState(0);
-  const labelPosition = (sliderValue / 5) * (sliderWidth - labelWidth) + 20; // Adjusted for padding
+  const labelPosition = sliderValue / 5 * (sliderWidth - (isNaN(labelWidth) ? 0 : labelWidth)) + 20;
 
   // Sleep time related questions
   const [hours, setHours] = useState<string>('0');
@@ -168,9 +168,9 @@ const getSleepRating = (value: number): string => {
                 maximumTrackTintColor="#BDBDBD"
                 thumbTintColor="#FFFFFF"
               />
-              <View style={[styles.labelContainer, { left: labelPosition }]}>
+              {/* <View style={[styles.labelContainer, { left: labelPosition }]}>
                 <Text style={styles.labelText}>{getSleepRating(sliderValue)}</Text>
-              </View>
+              </View> */}
             </View>
           </View>
 
