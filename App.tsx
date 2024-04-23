@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { FIREBASE_AUTH } from './FirebaseConfig';
@@ -18,9 +17,7 @@ function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <AppNavigator user={user} />
-    </NavigationContainer>
+    <AppNavigator user={user} />
   );
 }
 

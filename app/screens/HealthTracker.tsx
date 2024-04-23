@@ -3,7 +3,7 @@ import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Dimens
 import SwitchSelector from 'react-native-switch-selector';
 import Slider from '@react-native-community/slider';
 import { DateComponent } from '../../components/DateComponent';
-import { collection, doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 
 const OptionButton: React.FC<{

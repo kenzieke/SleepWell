@@ -9,6 +9,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import BottomTabNavigator from '../components/BottomTabNavigator';
 import { FIRESTORE_DB } from '../FirebaseConfig';
 import { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 
 const Stack = createStackNavigator();
 
@@ -42,35 +43,37 @@ function AppNavigator({ user }) {
   }, [user]); // [user, navigationRef]);
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }} ref={navigationRef}>
-      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-      {user && <Stack.Screen name="Main" component={BottomTabNavigator} />}
-      <Stack.Screen
-        name="ResultsScreen"
-        component={ResultsScreen}
-        options={({ navigation }) => ({
-          headerShown: true,
-          headerBackTitleVisible: false,
-          title: 'Sleep Assessment Results',
-          headerRight: () => (
-            <Button
-              onPress={() => navigation.navigate('Main')}
-              title="Next"
-              color='#52796F'
-            />
-          ),
-          headerLeft: () => (
-            <Button
-              onPress={() => navigation.navigate('Sleep Assessment')}
-              title="Back"
-              color='#52796F'
-            />
-          ),
-        })}
-      />
-      {user && <Stack.Screen name="Sleep Assessment" component={SleepAssessmentScreen} options={{ headerShown: true }} />}
-    </Stack.Navigator>
+    <NavigationContainer ref={navigationRef}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+        {user && <Stack.Screen name="Main" component={BottomTabNavigator} />}
+        <Stack.Screen
+          name="ResultsScreen"
+          component={ResultsScreen}
+          options={({ navigation }) => ({
+            headerShown: true,
+            headerBackTitleVisible: false,
+            title: 'Sleep Assessment Results',
+            headerRight: () => (
+              <Button
+                onPress={() => navigation.navigate('Main')}
+                title="Next"
+                color='#52796F'
+              />
+            ),
+            headerLeft: () => (
+              <Button
+                onPress={() => navigation.navigate('Sleep Assessment')}
+                title="Back"
+                color='#52796F'
+              />
+            ),
+          })}
+        />
+        {user && <Stack.Screen name="Sleep Assessment" component={SleepAssessmentScreen} options={{ headerShown: true }} />}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
