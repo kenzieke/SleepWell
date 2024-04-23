@@ -7,9 +7,8 @@ import SleepAssessmentScreen from '../app/screens/SleepAssessment';
 import ResultsScreen from '../app/screens/ResultsScreen';
 import { doc, getDoc } from 'firebase/firestore';
 import BottomTabNavigator from '../components/BottomTabNavigator';
-import { FIRESTORE_DB, FIREBASE_AUTH } from '../FirebaseConfig';
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { FIRESTORE_DB } from '../FirebaseConfig';
+import { useEffect } from 'react';
 
 const Stack = createStackNavigator();
 

@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Pressable, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector'; // Import the switch selector
 import Slider from '@react-native-community/slider';
 import { DateComponent } from '../../components/DateComponent';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
+import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
+
+// Accidentally clearing the form if there IS data instead of clearing it if there's NOT saved data
 
 const OptionButton: React.FC<{
     label: string;
@@ -54,11 +58,20 @@ const SleepTrackerScreen: React.FC = () => {
       );
   };
 
+  const hoursToMinutes = (hoursString: string): number => {
+    const hours = parseInt(hoursString, 10); // Convert string to integer base 10
+    if (!isNaN(hours)) {
+      return hours * 60; // Convert hours to minutes
+    } else {
+      console.log('Invalid input for hours:', hoursString);
+      return 0; // Return 0 or some error value if the input is not a number
+    }
+  };  
+
   const [date, setDate] = useState(new Date());
   const [isDeployed, setIsDeployed] = useState(false);
   const [isOnDuty, setIsOnDuty] = useState(false);
   const [isAtHome, setIsAtHome] = useState(false);
-
   const [sliderValue, setSliderValue] = useState<number>(5);
 
 // Function to convert slider value to a string
@@ -72,29 +85,213 @@ const getSleepRating = (value: number): string => {
   const labelPosition = sliderValue / 5 * (sliderWidth - (isNaN(labelWidth) ? 0 : labelWidth)) + 20;
 
   // Sleep time related questions
-  const [hours, setHours] = useState<string>('0');
-  const [minutes, setMinutes] = useState<string>('0');
   const [timesWokeUp, setTimesWokeUp] = useState<string>('');
-  const [naps, setNaps] = useState<string>('0');
-  const [sleepMedications, setSleepMedications] = useState<string>('0');
+  const [naps, setNaps] = useState(false);
+  const [sleepMedications, setSleepMedications] = useState(false);
   const [comments, setComments] = useState<string>('');
+  const [inBedHours, setInBedHours] = useState<string>('0');
+  const [inBedMinutes, setInBedMinutes] = useState<string>('0');
+  const [fallAsleepHours, setFallAsleepHours] = useState<string>('0');
+  const [fallAsleepMinutes, setFallAsleepMinutes] = useState<string>('0');
+  const [timeAsleepHours, setTimeAsleepHours] = useState<string>('0');
+  const [timeAsleepMinutes, setTimeAsleepMinutes] = useState<string>('0');
+  const [napTimeHours, setNapTimeHours] = useState<string>('0');
+  const [napTimeMinutes, setNapTimeMinutes] = useState<string>('0');
 
-  const saveData = async () => {
-    return;
-  }
+  const getIsDeployed = () => {
+    return isDeployed ? "yes" : "no";
+  };
+
+  const getIsOnDuty = () => {
+    return isOnDuty ? "yes" : "no";
+  };
+
+  const getIsAtHome = () => {
+    return isAtHome ? "yes" : "no";
+  };
+
+  const getTimesWokeUp = () => {
+    return timesWokeUp;
+  };
+
+  const getNaps = () => {
+    return naps ? "yes" : "no";
+  };
+
+  const getMeds = () => {
+    return sleepMedications ? "yes" : "no";
+  };
+
+  const getComments = () => {
+    return comments;
+  };
+
+  const getTotalTimeInBed = () => {
+    // Parse inBedHours and inBedMinutes as integers and add them together
+    const totalMinutes = parseInt(inBedMinutes, 10) + hoursToMinutes(inBedHours);
+    return totalMinutes.toString(); // Convert the result back to a string if needed
+  };
+  
+  const getTotalNapTime = () => {
+    // Parse napTimeHours and napTimeMinutes as integers and add them together
+    const totalMinutes = parseInt(napTimeMinutes, 10) + hoursToMinutes(napTimeHours);
+    return totalMinutes.toString(); // Convert the result back to a string if needed
+  };
+  
+  const getTotalTimeAsleep = () => {
+    // Parse timeAsleepHours and timeAsleepMinutes as integers and add them together
+    const totalMinutes = parseInt(timeAsleepMinutes, 10) + hoursToMinutes(timeAsleepHours);
+    return totalMinutes.toString(); // Convert the result back to a string if needed
+  };
+  
+  const getTotalFallAsleepTime = () => {
+    // Parse fallAsleepHours and fallAsleepMinutes as integers and add them together
+    const totalMinutes = parseInt(fallAsleepMinutes, 10) + hoursToMinutes(fallAsleepHours);
+    return totalMinutes.toString(); // Convert the result back to a string if needed
+  };
+
+  // Function to clear form fields
+  const clearForm = () => {
+    setIsDeployed(false);
+    setIsOnDuty(false);
+    setIsAtHome(false);
+    setTimesWokeUp('');
+    setNaps(false);
+    setSleepMedications(false);
+    setComments('');
+    setInBedHours('0');
+    setInBedMinutes('0');
+    setNapTimeHours('0');
+    setNapTimeMinutes('0');
+    setTimeAsleepHours('0');
+    setTimeAsleepMinutes('0');
+    setFallAsleepHours('0');
+    setFallAsleepMinutes('0');
+    setSliderValue(5);
+  };
+
+  const saveSleepTrackerData = async () => {
+    const userId = FIREBASE_AUTH.currentUser?.uid;
+    if (!userId) {
+      alert("You must be logged in to save your sleep data.");
+      return;
+    }
+  
+    const formattedDate = date.toISOString().split('T')[0];
+    const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+    const sleepTrackerDataRef = doc(collection(userDocRef, 'Sleep Tracker Data'), formattedDate);
+  
+    const sleepData = {
+      deployed: getIsDeployed(),
+      onDuty: getIsOnDuty(),
+      atHome: getIsAtHome(),
+      wokeUp: getTimesWokeUp(),
+      napStatus: getNaps(),
+      sleepMeds: getMeds(),
+      dailyComments: getComments(),
+      inBed: `${getTotalTimeInBed()}`,
+      napTime: `${getTotalNapTime()}`,
+      asleep: `${getTotalTimeAsleep()}`,
+      fallAsleep: `${getTotalFallAsleepTime()}`
+    };
+  
+    try {
+      await setDoc(sleepTrackerDataRef, sleepData);
+      console.log('Sleep data saved successfully.');
+    } catch (error) {
+      console.error('Error saving sleep data:', error);
+    }
+  };
+  
+
+  // const saveSleepTrackerData = async () => {
+  //   const userId = FIREBASE_AUTH.currentUser?.uid;
+  //   if (!userId) {
+  //     alert("You must be logged in to save your sleep data.");
+  //     return;
+  //   }
+  
+  //   const formattedDate = date.toISOString().split('T')[0];
+
+  //   const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+  //   const sleepTrackerDataRef = doc(collection(userDocRef, 'Sleep Tracker Data'), formattedDate);
+
+  //   const deployed = getIsDeployed();
+  //   const onDuty = getIsOnDuty();
+  //   const atHome = getIsAtHome();
+  //   const wokeUp = getTimesWokeUp();
+  //   const napStatus = getNaps();
+  //   const meds = getMeds();
+  //   const dailyComments = getComments();
+  //   const inBed = getTotalTimeInBed();
+  //   const napTime = getTotalNapTime();
+  //   const asleep = getTotalTimeAsleep();
+  //   const fallAsleep = getTotalFallAsleepTime();
+
+  //   const sleepData = {
+  //     deployed: getIsDeployed(),
+  //     onDuty: getIsOnDuty(),
+  //     atHome: getIsAtHome(),
+  //     wokeUp: getTimesWokeUp(),
+  //     napStatus: getNaps(),
+  //     sleepMeds: getMeds(),
+  //     dailyComments: getComments(),
+  //     inBed: getTotalTimeInBed(),
+  //     napTime: getTotalNapTime(),
+  //     asleep: getTotalTimeAsleep(),
+  //     fallAsleep: getTotalFallAsleepTime()
+  //   };
+  
+  //   try {
+  //     await setDoc(sleepTrackerDataRef, sleepData);
+  //     console.log('Sleep data saved successfully.');
+  //   } catch (error) {
+  //     console.error('Error saving sleep data:', error);
+  //   }
+  // };
+
+  useEffect(() => {
+    const userId = FIREBASE_AUTH.currentUser?.uid;
+    if (!userId) return;
+  
+    const formattedDate = date.toISOString().split('T')[0];
+    const sleepDataRef = doc(collection(FIRESTORE_DB, 'Users', userId, 'Sleep Tracker Data'), formattedDate);
+  
+    const unsubscribe = onSnapshot(sleepDataRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setIsDeployed(data.deployed === "yes");
+        setIsOnDuty(data.onDuty === "yes");
+        setIsAtHome(data.atHome === "yes");
+        setTimesWokeUp(data.wokeUp || '');  // Ensure default values are set if data is missing
+        setNaps(data.napStatus === "yes");
+        setSleepMedications(data.sleepMeds === "yes");
+        setComments(data.dailyComments || '');
+        setInBedHours(data.inBed.split(':')[0]);
+        setInBedMinutes(data.inBed.split(':')[1]);
+        setNapTimeHours(data.napTime.split(':')[0]);
+        setNapTimeMinutes(data.napTime.split(':')[1]);
+        setTimeAsleepHours(data.asleep.split(':')[0]);
+        setTimeAsleepMinutes(data.asleep.split(':')[1]);
+        setFallAsleepHours(data.fallAsleep.split(':')[0]);
+        setFallAsleepMinutes(data.fallAsleep.split(':')[1]);
+        setSliderValue(data.sliderValue || 5);  // Set default slider value if missing
+      } else {
+        clearForm();
+      }
+    });
+  
+    // Cleanup listener on unmount or when date changes
+    return () => unsubscribe();
+  
+  }, [date]);  // Ensure dependencies are correct here  
 
     return (
       <ScrollView style={styles.scrollView}>
         <View style={styles.container}>
-                {/* <Pressable onPress={() => router.push("/screens/SleepAssessment")} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#52796F" />
-                </Pressable>
-                <Text style={styles.title}>Sleep Tracker</Text> */}
-
-                {/* Day of the week goes here */}
-                <View style={styles.questionContainer}>
-              <DateComponent date={date} setDate={setDate} />
-            </View>
+          <View style={styles.questionContainer}>
+            <DateComponent date={date} setDate={setDate} />
+          </View>
 
             <View style={styles.switchContainer}>
                 <Text style={styles.questionText}>On Duty?</Text>
@@ -181,16 +378,16 @@ const getSleepRating = (value: number): string => {
           <View style={styles.timeContainer}>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setHours}
-              value={hours}
+              onChangeText={setInBedHours}
+              value={inBedHours}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 99 hours
             />
             <Text style={styles.unitText}>hours</Text>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setMinutes}
-              value={minutes}
+              onChangeText={setInBedMinutes}
+              value={inBedMinutes}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 59 minutes
             />
@@ -205,16 +402,16 @@ const getSleepRating = (value: number): string => {
           <View style={styles.timeContainer}>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setHours}
-              value={hours}
+              onChangeText={setTimeAsleepHours}
+              value={timeAsleepHours}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 99 hours
             />
             <Text style={styles.unitText}>hours</Text>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setMinutes}
-              value={minutes}
+              onChangeText={setTimeAsleepMinutes}
+              value={timeAsleepMinutes}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 59 minutes
             />
@@ -229,16 +426,16 @@ const getSleepRating = (value: number): string => {
           <View style={styles.timeContainer}>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setHours}
-              value={hours}
+              onChangeText={setFallAsleepHours}
+              value={fallAsleepHours}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 99 hours
             />
             <Text style={styles.unitText}>hours</Text>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setMinutes}
-              value={minutes}
+              onChangeText={setFallAsleepMinutes}
+              value={fallAsleepMinutes}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 59 minutes
             />
@@ -304,16 +501,16 @@ const getSleepRating = (value: number): string => {
           <View style={styles.timeContainer}>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setHours}
-              value={hours}
+              onChangeText={setNapTimeHours}
+              value={napTimeHours}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 99 hours
             />
             <Text style={styles.unitText}>hours</Text>
             <TextInput
               style={styles.timeInput}
-              onChangeText={setMinutes}
-              value={minutes}
+              onChangeText={setNapTimeMinutes}
+              value={napTimeMinutes}
               keyboardType="numeric"
               maxLength={2} // Assuming we want to limit to 59 minutes
             />
@@ -333,7 +530,7 @@ const getSleepRating = (value: number): string => {
           />
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={saveData}>
+        <TouchableOpacity style={styles.button} onPress={saveSleepTrackerData}>
           <Text style={styles.buttonText}>Save</Text>
         </TouchableOpacity>
           

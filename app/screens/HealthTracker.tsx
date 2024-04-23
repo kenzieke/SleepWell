@@ -85,9 +85,8 @@ const HealthTrackerScreen: React.FC = () => {
     if (!userId) return;
   
     const formattedDate = date.toISOString().split('T')[0];
-    const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'healthData'), formattedDate);
+    const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'Health Tracker Data'), formattedDate);
   
-    console.log(`Saving weight unit as: ${weightUnit}`);
     const unsubscribe = onSnapshot(healthDataRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -154,7 +153,7 @@ const HealthTrackerScreen: React.FC = () => {
     } catch (error) {
       console.error('Error saving health data:', error);
     }
-  };  
+  };
   
   const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
   const [labelWidth, setLabelWidth] = useState(0);
@@ -197,22 +196,6 @@ const HealthTrackerScreen: React.FC = () => {
                         keyboardType="numeric"
                         placeholder="Enter here"
                     />
-                    {/* <SwitchSelector
-                        initial={0}
-                        onPress={value => setWeightUnit(value)}
-                        textColor={'#BDBDBD'} // your active text color
-                        selectedColor={'#52796F'} // the color for the label text when it is selected
-                        buttonColor={'#BDBDBD'} // the color for the button when it is selected
-                        borderColor={'#BDBDBD'} // border color
-                        hasPadding
-                        maxLength={3}
-                        options={[
-                        { label: 'kgs', value: 'lbs' },
-                        { label: 'lbs', value: 'kgs' },
-                        ]}
-                        style={styles.switchSelector}
-                        buttonStyle={styles.switchButton}
-                    /> */}
                     <SwitchSelector
                       initial={weightUnit === 'kgs' ? 0 : 1}
                       onPress={(value) => setWeightUnit(value)}
