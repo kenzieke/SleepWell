@@ -105,6 +105,7 @@ const SleepTrackerScreen: React.FC = () => {
   const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
   const [labelWidth, setLabelWidth] = useState(0);
   const labelPosition = sliderValue / 5 * (sliderWidth - (isNaN(labelWidth) ? 0 : labelWidth)) + 20;
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
@@ -112,8 +113,12 @@ const SleepTrackerScreen: React.FC = () => {
   
     const formattedDate = date.toISOString().split('T')[0];
     const sleepDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'sleepData'), formattedDate);
+
+    console.log(`Setting up snapshot listener for date: ${formattedDate}`);
+    setIsLoading(true);
   
     const unsubscribe = onSnapshot(sleepDataRef, (docSnap) => {
+      console.log(`Snapshot received for date: ${formattedDate}, exists: ${docSnap.exists()}`);
       if (docSnap.exists()) {
         const data = docSnap.data();
         setIsDeployed(data.isDeployed || false);
@@ -132,14 +137,18 @@ const SleepTrackerScreen: React.FC = () => {
         setFallAsleepHours(data.fallAsleepHours || '0');
         setFallAsleepMinutes(data.fallAsleepMinutes || '0');
         setSliderValue(data.sliderValue || 5);
+        setIsLoading(false);
       } else {
-        clearForm();
+        if (!isLoading) {
+          clearForm();
+        }
       }
     });
   
-    // Cleanup listener on unmount or when date changes
-    return unsubscribe;
-  
+    return () => {
+      console.log(`Cleaning up snapshot listener for date: ${formattedDate}`);
+      unsubscribe();
+    };
   }, [date]);
 
   const saveData = async () => {

@@ -80,13 +80,17 @@ const HealthTrackerScreen: React.FC = () => {
     setSliderValue(5);
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+  
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
     if (!userId) return;
-  
+    
     const formattedDate = date.toISOString().split('T')[0];
-    const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'Health Tracker Data'), formattedDate);
+    const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'healthData'), formattedDate);
   
+    setIsLoading(true);
+    
     const unsubscribe = onSnapshot(healthDataRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -96,17 +100,20 @@ const HealthTrackerScreen: React.FC = () => {
         setFastFood(data.fastFood);
         setSteps(data.steps);
         setGoals(data.goals);
-        setDailyWeight(data.dailyWeight);
-        setWeightUnit(data.weightUnit);
+        setDailyWeight(data.weight?.value);
+        setWeightUnit(data.weight?.unit || 'kgs');
         setSliderValue(data.sliderValue);
+        setIsLoading(false);
       } else {
-        clearForm();
+        if (!isLoading) {
+          clearForm();
+        }
+        setIsLoading(false);
       }
     });
-  
-    // Cleanup listener on unmount or when date changes
-    return unsubscribe;
-  
+    
+    return () => unsubscribe; // Unsubscribe when the component unmounts or the date changes
+    
   }, [date]);
 
   // Function to convert slider value to a string
@@ -196,13 +203,29 @@ const HealthTrackerScreen: React.FC = () => {
                         keyboardType="numeric"
                         placeholder="Enter here"
                     />
-                    <SwitchSelector
+                    {/* <SwitchSelector
                       initial={weightUnit === 'kgs' ? 0 : 1}
                       onPress={(value) => setWeightUnit(value)}
                       textColor={'#BDBDBD'} // your active text color
                       selectedColor={'#52796F'} // the color for the label text when it is selected
                       buttonColor={'#BDBDBD'} // the color for the button when it is selected
                       borderColor={'#BDBDBD'} // border color
+                      hasPadding
+                      options={[
+                        { label: 'kgs', value: 'kgs' },
+                        { label: 'lbs', value: 'lbs' },
+                      ]}
+                      style={styles.switchSelector}
+                      buttonStyle={styles.switchButton}
+                    /> */}
+                    <SwitchSelector
+                      key={weightUnit} // add this line
+                      initial={weightUnit === 'kgs' ? 0 : 1}
+                      onPress={(value) => setWeightUnit(value)}
+                      textColor={'#BDBDBD'}
+                      selectedColor={'#52796F'}
+                      buttonColor={'#BDBDBD'}
+                      borderColor={'#BDBDBD'}
                       hasPadding
                       options={[
                         { label: 'kgs', value: 'kgs' },
