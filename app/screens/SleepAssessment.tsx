@@ -192,10 +192,10 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
       risk = 5;
     } else if ((scores.snoreLoudlyScore >= 3 && scores.feelTiredScore >= 3) || ((scores.snoreLoudlyScore >= 3 || scores.feelTiredScore >= 3) && scores.bmi >= 25)) { // potentially undefined if incorrect user input
       console.log("You're at risk of sleep apnea.");
-      risk = (scores.snoreLoudlyScore + scores.feelTiredScore) / 2;
+      risk = 3;
     } else {
       console.log("You're at a low risk of sleep apnea.");
-      risk = (scores.snoreLoudlyScore + scores.feelTiredScore) / 2;
+      risk = 1;
     }
     return risk;
   };

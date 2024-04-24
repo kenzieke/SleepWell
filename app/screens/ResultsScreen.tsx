@@ -5,27 +5,83 @@ import { doc, getDoc } from 'firebase/firestore';
 
 const scaleImage = require('../../assets/scale.png');
 
+const getInsomniaSeverityDescription = (score) => {
+  let description = "The ISI score is a widely recognized and clinically validated screening tool used by clinicians to evaluate insomnia. Here's what the score means: ";
+
+  if (score >= 8 && score <= 14) {
+    description += `Sub-threshold insomnia - Sleep Well offers effective strategies to manage occasional sleep difficulties, enhance sleep quality, and prevent the progression into chronic insomnia.`;
+  } else if (score >= 15 && score <= 21) {
+    description += `Moderate insomnia - Sleep Well helps identify and modify thoughts and behaviors that contribute to sleep difficulties, introduces techniques like sleep restriction and stimulus control to help regulate sleep patterns, and offers ways to manage stress, anxiety, and negative thoughts that can interfere with sleep.`;
+  } else if (score >= 22 && score <= 28) {
+    description += `Severe insomnia - Sleep Well delivers a science-based, comprehensive intervention for severe insomnia, employing sleep restriction, stimulus control, relaxation techniques, and cognitive restructuring to address sleep difficulties and promote sustainable improvements in sleep duration and quality.`;
+  } else {
+    description += `Not clinically significant insomnia - Tailor how the app will help you.`;
+  }
+  return `${description}\n\n*Note: this is not meant to be a medical diagnosis of insomnia.`;
+};
+
+const getSleepApneaDescription = (score) => {
+  let riskLevel;
+  switch (score) {
+    case 5:
+      riskLevel = 'High';
+      break;
+    case 3:
+      riskLevel = 'at';
+      break;
+    case 1:
+      riskLevel = 'Low';
+      break;
+    default:
+      riskLevel = 'an undetermined';
+      break;
+  }
+  return `You appear at ${riskLevel} risk for having obstructive sleep apnea. Sleep apnea has been linked to daytime sleepiness, reduced alertness, lethargy and impaired driving. It is also associated with hypertension and stroke. To determine if you have sleep apnea, it is necessary to be evaluated by a physician. 
+
+*Note: this is not meant to be a medical diagnosis of sleep apnea.`;
+};
+
+const getBMIDescription = (score) => {
+  let bmiRange;
+  switch (score) {
+    case (18 <= score && score <= 25):
+      bmiRange = 'in a healthy range';
+      break;
+    case (25 < score && score <= 30):
+      bmiRange = 'an area for some improvement';
+      break;
+    case (score > 30):
+      bmiRange = 'an area for improvement';
+      break;
+    default:
+      bmiRange = 'an undetermined';
+      break;
+  }
+  return `Your body mass index is ${bmiRange}.
+
+BMI is not a perfect measure but can help determine risk of sleep disorders and chronic diseases. If you have a BMI of 25 or more, our program includes proven strategies to promote healthy weight loss to improve sleep.`;
+};
+
 const getCategoryDetails = (results) => ({
   'Insomnia Severity Index': {
     image: scaleImage,
     score: results.insomniaSeverityIndex || 'Not available', // Use the actual score from state
-    description: 'The ISI score is a widely recognized and clinically validated screening tool used by clinicians to evaluate insomnia. Here\'s what the score means: *Note: this is not meant to be a medical diagnosis of insomnia.',
+    description: results.insomniaSeverityIndex ? getInsomniaSeverityDescription(results.insomniaSeverityIndex) : 'No score available.',
   },
   'Sleep Apnea Risk': {
     image: scaleImage,
     score: results.sleepApneaRisk || 'Not available',
-    description: 'You appear at risk for having obstructive sleep apnea. Sleep apnea has been linked to daytime sleepiness, reduced alertness, lethargy and impaired driving. It is also associated with hypertension and stroke. To determine if you have sleep apnea, it is necessary to be evaluated by a physician. *Note: this is not meant to be a medical diagnosis of sleep apnea.',
+    description: results.sleepApneaRisk ? getSleepApneaDescription(results.sleepApneaRisk) : 'No score available.',
   },
-  // Repeat for other categories
   'Sleep Efficiency': {
     image: scaleImage,
     score: results.sleepEfficiency || 'Not available',
-    description: 'Your sleep efficiency is the percent of time that you spent asleep while in bed. The higher your sleep efficiency the better. Most sleep specialists consider a sleep efficiency of 85% and higher to be healthy. Our program is designed to help firefighters improve their sleep efficiency. This means, falling asleep faster and improving sleep quality and duration.',
+    description: `Your sleep efficiency is the percent of time that you spent asleep while in bed. The higher your sleep efficiency the better.\n\nMost sleep specialists consider a sleep efficiency of 85% and higher to be healthy.\n\nOur program is designed to help firefighters improve their sleep efficiency. This means, falling asleep faster and improving sleep quality and duration.`,
   },
   'Body Mass Index': {
     image: scaleImage,
     score: results.bmi || 'Not available',
-    description: 'BMI is not a perfect measure but can help determine risk of sleep disorders and chronic diseases. If you have a BMI of 25 or more, our program includes proven strategies to promote healthy weight loss to improve sleep.'
+    description: results.bmi ? getBMIDescription(results.bmi) : 'No score available.',
   },
   'Diet': {
     image: scaleImage,
@@ -138,73 +194,6 @@ const ResultsScreen = ({ navigation }) => {
     </ScrollView>
   );
 };
-
-// const ResultsScreen = ({ navigation }) => {
-//   const [isModalVisible, setModalVisible] = useState(false);
-//   const [selectedCategory, setSelectedCategory] = useState(null);
-
-//   const handleCategoryPress = (category) => {
-//     setSelectedCategory(category);
-//     setModalVisible(true);
-//   };
-
-//   // Function to render the modal content
-//   const renderModalContent = () => {
-//     // Get the details for the selected category
-//     const details = categoryDetails[selectedCategory];
-    
-//     return (
-//       <View style={styles.modalContent}>
-//         <Text style={styles.modalHeaderText}>
-//           Your {selectedCategory} score is:
-//         </Text>
-//         <Text style={styles.modalScoreText}>{details.score}</Text>
-//         <Text style={styles.modalDescriptionText}>{details.description}</Text>
-//         <TouchableOpacity
-//           onPress={() => setModalVisible(false)}
-//           style={styles.button}>
-//           <Text style={styles.buttonText}>Close</Text>
-//         </TouchableOpacity>
-//       </View>
-//     );
-//   };
-
-//   return (
-//     <ScrollView style={styles.scrollView}>
-//       <View style={styles.container}>
-//         <Text style={styles.instructionText}>
-//           Click on any of the following categories to see more about your results.
-//         </Text>
-
-//         {/* Loop through the categories array */}
-//         {categories.map((category) => (
-//           <TouchableOpacity
-//             key={category.name}
-//             style={styles.categoryContainer}
-//             onPress={() => handleCategoryPress(category.name)}
-//           >
-//             <Text style={styles.categoryText}>{category.name}</Text>
-//             <Image
-//               source={category.image}
-//               style={styles.scaleImage}
-//               resizeMode="contain"
-//             />
-//           </TouchableOpacity>
-//         ))}
-//       </View>
-//       {/* Modal component */}
-//       <Modal
-//         animationType="slide"
-//         transparent={true}
-//         visible={isModalVisible}
-//         onRequestClose={() => setModalVisible(false)}>
-//         <View style={styles.centeredView}>
-//           {selectedCategory && renderModalContent()}
-//         </View>
-//       </Modal>
-//     </ScrollView>
-//   );
-// };
 
 const styles = StyleSheet.create({
   scrollView: {
