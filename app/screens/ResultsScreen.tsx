@@ -24,13 +24,13 @@ const getSleepApneaDescription = (score) => {
   let riskLevel;
   switch (score) {
     case 5:
-      riskLevel = 'High';
+      riskLevel = 'high';
       break;
     case 3:
       riskLevel = 'at';
       break;
     case 1:
-      riskLevel = 'Low';
+      riskLevel = 'low';
       break;
     default:
       riskLevel = 'an undetermined';
@@ -43,23 +43,81 @@ const getSleepApneaDescription = (score) => {
 
 const getBMIDescription = (score) => {
   let bmiRange;
-  switch (score) {
-    case (18 <= score && score <= 25):
-      bmiRange = 'in a healthy range';
-      break;
-    case (25 < score && score <= 30):
-      bmiRange = 'an area for some improvement';
-      break;
-    case (score > 30):
-      bmiRange = 'an area for improvement';
-      break;
-    default:
-      bmiRange = 'an undetermined';
-      break;
+  if (score >= 18 && score <= 25) {
+    bmiRange = 'in a healthy range';
+  } else if (score > 25 && score <= 30) {
+    bmiRange = 'an area for some improvement';
+  } else if (score > 30) {
+    bmiRange = 'an area for improvement';
+  } else {
+    bmiRange = 'an undetermined';
   }
   return `Your body mass index is ${bmiRange}.
 
 BMI is not a perfect measure but can help determine risk of sleep disorders and chronic diseases. If you have a BMI of 25 or more, our program includes proven strategies to promote healthy weight loss to improve sleep.`;
+};
+
+const getDietDescription = (score) => {
+  let dietScore;
+  switch (score) {
+    case 5:
+      dietScore = 'an area for improvement';
+      break;
+    case 3:
+      dietScore = 'getting there';
+      break;
+    case 1:
+      dietScore = 'doing great';
+      break;
+    default:
+      dietScore = 'an undetermined';
+      break;
+  }
+  return `Your diet is ${dietScore}.
+  
+A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.`;
+};
+
+const getActivityDescription = (score) => {
+  let pa;
+  switch (score) {
+    case 5:
+      pa = 'an area for improvement';
+      break;
+    case 3:
+      pa = 'getting there';
+      break;
+    case 1:
+      pa = 'doing great';
+      break;
+    default:
+      pa = 'an undetermined';
+      break;
+  }
+  return `Your physical activity is ${pa}.
+
+A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.`
+};
+
+const getStressDescription = (score) => {
+  let stressScore;
+  switch (score) {
+    case 5:
+      stressScore = 'an area for improvement';
+      break;
+    case 3:
+      stressScore = 'getting there';
+      break;
+    case 1:
+      stressScore = 'doing great';
+      break;
+    default:
+      stressScore = 'an undetermined';
+      break;
+  }
+  return `Your stress is ${stressScore}.
+  
+Managing stress is a key part of sleep health. Our program provides tools to help manage stress both on and off duty.`;
 };
 
 const getCategoryDetails = (results) => ({
@@ -86,17 +144,17 @@ const getCategoryDetails = (results) => ({
   'Diet': {
     image: scaleImage,
     score: results.diet || 'Not available',
-    description: 'A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.',
+    description: results.diet ? getDietDescription(results.diet) : 'No score available.',
   },
   'Physical Activity': {
     image: scaleImage,
     score: results.physicalActivity || 'Not available',
-    description: 'Regular physical activity has been linked with improved sleep quality (but avoid vigorous activity right before bed).',
+    description: results.physicalActivity ? getActivityDescription(results.physicalActivity) : 'No score available.',
   },
   'Stress': {
     image: scaleImage,
     score: results.stress || 'Not available',
-    description: 'Managing stress is a key part of sleep health. Our program provides tools to help manage stress both on and off duty.',
+    description: results.stress ? getStressDescription(results.stress) : 'No score available.',
   }
 });
 

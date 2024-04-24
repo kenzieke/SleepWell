@@ -183,10 +183,6 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
 
     let risk = 0;
 
-    // if stopBreathingScore != 1 regardless of all answers, then high risk -> console.log('You're at a high risk')
-    // if (snoreLoudlyScore >= 3 and feelTiredScore >= 3) OR ((snoreLoudlyScore >= 3 or feelTiredScore >= 3) and bmiScore >= 25), then at risk -> console.log('You're at risk')
-    // else low risk -> console.log('You're at a low risk')
-
     if (scores.stopBreathingScore !== 1) {
       console.log("You're at a high risk of sleep apnea.");
       risk = 5;
@@ -210,7 +206,6 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
       numberOfTimesAwake: parseInt(timesWakeUp, 10),
     };
 
-    // TODO: Check this math, it should be a percentage so it shouldn't be larger than 100
     const sleepEfficiency = (totalTimes.totalSleepMinutes / (totalTimes.totalSleepMinutes + totalTimes.totalFallAsleepMinutes + totalTimes.totalSleepMinutes)) * 100;
     if (!isNaN(sleepEfficiency)) {
       console.log('Your sleep efficiency is:', sleepEfficiency.toFixed(2));
@@ -233,7 +228,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
       diet = 5;
     } else if (totalDrinks >= 2 && totalDrinks <= 3) {
       console.log('Yellow.');
-      diet = totalDrinks / 2;
+      diet = 3;
     } else {
       console.log('Green.');
       diet = 1;
@@ -262,14 +257,15 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
   const getStress = () => {
     console.log('Function getStress started'); // For debugging
     const stressScore = getMappedValue(stressLevel.text);
+    let stressResult = 0;
     if (stressScore >= 0 && stressScore <= 1) {
-      console.log('Green.', stressScore); // For debugging
+      stressResult = 1;
     } else if (stressScore >= 2 && stressScore <= 3) {
-      console.log('Yellow.', stressScore); // For debugging
+      stressResult = 3;
     } else {
-      console.log('Red.', stressScore); // For debugging
+      stressResult = 5;
     }
-    return stressScore;
+    return stressResult;
   }
 
   const calculateResults = async () => {
