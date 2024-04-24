@@ -282,13 +282,15 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     const stress = getStress();
 
     const results = {
-      bmi: calculateBMI(),
-      diet: getDiet(),
-      insomniaSeverityIndex: getInsomniaSeverityIndex(),
-      physicalActivity: getPhysicalActivity(),
-      sleepApneaRisk: getSleepApneaRisk(),
-      sleepEfficiency: getSleepEfficiency(),
-      stress: getStress(),
+      isDeployed,
+      isOnDuty,
+      bmi,
+      diet,
+      insomniaSeverityIndex,
+      physicalActivity,
+      sleepApneaRisk,
+      sleepEfficiency,
+      stress,
       completedAssessment: true
     };
   

@@ -203,21 +203,6 @@ const HealthTrackerScreen: React.FC = () => {
                         keyboardType="numeric"
                         placeholder="Enter here"
                     />
-                    {/* <SwitchSelector
-                      initial={weightUnit === 'kgs' ? 0 : 1}
-                      onPress={(value) => setWeightUnit(value)}
-                      textColor={'#BDBDBD'} // your active text color
-                      selectedColor={'#52796F'} // the color for the label text when it is selected
-                      buttonColor={'#BDBDBD'} // the color for the button when it is selected
-                      borderColor={'#BDBDBD'} // border color
-                      hasPadding
-                      options={[
-                        { label: 'kgs', value: 'kgs' },
-                        { label: 'lbs', value: 'lbs' },
-                      ]}
-                      style={styles.switchSelector}
-                      buttonStyle={styles.switchButton}
-                    /> */}
                     <SwitchSelector
                       key={weightUnit} // add this line
                       initial={weightUnit === 'kgs' ? 0 : 1}

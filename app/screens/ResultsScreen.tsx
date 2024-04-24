@@ -1,7 +1,48 @@
-import React, { useState } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, Image, StyleSheet, Modal } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, TouchableOpacity, Modal, Image, StyleSheet } from 'react-native';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 const scaleImage = require('../../assets/scale.png');
+
+const getCategoryDetails = (results) => ({
+  'Insomnia Severity Index': {
+    image: scaleImage,
+    score: results.insomniaSeverityIndex || 'Not available', // Use the actual score from state
+    description: 'The ISI score is a widely recognized and clinically validated screening tool used by clinicians to evaluate insomnia. Here\'s what the score means: *Note: this is not meant to be a medical diagnosis of insomnia.',
+  },
+  'Sleep Apnea Risk': {
+    image: scaleImage,
+    score: results.sleepApneaRisk || 'Not available',
+    description: 'You appear at risk for having obstructive sleep apnea. Sleep apnea has been linked to daytime sleepiness, reduced alertness, lethargy and impaired driving. It is also associated with hypertension and stroke. To determine if you have sleep apnea, it is necessary to be evaluated by a physician. *Note: this is not meant to be a medical diagnosis of sleep apnea.',
+  },
+  // Repeat for other categories
+  'Sleep Efficiency': {
+    image: scaleImage,
+    score: results.sleepEfficiency || 'Not available',
+    description: 'Your sleep efficiency is the percent of time that you spent asleep while in bed. The higher your sleep efficiency the better. Most sleep specialists consider a sleep efficiency of 85% and higher to be healthy. Our program is designed to help firefighters improve their sleep efficiency. This means, falling asleep faster and improving sleep quality and duration.',
+  },
+  'Body Mass Index': {
+    image: scaleImage,
+    score: results.bmi || 'Not available',
+    description: 'BMI is not a perfect measure but can help determine risk of sleep disorders and chronic diseases. If you have a BMI of 25 or more, our program includes proven strategies to promote healthy weight loss to improve sleep.'
+  },
+  'Diet': {
+    image: scaleImage,
+    score: results.diet || 'Not available',
+    description: 'A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.',
+  },
+  'Physical Activity': {
+    image: scaleImage,
+    score: results.physicalActivity || 'Not available',
+    description: 'Regular physical activity has been linked with improved sleep quality (but avoid vigorous activity right before bed).',
+  },
+  'Stress': {
+    image: scaleImage,
+    score: results.stress || 'Not available',
+    description: 'Managing stress is a key part of sleep health. Our program provides tools to help manage stress both on and off duty.',
+  }
+});
 
 // Define the categories as an array of objects
 const categories = [
@@ -14,60 +55,39 @@ const categories = [
   { name: 'Stress', image: scaleImage },
 ];
 
-// Define the categories as an array of objects with additional description and score
-// TODO: Replace the XX with the user's score by querying from the database
-const categoryDetails = {
-  'Insomnia Severity Index': {
-    image: scaleImage,
-    score: 'XX', // Replace 'XX' with the actual score from your state or props
-    description: 'The ISI score is a widely recognized and clinically validated screening tool used by clinicians to evaluate insomnia. Here\'s what the score means: *Note: this is not meant to be a medical diagnosis of insomnia.',
-  },
-  'Sleep Apnea Risk': {
-    image: scaleImage,
-    score: 'XX', // Replace 'XX' with the actual score from your state or props
-    description: 'You appear at (High, low, or just say risk) risk for having obstructive sleep apnea.  Sleep apnea has been linked to daytime sleepiness, reduced alertness, lethargy and impaired driving. It is also associated with hypertension and stroke.  To determine if you have sleep apnea, it is necessary to be evaluated by a physician. *Note: this is not meant to be a medical diagnosis of sleep apnea.',
-  },
-  'Sleep Efficiency': {
-    image: scaleImage,
-    score: 'XX', // Replace 'XX' with the actual score from your state or props
-    description: 'Your sleep efficiency is the percent of time that you spent asleep while in bed. The higher your sleep efficiency the better. Most sleep specialists consider a sleep efficiency of 85% and higher to be healthy. Our program is designed to help firefighters improve their sleep efficiency.  This means, falling asleep faster and improving sleep quality and duration.',
-  },
-  'Body Mass Index': {
-    image: scaleImage,
-    score: 'XX', // Replace 'XX' with the actual score from your state or props
-    description: 'BMI is not a perfect measure but can help determine risk of sleep disorders and chronic diseases.  If you have a BMI of 25 or more, our program includes proven strategies to promote healthy weight loss to improve sleep.'
-  },
-  'Diet': {
-    image: scaleImage,
-    score: 'XX',
-    description: 'A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.',
-  },
-  'Physical Activity': {
-    image: scaleImage,
-    score: 'XX',
-    description: 'Regular physical activity has been linked with improved sleep quality (but avoid vigorous activity right before bed).',
-  },
-  'Stress': {
-    image: scaleImage,
-    score: 'XX',
-    description: 'Managing stress is a key part of sleep health.  Our program provides tools to help manage stress both on and off duty.',
-  }
-};
-
 const ResultsScreen = ({ navigation }) => {
+  const [results, setResults] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const handleCategoryPress = (category) => {
-    setSelectedCategory(category);
+  useEffect(() => {
+    const fetchResults = async () => {
+      const user = FIREBASE_AUTH.currentUser;
+      if (user) {
+        const userId = user.uid;
+        const resultsDocRef = doc(FIRESTORE_DB, 'users', userId, 'results', `scores_${userId}`);
+        const docSnap = await getDoc(resultsDocRef);
+        if (docSnap.exists()) {
+          setResults(docSnap.data());
+        } else {
+          console.log("No results available.");
+        }
+      }
+    };
+  
+    fetchResults();
+  }, []);  
+
+  const handleCategoryPress = (categoryName) => {
+    setSelectedCategory(categoryName);
     setModalVisible(true);
   };
 
-  // Function to render the modal content
   const renderModalContent = () => {
-    // Get the details for the selected category
-    const details = categoryDetails[selectedCategory];
-    
+    if (!selectedCategory || !results) return null;
+  
+    const details = getCategoryDetails(results)[selectedCategory];
+  
     return (
       <View style={styles.modalContent}>
         <Text style={styles.modalHeaderText}>
@@ -82,7 +102,7 @@ const ResultsScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     );
-  };
+  };  
 
   return (
     <ScrollView style={styles.scrollView}>
@@ -90,8 +110,6 @@ const ResultsScreen = ({ navigation }) => {
         <Text style={styles.instructionText}>
           Click on any of the following categories to see more about your results.
         </Text>
-
-        {/* Loop through the categories array */}
         {categories.map((category) => (
           <TouchableOpacity
             key={category.name}
@@ -107,19 +125,86 @@ const ResultsScreen = ({ navigation }) => {
           </TouchableOpacity>
         ))}
       </View>
-      {/* Modal component */}
       <Modal
         animationType="slide"
         transparent={true}
         visible={isModalVisible}
-        onRequestClose={() => setModalVisible(false)}>
+        onRequestClose={() => setModalVisible(false)}
+      >
         <View style={styles.centeredView}>
-          {selectedCategory && renderModalContent()}
+          {renderModalContent()}
         </View>
       </Modal>
     </ScrollView>
   );
 };
+
+// const ResultsScreen = ({ navigation }) => {
+//   const [isModalVisible, setModalVisible] = useState(false);
+//   const [selectedCategory, setSelectedCategory] = useState(null);
+
+//   const handleCategoryPress = (category) => {
+//     setSelectedCategory(category);
+//     setModalVisible(true);
+//   };
+
+//   // Function to render the modal content
+//   const renderModalContent = () => {
+//     // Get the details for the selected category
+//     const details = categoryDetails[selectedCategory];
+    
+//     return (
+//       <View style={styles.modalContent}>
+//         <Text style={styles.modalHeaderText}>
+//           Your {selectedCategory} score is:
+//         </Text>
+//         <Text style={styles.modalScoreText}>{details.score}</Text>
+//         <Text style={styles.modalDescriptionText}>{details.description}</Text>
+//         <TouchableOpacity
+//           onPress={() => setModalVisible(false)}
+//           style={styles.button}>
+//           <Text style={styles.buttonText}>Close</Text>
+//         </TouchableOpacity>
+//       </View>
+//     );
+//   };
+
+//   return (
+//     <ScrollView style={styles.scrollView}>
+//       <View style={styles.container}>
+//         <Text style={styles.instructionText}>
+//           Click on any of the following categories to see more about your results.
+//         </Text>
+
+//         {/* Loop through the categories array */}
+//         {categories.map((category) => (
+//           <TouchableOpacity
+//             key={category.name}
+//             style={styles.categoryContainer}
+//             onPress={() => handleCategoryPress(category.name)}
+//           >
+//             <Text style={styles.categoryText}>{category.name}</Text>
+//             <Image
+//               source={category.image}
+//               style={styles.scaleImage}
+//               resizeMode="contain"
+//             />
+//           </TouchableOpacity>
+//         ))}
+//       </View>
+//       {/* Modal component */}
+//       <Modal
+//         animationType="slide"
+//         transparent={true}
+//         visible={isModalVisible}
+//         onRequestClose={() => setModalVisible(false)}>
+//         <View style={styles.centeredView}>
+//           {selectedCategory && renderModalContent()}
+//         </View>
+//       </Modal>
+//     </ScrollView>
+//   );
+// };
 
 const styles = StyleSheet.create({
   scrollView: {
