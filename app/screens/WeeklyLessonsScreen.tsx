@@ -1,17 +1,85 @@
-import React from 'react';
-import { ScrollView, View, Text, Image, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import ProgressCircle from '../../components/ProgressCircle';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
+import { doc, onSnapshot } from 'firebase/firestore';
+
+// Define the BMI calculation function
+const calculateBMI = (weightObject: { unit: string; value: string; }, heightInCm: number) => {
+  const weightInKg = weightObject.unit === 'lbs' ? parseFloat(weightObject.value) * 0.45359237 : parseFloat(weightObject.value);
+  const heightInMeters = heightInCm / 100;
+  return weightInKg / (heightInMeters ** 2);
+};
 
 const WeeklyLessonsScreen: React.FC = () => {
-  // Example data, replace with your actual state or props
-  const progressData = [
-    { label: 'Sleep Duration', value: 72.4 },
-    { label: 'Sleep Quality', value: 50.0 },
-    { label: 'Body Composition', value: 38.6 },
-    { label: 'Nutrition', value: 84.3 },
-    { label: 'Physical Activity', value: 90.1 },
-    { label: 'Stress', value: 28.9 },
-  ];
+  const [progressData, setProgressData] = useState([
+    { label: 'Sleep Duration', value: 0 },
+    { label: 'Sleep Quality', value: 0 },
+    { label: 'Body Composition', value: 0 },
+    { label: 'Nutrition', value: 0 },
+    { label: 'Physical Activity', value: 0 },
+    { label: 'Stress', value: 0 },
+  ]);
+
+  const getBMIPercentage = (bmiValue: number) => {
+    if (bmiValue >= 18 && bmiValue <= 25) {
+      return 100;
+    } else if (bmiValue > 25 && bmiValue <= 30) {
+      return 66;
+    } else {
+      return 33;
+    }
+  };
+
+  useEffect(() => {
+    const userId = FIREBASE_AUTH.currentUser?.uid;
+    if (!userId) return;
+
+    // Define references to the healthData and results collections
+    const currentDate = new Date().toISOString().split('T')[0];
+    const healthDataRef = doc(FIRESTORE_DB, 'users', userId, 'healthData', currentDate);
+    const resultsRef = doc(FIRESTORE_DB, 'users', userId, 'results', `scores_${userId}`);
+
+    // Subscribe to changes in healthData and results collections
+    const unsubscribeHealth = onSnapshot(healthDataRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        const steps = data.steps || 0;
+        const physicalActivityPercentage = Math.min(100, (steps / 10000) * 100);
+        
+        // Update the physical activity progress
+        setProgressData(prevData => prevData.map(item => 
+          item.label === 'Physical Activity' ? { ...item, value: physicalActivityPercentage } : item
+        ));
+      }
+    });
+
+    const unsubscribeResults = onSnapshot(resultsRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        console.log("Results data:", data); // Debug log
+        const heightInCm = data.height;
+        const weightObject = data.weight;
+
+        if (heightInCm && weightObject) {
+          const bmiValue = calculateBMI(weightObject, heightInCm);
+          console.log("Calculated BMI Value:", bmiValue); // Debug log
+          const bmiPercentage = getBMIPercentage(bmiValue);
+          console.log("BMI Percentage for progress:", bmiPercentage); // Debug log
+
+          setProgressData(prevData => prevData.map(item =>
+            item.label === 'Body Composition' ? { ...item, value: bmiPercentage } : item
+          ));
+        }
+      }
+    });
+
+    // Cleanup the subscriptions on unmount
+    return () => {
+      unsubscribeHealth();
+      unsubscribeResults();
+    };
+  }, []);
 
   // Split the data into two rows
   const firstRowData = progressData.slice(0, 3);

@@ -150,21 +150,27 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     return total;
   };
 
-  const calculateBMI = () => {
-    let weightInKg;
+  const calculateHeight = () => {
     let heightInMeters;
-    const parsedWeight = parseFloat(weight);
-    if (isNaN(parsedWeight)) {
-      console.log('Invalid weight input:', weight);
-      return;
-    }
-    weightInKg = weightUnit === 'lbs' ? parsedWeight * 0.45359237 : parsedWeight;
     const parsedHeight = parseFloat(height);
     if (isNaN(parsedHeight)) {
       console.log('Invalid height input:', height);
       return;
     }
     heightInMeters = heightUnit === 'in' ? parsedHeight * 0.0254 : parsedHeight / 100;
+    return heightInMeters;
+  }
+
+  const calculateBMI = () => {
+    let weightInKg;
+    const parsedWeight = parseFloat(weight);
+    if (isNaN(parsedWeight)) {
+      console.log('Invalid weight input:', weight);
+      return;
+    }
+    weightInKg = weightUnit === 'lbs' ? parsedWeight * 0.45359237 : parsedWeight;
+
+    const heightInMeters = calculateHeight();
     // BMI = weight in kg / (height in meters)^2
     const bmi = weightInKg / Math.pow(heightInMeters, 2);
     console.log('Your BMI is:', bmi);
@@ -276,6 +282,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     const diet = getDiet();
     const physicalActivity = getPhysicalActivity();
     const stress = getStress();
+    const heightInMeters = calculateHeight();
 
     const results = {
       isDeployed,
@@ -287,6 +294,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
       sleepApneaRisk,
       sleepEfficiency,
       stress,
+      heightInMeters,
       completedAssessment: true
     };
   
