@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import ProgressCircle from '../../components/ProgressCircle';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, onSnapshot } from 'firebase/firestore';
 
 // Define the BMI calculation function
 const calculateBMI = (weightObject: { unit: string; value: string; }, heightInCm: number) => {
@@ -11,7 +11,7 @@ const calculateBMI = (weightObject: { unit: string; value: string; }, heightInCm
   return weightInKg / (heightInMeters ** 2);
 };
 
-const WeeklyLessonsScreen: React.FC = () => {
+const WeeklyLessonsScreen = ({ navigation }) => {
   const [progressData, setProgressData] = useState([
     { label: 'Sleep Duration', value: 0 },
     { label: 'Sleep Quality', value: 0 },
@@ -32,54 +32,75 @@ const WeeklyLessonsScreen: React.FC = () => {
   };
 
   useEffect(() => {
+    const unsubscribeFocus = navigation.addListener('focus', () => {
+      // Triggering the data fetch when the screen comes into focus
+      fetchData();
+    });
+  
+    // Initial fetch when the component mounts
+    fetchData();
+  
+    return () => {
+      // Clean up both the focus listener and the data fetch subscription
+      unsubscribeFocus();
+    };
+  }, [navigation]);
+
+  const fetchData = () => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
     if (!userId) return;
-
-    // Define references to the healthData and results collections
+  
     const currentDate = new Date().toISOString().split('T')[0];
     const healthDataRef = doc(FIRESTORE_DB, 'users', userId, 'healthData', currentDate);
     const resultsRef = doc(FIRESTORE_DB, 'users', userId, 'results', `scores_${userId}`);
+  
+    // Subscribe to changes in the healthData collection for the current date
+    const unsubscribeHealth = onSnapshot(healthDataRef, (healthDoc) => {
+      if (healthDoc.exists()) {
+        const healthData = healthDoc.data();
+        const weightObject = healthData.weight; // This should now be defined
 
-    // Subscribe to changes in healthData and results collections
-    const unsubscribeHealth = onSnapshot(healthDataRef, (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-        const steps = data.steps || 0;
+        const steps = healthData.steps || 0;
         const physicalActivityPercentage = Math.min(100, (steps / 10000) * 100);
         
         // Update the physical activity progress
         setProgressData(prevData => prevData.map(item => 
           item.label === 'Physical Activity' ? { ...item, value: physicalActivityPercentage } : item
         ));
-      }
-    });
-
-    const unsubscribeResults = onSnapshot(resultsRef, (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-        console.log("Results data:", data); // Debug log
-        const heightInCm = data.height;
-        const weightObject = data.weight;
-
-        if (heightInCm && weightObject) {
-          const bmiValue = calculateBMI(weightObject, heightInCm);
-          console.log("Calculated BMI Value:", bmiValue); // Debug log
-          const bmiPercentage = getBMIPercentage(bmiValue);
-          console.log("BMI Percentage for progress:", bmiPercentage); // Debug log
-
-          setProgressData(prevData => prevData.map(item =>
-            item.label === 'Body Composition' ? { ...item, value: bmiPercentage } : item
-          ));
+  
+        if (weightObject) {
+          // Now, retrieve the height from the results collection
+          const unsubscribeResults = onSnapshot(resultsRef, (resultsDoc) => {
+            if (resultsDoc.exists()) {
+              const resultsData = resultsDoc.data();
+              const heightInMeters = resultsData.heightInMeters;
+              
+              // Check if both height and weight are available
+              if (heightInMeters) {
+                // Perform the BMI calculation
+                const bmiValue = calculateBMI(weightObject, heightInMeters * 100);
+                const bmiPercentage = getBMIPercentage(bmiValue);
+                
+                setProgressData(prevData => prevData.map(item =>
+                  item.label === 'Body Composition' ? { ...item, value: bmiPercentage } : item
+                ));
+              }
+            } else {
+              console.log("Results document does not exist.");
+            }
+          });
+  
+          // Don't forget to handle unsubscribing for results as well
+        } else {
+          console.log("Weight object is undefined.");
         }
+      } else {
+        console.log("Health data document does not exist for the current date.");
       }
     });
-
-    // Cleanup the subscriptions on unmount
-    return () => {
-      unsubscribeHealth();
-      unsubscribeResults();
-    };
-  }, []);
+  
+    // Remember to handle unsubscribing for healthData as well
+  };   
 
   // Split the data into two rows
   const firstRowData = progressData.slice(0, 3);
