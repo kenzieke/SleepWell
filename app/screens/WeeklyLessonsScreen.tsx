@@ -11,6 +11,15 @@ const calculateBMI = (weightObject: { unit: string; value: string; }, heightInCm
   return weightInKg / (heightInMeters ** 2);
 };
 
+const calculateSleepDurationPercentage = (timeAsleepHours: string, timeAsleepMinutes: string) => {
+  const totalSleepHours = parseInt(timeAsleepHours, 10) + (parseInt(timeAsleepMinutes, 10) / 60);
+  if (totalSleepHours >= 7) {
+    return 100;
+  } else {
+    return (totalSleepHours / 7) * 100;
+  }
+};
+
 const WeeklyLessonsScreen = ({ navigation }) => {
   const [progressData, setProgressData] = useState([
     { label: 'Sleep Duration', value: 0 },
@@ -32,27 +41,28 @@ const WeeklyLessonsScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
+    const userId = FIREBASE_AUTH.currentUser?.uid;
+    if (!userId) {
+      console.log('User is not logged in.');
+      return;
+    }
+    
     const unsubscribeFocus = navigation.addListener('focus', () => {
-      // Triggering the data fetch when the screen comes into focus
-      fetchData();
+      fetchData(userId);
     });
   
-    // Initial fetch when the component mounts
-    fetchData();
+    fetchData(userId);
   
     return () => {
-      // Clean up both the focus listener and the data fetch subscription
       unsubscribeFocus();
     };
-  }, [navigation]);
+  }, [navigation]);  
 
-  const fetchData = () => {
-    const userId = FIREBASE_AUTH.currentUser?.uid;
-    if (!userId) return;
-  
+  const fetchData = (userId: string) => {
     const currentDate = new Date().toISOString().split('T')[0];
     const healthDataRef = doc(FIRESTORE_DB, 'users', userId, 'healthData', currentDate);
     const resultsRef = doc(FIRESTORE_DB, 'users', userId, 'results', `scores_${userId}`);
+    const sleepDataRef = doc(FIRESTORE_DB, 'users', userId, 'sleepData', currentDate);
   
     // Subscribe to changes in the healthData collection for the current date
     const unsubscribeHealth = onSnapshot(healthDataRef, (healthDoc) => {
@@ -98,8 +108,20 @@ const WeeklyLessonsScreen = ({ navigation }) => {
         console.log("Health data document does not exist for the current date.");
       }
     });
+
+    const unsubscribeSleep = onSnapshot(sleepDataRef, (sleepDoc) => {
+      if (sleepDoc.exists()) {
+        const sleepData = sleepDoc.data();
+        const sleepDurationPercent = calculateSleepDurationPercentage(sleepData.timeAsleepHours, sleepData.timeAsleepMinutes);
   
-    // Remember to handle unsubscribing for healthData as well
+        // Update the sleep duration progress
+        setProgressData(prevData => prevData.map(item => 
+          item.label === 'Sleep Duration' ? { ...item, value: sleepDurationPercent } : item
+        ));
+      } else {
+        console.log("Sleep data document does not exist for the current date.");
+      }
+    });
   };   
 
   // Split the data into two rows
