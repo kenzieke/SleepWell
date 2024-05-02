@@ -61,7 +61,7 @@ const HealthTrackerScreen: React.FC = () => {
   const [vegetables, setVegetables] = useState<string>('');
   const [sugaryDrinks, setSugaryDrinks] = useState<string>('');
   const [fastFood, setFastFood] = useState<string>('');
-  const [steps, setSteps] = useState<string>('');
+  const [minPA, setMinPA] = useState<string>('');
   const [goals, setGoals] = useState<string>('');
   const [dailyWeight, setDailyWeight] = useState('');
   const [weightUnit, setWeightUnit] = useState<string>('kgs');
@@ -73,7 +73,7 @@ const HealthTrackerScreen: React.FC = () => {
     setVegetables('');
     setSugaryDrinks('');
     setFastFood('');
-    setSteps('');
+    setMinPA('');
     setGoals('');
     setDailyWeight('');
     setWeightUnit('kgs');
@@ -98,7 +98,7 @@ const HealthTrackerScreen: React.FC = () => {
         setVegetables(data.vegetables);
         setSugaryDrinks(data.sugaryDrinks);
         setFastFood(data.fastFood);
-        setSteps(data.steps);
+        setMinPA(data.minPA);
         setGoals(data.goals);
         setDailyWeight(data.weight?.value);
         setWeightUnit(data.weight?.unit || 'kgs');
@@ -119,7 +119,7 @@ const HealthTrackerScreen: React.FC = () => {
   // Function to convert slider value to a string
   const getSleepRating = (value: number): string => {
     const ratings = ['1', '2', '3', '4', '5'];
-    return ratings[Math.floor(value / 1)]; // Since we have 5 steps, each step corresponds to one label
+    return ratings[Math.floor(value / 1)]; // Since we have 5 stages, each step corresponds to one label
   };
 
   const saveData = async () => {
@@ -143,7 +143,7 @@ const HealthTrackerScreen: React.FC = () => {
       vegetables,
       sugaryDrinks,
       fastFood,
-      steps,
+      minPA,
       goals,
       weight: {
         value: dailyWeight,
@@ -174,7 +174,7 @@ const HealthTrackerScreen: React.FC = () => {
             </View>
 
               <View style={styles.questionContainer}>
-                  <Text style={styles.questionText}>Rate your stress level:</Text>
+                  <Text style={styles.questionText}>Rate your stress level today:</Text>
                   <View style={styles.sliderContainer}>
                       <Slider
                           style={styles.slider}
@@ -224,7 +224,7 @@ const HealthTrackerScreen: React.FC = () => {
 
               <View style={styles.questionContainer}>
                   <Text style={styles.questionText}>
-                      Drinks with caffeine:
+                      Drinks with caffeine today:
                   </Text>
                   <TextInput
                       style={styles.healthInput}
@@ -237,7 +237,7 @@ const HealthTrackerScreen: React.FC = () => {
 
               <View style={styles.questionContainer}>
                   <Text style={styles.questionText}>
-                      Vegetable servings:
+                      Vegetable servings today:
                   </Text>
                   <TextInput
                       style={styles.healthInput}
@@ -250,7 +250,7 @@ const HealthTrackerScreen: React.FC = () => {
 
               <View style={styles.questionContainer}>
                   <Text style={styles.questionText}>
-                      Sugary drinks:
+                      Sugary drinks today:
                   </Text>
                   <TextInput
                       style={styles.healthInput}
@@ -263,7 +263,7 @@ const HealthTrackerScreen: React.FC = () => {
 
               <View style={styles.questionContainer}>
                   <Text style={styles.questionText}>
-                      Fast food:
+                      Fast food today:
                   </Text>
                   <TextInput
                       style={styles.healthInput}
@@ -276,20 +276,20 @@ const HealthTrackerScreen: React.FC = () => {
 
               <View style={styles.questionContainer}>
                   <Text style={styles.questionText}>
-                      Steps:
+                      Minutes of physical activity today:
                   </Text>
                   <TextInput
                       style={styles.healthInput}
-                      onChangeText={setSteps}
-                      value={steps}
+                      onChangeText={setMinPA}
+                      value={minPA}
                       keyboardType="numeric"
-                      placeholder="# of steps"
+                      placeholder="Minutes of physical activity"
                   />
               </View>
 
               <View style={styles.questionContainer}>
                   <Text style={styles.questionText}>
-                      Other goals:
+                      Other goals for today:
                   </Text>
                   <TextInput
                       style={styles.healthInput}

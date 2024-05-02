@@ -2,43 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import ProgressCircle from '../../components/ProgressCircle';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
-import { collection, doc, onSnapshot } from 'firebase/firestore';
-
-// Define the BMI calculation function
-const calculateBMI = (weightObject: { unit: string; value: string; }, heightInCm: number) => {
-  const weightInKg = weightObject.unit === 'lbs' ? parseFloat(weightObject.value) * 0.45359237 : parseFloat(weightObject.value);
-  const heightInMeters = heightInCm / 100;
-  return weightInKg / (heightInMeters ** 2);
-};
-
-const calculateSleepDurationPercentage = (timeAsleepHours: string, timeAsleepMinutes: string) => {
-  const totalSleepHours = parseInt(timeAsleepHours, 10) + (parseInt(timeAsleepMinutes, 10) / 60);
-  if (totalSleepHours >= 7) {
-    return 100;
-  } else {
-    return (totalSleepHours / 7) * 100;
-  }
-};
+import { collection, doc, getDocs, onSnapshot, query, where } from 'firebase/firestore';
 
 const WeeklyLessonsScreen = ({ navigation }) => {
   const [progressData, setProgressData] = useState([
-    { label: 'Sleep Duration', value: 0 },
-    { label: 'Sleep Quality', value: 0 },
-    { label: 'Body Composition', value: 0 },
-    { label: 'Nutrition', value: 0 },
+    { label: 'Sleep Tracking', value: 0 },
+    { label: 'Food Tracking', value: 0 },
+    { label: 'Coaching', value: 0 },
+    { label: 'Sleep Efficiency', value: 0 },
     { label: 'Physical Activity', value: 0 },
-    { label: 'Stress', value: 0 },
+    { label: 'Diet', value: 0 },
   ]);
-
-  const getBMIPercentage = (bmiValue: number) => {
-    if (bmiValue >= 18 && bmiValue <= 25) {
-      return 100;
-    } else if (bmiValue > 25 && bmiValue <= 30) {
-      return 66;
-    } else {
-      return 33;
-    }
-  };
 
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
@@ -46,83 +20,61 @@ const WeeklyLessonsScreen = ({ navigation }) => {
       console.log('User is not logged in.');
       return;
     }
-    
+  
+    // Function to check if today is Sunday and fetch data if it is
+    const checkAndFetchOnNewWeek = () => {
+      const today = new Date();
+      if (today.getDay() === 0) { // 0 is Sunday
+        fetchData(userId);
+      }
+    };
+  
+    // Subscribe to navigation focus to refresh data when the screen is focused
     const unsubscribeFocus = navigation.addListener('focus', () => {
       fetchData(userId);
     });
   
+    // Initial data fetch
     fetchData(userId);
   
+    // Set an interval to check daily if it's a new week (Sunday)
+    const intervalId = setInterval(checkAndFetchOnNewWeek, 86400000); // 86400000 ms = 24 hours
+  
+    // Cleanup function to unsubscribe and clear interval when the component unmounts
     return () => {
       unsubscribeFocus();
+      clearInterval(intervalId);
     };
-  }, [navigation]);  
+  }, [navigation]); // Dependency on navigation to ensure correct setup and cleanup on navigation changes   
 
-  const fetchData = (userId: string) => {
-    const currentDate = new Date().toISOString().split('T')[0];
-    const healthDataRef = doc(FIRESTORE_DB, 'users', userId, 'healthData', currentDate);
-    const resultsRef = doc(FIRESTORE_DB, 'users', userId, 'results', `scores_${userId}`);
-    const sleepDataRef = doc(FIRESTORE_DB, 'users', userId, 'sleepData', currentDate);
+  const fetchData = async (userId: string) => {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() - dayOfWeek); // Adjust to the previous Sunday
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6); // Set to the next Saturday
   
-    // Subscribe to changes in the healthData collection for the current date
-    const unsubscribeHealth = onSnapshot(healthDataRef, (healthDoc) => {
-      if (healthDoc.exists()) {
-        const healthData = healthDoc.data();
-        const weightObject = healthData.weight; // This should now be defined
-
-        const steps = healthData.steps || 0;
-        const physicalActivityPercentage = Math.min(100, (steps / 10000) * 100);
-        
-        // Update the physical activity progress
-        setProgressData(prevData => prevData.map(item => 
-          item.label === 'Physical Activity' ? { ...item, value: physicalActivityPercentage } : item
-        ));
+    const start = startDate.toISOString().split('T')[0];
+    const end = endDate.toISOString().split('T')[0];
   
-        if (weightObject) {
-          // Now, retrieve the height from the results collection
-          const unsubscribeResults = onSnapshot(resultsRef, (resultsDoc) => {
-            if (resultsDoc.exists()) {
-              const resultsData = resultsDoc.data();
-              const heightInMeters = resultsData.heightInMeters;
-              
-              // Check if both height and weight are available
-              if (heightInMeters) {
-                // Perform the BMI calculation
-                const bmiValue = calculateBMI(weightObject, heightInMeters * 100);
-                const bmiPercentage = getBMIPercentage(bmiValue);
-                
-                setProgressData(prevData => prevData.map(item =>
-                  item.label === 'Body Composition' ? { ...item, value: bmiPercentage } : item
-                ));
-              }
-            } else {
-              console.log("Results document does not exist.");
-            }
-          });
+    const healthCollectionRef = collection(FIRESTORE_DB, 'users', userId, 'healthData');
+    const q = query(healthCollectionRef, where('date', '>=', start), where('date', '<=', end));
   
-          // Don't forget to handle unsubscribing for results as well
-        } else {
-          console.log("Weight object is undefined.");
-        }
-      } else {
-        console.log("Health data document does not exist for the current date.");
-      }
+    const querySnapshot = await getDocs(q);
+    let totalPhysicalActivity = 0;
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      totalPhysicalActivity += Number(data.minPA || 0);
     });
-
-    const unsubscribeSleep = onSnapshot(sleepDataRef, (sleepDoc) => {
-      if (sleepDoc.exists()) {
-        const sleepData = sleepDoc.data();
-        const sleepDurationPercent = calculateSleepDurationPercentage(sleepData.timeAsleepHours, sleepData.timeAsleepMinutes);
   
-        // Update the sleep duration progress
-        setProgressData(prevData => prevData.map(item => 
-          item.label === 'Sleep Duration' ? { ...item, value: sleepDurationPercent } : item
-        ));
-      } else {
-        console.log("Sleep data document does not exist for the current date.");
-      }
-    });
-  };   
+    const physicalActivityPercentage = Math.min(100, (totalPhysicalActivity / 150) * 100); // Correctly assuming 150 minutes per week
+  
+    setProgressData(prevData => prevData.map(item => 
+      item.label === 'Physical Activity' ? { ...item, value: physicalActivityPercentage } : item
+    ));
+  };
 
   // Split the data into two rows
   const firstRowData = progressData.slice(0, 3);
