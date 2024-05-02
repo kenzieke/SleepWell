@@ -81,27 +81,16 @@ const HealthTrackerScreen: React.FC = () => {
   };
 
   const [isLoading, setIsLoading] = useState(false);
-
-  const ensureNumber = (value, defaultValue = 0) => {
-    const number = parseFloat(value);
-    return isNaN(number) ? defaultValue : number;
-  };
-  
-  // Use the above utility function when setting numeric states
-  const setNumericState = (setter) => (value) => {
-    setter(ensureNumber(value));
-  };
   
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
     if (!userId) return;
-  
+    
     const formattedDate = date.toISOString().split('T')[0];
-    const healthDataRef = doc(FIRESTORE_DB, 'users', userId, 'healthData', formattedDate);
+    const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'healthData'), formattedDate);
   
     setIsLoading(true);
-  
-    // Subscribing to the health data
+    
     const unsubscribe = onSnapshot(healthDataRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -123,9 +112,9 @@ const HealthTrackerScreen: React.FC = () => {
       }
     });
     
-    return unsubscribe;
+    return () => unsubscribe; // Unsubscribe when the component unmounts or the date changes
     
-  }, [date, FIREBASE_AUTH, FIRESTORE_DB]);
+  }, [date]);
 
   // Function to convert slider value to a string
   const getSleepRating = (value: number): string => {
@@ -160,7 +149,6 @@ const HealthTrackerScreen: React.FC = () => {
         value: dailyWeight,
         unit: weightUnit
       },
-      stressLevel: sliderValue,
     };
   
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
@@ -175,10 +163,8 @@ const HealthTrackerScreen: React.FC = () => {
   };
   
   const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
-  const [labelWidth, setLabelWidth] = useState(0); // Ensure it's a number
-
-  // Calculate the position of the label so it sits above the thumb
-  const labelPosition = sliderValue * (sliderWidth / 4) + 20 - labelWidth / 2;
+  const [labelWidth, setLabelWidth] = useState(0);
+  const labelPosition = sliderValue / 5 * (sliderWidth - (isNaN(labelWidth) ? 0 : labelWidth)) + 20;
   
   return (
       <ScrollView style={styles.scrollView}>
@@ -188,27 +174,23 @@ const HealthTrackerScreen: React.FC = () => {
             </View>
 
               <View style={styles.questionContainer}>
-                <Text style={styles.questionText}>Rate your stress level:</Text>
-                <View style={styles.sliderContainer}>
-                  <Slider
-                    style={styles.slider}
-                    minimumValue={0}
-                    maximumValue={4}
-                    step={1}
-                    value={sliderValue}
-                    onValueChange={value => setSliderValue(ensureNumber(value, 0))}
-                    minimumTrackTintColor="#52796F"
-                    maximumTrackTintColor="#BDBDBD"
-                    thumbTintColor="#FFFFFF"
-                  />
-                  <View style={[styles.labelContainer, { left: labelPosition || 0 }]}> // Default to 0 if position is NaN
-                    <Text
-                      onLayout={event => setLabelWidth(event.nativeEvent.layout.width)}
-                      style={styles.labelText}>
-                      {`${sliderValue}`} {/* Convert to string */}
-                    </Text>
+                  <Text style={styles.questionText}>Rate your stress level:</Text>
+                  <View style={styles.sliderContainer}>
+                      <Slider
+                          style={styles.slider}
+                          minimumValue={0}
+                          maximumValue={4}
+                          step={1}
+                          value={sliderValue}
+                          onValueChange={value => setSliderValue(value)}
+                          minimumTrackTintColor="#52796F"
+                          maximumTrackTintColor="#BDBDBD"
+                          thumbTintColor="#FFFFFF"
+                      />
+                      {/* <View style={[styles.labelContainer, { left: labelPosition }]}>
+                          <Text style={styles.labelText}>{getSleepRating(sliderValue)}</Text>
+                      </View> */}
                   </View>
-                </View>
               </View>
 
               <View style={styles.questionContainer}>
@@ -348,35 +330,24 @@ const styles = StyleSheet.create({
       width: '100%',
       height: 0,
     },
-    // labelContainer: {
-    //   marginTop: 16,
-    //   position: 'absolute',
-    //   top: -25, // Adjust this to fit your design
-    //   alignItems: 'center',
-    //   justifyContent: 'center',
-    //   backgroundColor: '#52796F',
-    //   paddingVertical: 5,
-    //   paddingHorizontal: 10, // This will give space inside the label
-    //   borderRadius: 15, // This will round the corners
-    // },
-    // labelText: {
-    //   textAlign: 'center', // Center the text inside the label
-    //   color: 'white',
-    //   backgroundColor: '#52796F',
-    //   paddingVertical: 5,
-    //   paddingHorizontal: 10,
-    //   borderRadius: 10,
-    // },
     labelContainer: {
+      marginTop: 16,
       position: 'absolute',
-      top: -20, // Adjust this to fit the design
+      top: -25, // Adjust this to fit your design
+      alignItems: 'center',
+      justifyContent: 'center',
       backgroundColor: '#52796F',
-      borderRadius: 10,
-      padding: 5,
+      paddingVertical: 5,
+      paddingHorizontal: 10, // This will give space inside the label
+      borderRadius: 15, // This will round the corners
     },
     labelText: {
+      textAlign: 'center', // Center the text inside the label
       color: 'white',
-      fontWeight: 'bold',
+      backgroundColor: '#52796F',
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      borderRadius: 10,
     },
     contentView: {
         padding: 20,
