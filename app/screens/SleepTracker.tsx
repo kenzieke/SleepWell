@@ -301,7 +301,7 @@ const SleepTrackerScreen: React.FC = () => {
 
       <View style={styles.questionContainer}>
         <Text style={styles.questionText}>
-          How long did you actually sleep in total?
+          How long did you actually sleep in total (excluding naps)?
         </Text>
         <View style={styles.timeContainer}>
           <TextInput

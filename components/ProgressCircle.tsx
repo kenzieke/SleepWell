@@ -14,18 +14,16 @@ const diameter = radius * 2;
 const ProgressCircle: React.FC<ProgressCircleProps> = ({ percentage, label }) => {
   const circumference = 2 * Math.PI * radius;
   const svgProgress = circumference - (percentage / 100) * circumference;
-  const textSize = diameter - strokeWidth * 2; // Text should fit inside the stroke
-  const textOffset = radius - textSize / 2 + strokeWidth; // Adjust this to center text
 
-  let progressColorBackground = '#FFDCD8' // Red
-  let progressColor = '#FD7C6B'; // Red for low percentages
+  let progressColorBackground = '#FFDCD8'; // Light red
+  let progressColor = '#FD7C6B'; // Darker red for low percentages
   if (percentage >= 50) {
-    progressColor = '#FDEE6B';
-    progressColorBackground = '#FFFCE5'
-   } // Yellow for mid percentages
+    progressColorBackground = '#FFFCE5'; // Light yellow
+    progressColor = '#FDEE6B'; // Yellow for mid percentages
+  }
   if (percentage >= 75) {
+    progressColorBackground = '#DBFFCE'; // Light green
     progressColor = '#83F45C'; // Green for high percentages
-    progressColorBackground = '#DBFFCE';
   }
 
   return (
@@ -52,9 +50,8 @@ const ProgressCircle: React.FC<ProgressCircleProps> = ({ percentage, label }) =>
           transform={`rotate(-90 ${radius} ${radius})`}
         />
       </Svg>
-      <View style={[styles.textLabel, { top: textOffset, height: textSize, width: textSize }]}>
+      <View style={[styles.textLabel, { height: diameter, width: diameter }]}>
         <Text style={styles.progressLabel}>{label}</Text>
-        <Text style={styles.progressPercentage}>{`${percentage}%`}</Text>
       </View>
     </View>
   );
@@ -66,22 +63,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 8,
     position: 'relative',
-    width: diameter, // Use diameter directly
-    height: diameter, // Use diameter directly
+    width: diameter,
+    height: diameter,
   },
   textLabel: {
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   progressLabel: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  progressPercentage: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+    paddingHorizontal: 10,  // Allow text wrapping within the circle
+    flexWrap: 'wrap',       // Wrap text to fit into the circle
   },
 });
 

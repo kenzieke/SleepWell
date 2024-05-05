@@ -1,59 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
-import Slider from '@react-native-community/slider';
 import { DateComponent } from '../../components/DateComponent';
 import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 
+type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
+                  'Very Poor' | 'Okay' | 'Good' | 'Outstanding' | 'Poor' |
+                  'null';
+
 const OptionButton: React.FC<{
-    label: string;
-    onPress: () => void;
-    isSelected: boolean;
-  }> = ({ label, onPress, isSelected }) => (
-    <TouchableOpacity
-      onPress={onPress}
+  label: OptionType,
+  onPress: () => void,
+  isSelected: boolean,
+}> = ({ label, onPress, isSelected }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={[
+      styles.optionButton,
+      isSelected && styles.optionButtonSelected,
+    ]}>
+    <Text
       style={[
-        styles.optionButton,
-        isSelected && styles.optionButtonSelected,
-      ]}>
-      <Text
-        style={[
-          styles.optionText,
-          isSelected && styles.optionTextSelected,
-        ]}
-        numberOfLines={2} // Allow text to wrap to a new line
-        adjustsFontSizeToFit // Adjust the font size to ensure the text fits
-        minimumFontScale={0.5} // Minimum scale factor for text size
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
+        styles.optionText,
+        isSelected && styles.optionTextSelected,
+      ]}
+    >
+      {label}
+    </Text>
+  </TouchableOpacity>
+);
 
 const HealthTrackerScreen: React.FC = () => {
   // Generic function to render option buttons for a question
-  const renderOptions = <T extends string>(
-      question: string,
-      value: T,
-      setValue: React.Dispatch<React.SetStateAction<T>>,
-      options: T[]
-  ) => {
-      return (
-      <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>{question}</Text>
-          <View style={styles.optionsRow}>
-          {options.map((option) => (
-              <OptionButton
-                  key={option}
-                  label={option}
-                  onPress={() => setValue(option)}
-                  isSelected={value === option && value !== ''}
-              />
-              ))}
-          </View>
+  const renderOptions = (questionKey: string, options: OptionType[], selectedValue: OptionType, setValue: React.Dispatch<React.SetStateAction<OptionType>>) => {
+    return (
+      <View style={styles.optionsRow}>
+        {options.map(option => (
+          <OptionButton
+            key={option}
+            label={option}
+            onPress={() => setValue(option)}
+            isSelected={selectedValue === option}
+          />
+        ))}
       </View>
-      );
+    );
   };
 
   const [date, setDate] = useState(new Date());
@@ -65,9 +57,9 @@ const HealthTrackerScreen: React.FC = () => {
   const [goals, setGoals] = useState<string>('');
   const [dailyWeight, setDailyWeight] = useState('');
   const [weightUnit, setWeightUnit] = useState<string>('kgs');
-  const [sliderValue, setSliderValue] = useState<number>(3);
+  const [rateDiet, setRateDiet] = useState<OptionType>('null');
+  const [stressLevel, setStressLevel] = useState<OptionType>('null');
 
-  // Function to clear form fields
   const clearForm = () => {
     setCaffeine('');
     setVegetables('');
@@ -77,7 +69,8 @@ const HealthTrackerScreen: React.FC = () => {
     setGoals('');
     setDailyWeight('');
     setWeightUnit('kgs');
-    setSliderValue(5);
+    setRateDiet('null');
+    setStressLevel('null');
   };
 
   const [isLoading, setIsLoading] = useState(false);
@@ -85,13 +78,17 @@ const HealthTrackerScreen: React.FC = () => {
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
     if (!userId) return;
-    
+  
+    console.log('Before subscription: isLoading=', isLoading); // Debug: Check state before subscription
+  
     const formattedDate = date.toISOString().split('T')[0];
     const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'healthData'), formattedDate);
   
+    console.log('Calling setIsLoading(true)'); // Debug: Check when setIsLoading is called
     setIsLoading(true);
-    
+  
     const unsubscribe = onSnapshot(healthDataRef, (docSnap) => {
+      console.log('Snapshot received: isLoading=', isLoading); // Debug: State when snapshot is received
       if (docSnap.exists()) {
         const data = docSnap.data();
         setCaffeine(data.caffeine);
@@ -100,27 +97,30 @@ const HealthTrackerScreen: React.FC = () => {
         setFastFood(data.fastFood);
         setMinPA(data.minPA);
         setGoals(data.goals);
+        console.log('Setting daily weight:', data.weight?.value);
         setDailyWeight(data.weight?.value);
-        setWeightUnit(data.weight?.unit || 'kgs');
-        setSliderValue(data.sliderValue);
+        console.log('Setting weight unit:', data.weight?.unit || 'kgs');
+        setWeightUnit(data.weight?.unit || 'kgs');      
+        // setRateDiet(data.rateDiet as OptionType);
+        // setStressLevel(data.stressLevel as OptionType);
+        setRateDiet(data.rateDiet || 'null');
+        setStressLevel(data.stressLevel || 'null');
+        console.log('Calling setIsLoading(false) after data exists'); // Debug: Check when setIsLoading is called
         setIsLoading(false);
       } else {
         if (!isLoading) {
           clearForm();
         }
+        console.log('Calling setIsLoading(false) when no data'); // Debug: Check when setIsLoading is called
         setIsLoading(false);
       }
     });
-    
-    return () => unsubscribe; // Unsubscribe when the component unmounts or the date changes
-    
-  }, [date]);
-
-  // Function to convert slider value to a string
-  const getSleepRating = (value: number): string => {
-    const ratings = ['1', '2', '3', '4', '5'];
-    return ratings[Math.floor(value / 1)]; // Since we have 5 stages, each step corresponds to one label
-  };
+  
+    return () => {
+      console.log('Unsubscribing'); // Debug: Check when unsubscribe happens
+      unsubscribe();
+    };
+  }, [date]); // Dependencies array
 
   const saveData = async () => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
@@ -128,15 +128,9 @@ const HealthTrackerScreen: React.FC = () => {
       alert("You must be logged in to save your health data.");
       return;
     }
-  
+
     const formattedDate = date.toISOString().split('T')[0];
-  
-    // Check if weightUnit is not undefined or empty
-    if (!weightUnit) {
-      alert('Please select a weight unit.');
-      return;
-    }
-  
+
     const healthData = {
       date: formattedDate,
       caffeine,
@@ -144,27 +138,26 @@ const HealthTrackerScreen: React.FC = () => {
       sugaryDrinks,
       fastFood,
       minPA,
+      rateDiet,  // Store the original value directly
+      stressLevel,  // Store the original value directly
       goals,
       weight: {
         value: dailyWeight,
         unit: weightUnit
       },
     };
-  
+
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
     const healthDataRef = doc(collection(userDocRef, 'healthData'), formattedDate);
-  
+
     try {
       await setDoc(healthDataRef, healthData);
       console.log('Health data saved successfully.');
     } catch (error) {
       console.error('Error saving health data:', error);
+      alert('Failed to save health data. Please try again.');
     }
   };
-  
-  const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
-  const [labelWidth, setLabelWidth] = useState(0);
-  const labelPosition = sliderValue / 5 * (sliderWidth - (isNaN(labelWidth) ? 0 : labelWidth)) + 20;
   
   return (
       <ScrollView style={styles.scrollView}>
@@ -174,23 +167,13 @@ const HealthTrackerScreen: React.FC = () => {
             </View>
 
               <View style={styles.questionContainer}>
-                  <Text style={styles.questionText}>Rate your stress level today:</Text>
-                  <View style={styles.sliderContainer}>
-                      <Slider
-                          style={styles.slider}
-                          minimumValue={0}
-                          maximumValue={4}
-                          step={1}
-                          value={sliderValue}
-                          onValueChange={value => setSliderValue(value)}
-                          minimumTrackTintColor="#52796F"
-                          maximumTrackTintColor="#BDBDBD"
-                          thumbTintColor="#FFFFFF"
-                      />
-                      {/* <View style={[styles.labelContainer, { left: labelPosition }]}>
-                          <Text style={styles.labelText}>{getSleepRating(sliderValue)}</Text>
-                      </View> */}
-                  </View>
+                <Text style={styles.questionText}>Rate your stress level today:</Text>
+                {renderOptions('stressLevel', ['None', 'Mild', 'Moderate', 'Severe', 'Very Severe'], stressLevel, setStressLevel)}
+              </View>
+
+              <View style={styles.questionContainer}>
+                <Text style={styles.questionText}>Overall, how would you rate your diet today?</Text>
+                {renderOptions('rateDiet', ['Very Poor', 'Poor', 'Okay', 'Good', 'Outstanding'], rateDiet, setRateDiet)}
               </View>
 
               <View style={styles.questionContainer}>
@@ -320,15 +303,6 @@ const styles = StyleSheet.create({
     backButton: {
       padding: 8, // Padding to make it easier to press
       top: 0,
-    },
-    sliderContainer: {
-      position: 'relative',
-      marginBottom: 16,
-    },
-    slider: {
-      marginTop: 30,
-      width: '100%',
-      height: 0,
     },
     labelContainer: {
       marginTop: 16,
