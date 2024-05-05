@@ -1,35 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector'; // Import the switch selector
-import Slider from '@react-native-community/slider';
 import { DateComponent } from '../../components/DateComponent';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 const OptionButton: React.FC<{
-    label: string;
-    onPress: () => void;
-    isSelected: boolean;
-  }> = ({ label, onPress, isSelected }) => (
-    <TouchableOpacity
-      onPress={onPress}
+  label: string;
+  onPress: () => void;
+  isSelected: boolean;
+}> = ({ label, onPress, isSelected }) => (
+  <TouchableOpacity
+    onPress={onPress}
+    style={[
+      styles.optionButton,
+      isSelected && styles.optionButtonSelected,
+    ]}>
+    <Text
       style={[
-        styles.optionButton,
-        isSelected && styles.optionButtonSelected,
-      ]}>
-      <Text
-        style={[
-          styles.optionText,
-          isSelected && styles.optionTextSelected,
-        ]}
-        numberOfLines={2} // Allow text to wrap to a new line
-        adjustsFontSizeToFit // Adjust the font size to ensure the text fits
-        minimumFontScale={0.5} // Minimum scale factor for text size
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
+        styles.optionText,
+        isSelected && styles.optionTextSelected,
+      ]}
+      numberOfLines={2} // Allow text to wrap to a new line
+      adjustsFontSizeToFit // Adjust the font size to ensure the text fits
+      minimumFontScale={0.5} // Minimum scale factor for text size
+    >
+      {label}
+    </Text>
+  </TouchableOpacity>
+);
 
 const SleepTrackerScreen: React.FC = () => {
   // Generic function to render option buttons for a question
@@ -60,7 +59,7 @@ const SleepTrackerScreen: React.FC = () => {
   const [isDeployed, setIsDeployed] = useState(false);
   const [isOnDuty, setIsOnDuty] = useState(false);
   const [isAtHome, setIsAtHome] = useState(false);
-  const [sliderValue, setSliderValue] = useState<number>(5);
+  const [sleepRating, setSleepRating] = useState('');
 
   // Sleep time related questions
   const [timesWokeUp, setTimesWokeUp] = useState<string>('');
@@ -75,6 +74,7 @@ const SleepTrackerScreen: React.FC = () => {
   const [timeAsleepMinutes, setTimeAsleepMinutes] = useState<string>('0');
   const [napTimeHours, setNapTimeHours] = useState<string>('0');
   const [napTimeMinutes, setNapTimeMinutes] = useState<string>('0');
+  const sleepOptions = ['Very Poor', 'Poor', 'Okay', 'Good', 'Outstanding'];
 
   // Function to clear form fields
   const clearForm = () => {
@@ -93,18 +93,18 @@ const SleepTrackerScreen: React.FC = () => {
     setTimeAsleepMinutes('0');
     setFallAsleepHours('0');
     setFallAsleepMinutes('0');
-    setSliderValue(5);
+    setSleepRating('');
   };
 
   // Function to convert slider value to a string
-  const getSleepRating = (value: number): string => {
-    const ratings = ['Very Poor', 'Poor', 'Fair', 'Good', 'Very Good'];
-    return ratings[Math.floor(value / 1)]; // Since we have 5 steps, each step corresponds to one label
-  };
+  // const getSleepRating = (value: number): string => {
+  //   const ratings = ['Very Poor', 'Poor', 'Fair', 'Good', 'Very Good'];
+  //   return ratings[Math.floor(value / 1)]; // Since we have 5 steps, each step corresponds to one label
+  // };
 
-  const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
-  const [labelWidth, setLabelWidth] = useState(0);
-  const labelPosition = sliderValue / 5 * (sliderWidth - (isNaN(labelWidth) ? 0 : labelWidth)) + 20;
+  // const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
+  // const [labelWidth, setLabelWidth] = useState(0);
+  // const labelPosition = sliderValue / 5 * (sliderWidth - (isNaN(labelWidth) ? 0 : labelWidth)) + 20;
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -136,7 +136,7 @@ const SleepTrackerScreen: React.FC = () => {
         setTimeAsleepMinutes(data.timeAsleepMinutes || '0');
         setFallAsleepHours(data.fallAsleepHours || '0');
         setFallAsleepMinutes(data.fallAsleepMinutes || '0');
-        setSliderValue(data.sliderValue || 5);
+        // setSliderValue(data.sliderValue || 5);
         setIsLoading(false);
       } else {
         if (!isLoading) {
@@ -177,6 +177,7 @@ const SleepTrackerScreen: React.FC = () => {
       timeAsleepMinutes,
       fallAsleepHours,
       fallAsleepMinutes,
+      sleepRating,
     };
   
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
@@ -254,25 +255,8 @@ const SleepTrackerScreen: React.FC = () => {
               />
           </View>
 
-          <View style={styles.questionContainer}>
-            <Text style={styles.questionText}>Rate your last sleep:</Text>
-          <View style={styles.sliderContainer}>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={4}
-              step={1}
-              value={sliderValue}
-              // Start the value as fair, how do I do this?
-              onValueChange={value => setSliderValue(value)}
-              minimumTrackTintColor="#52796F"
-              maximumTrackTintColor="#BDBDBD"
-              thumbTintColor="#FFFFFF"
-            />
-            {/* <View style={[styles.labelContainer, { left: labelPosition }]}>
-              <Text style={styles.labelText}>{getSleepRating(sliderValue)}</Text>
-            </View> */}
-          </View>
+        <View style={styles.questionContainer}>
+          {renderOptions('Rate your last sleep:', sleepRating, setSleepRating, sleepOptions)}
         </View>
 
       <View style={styles.questionContainer}>
@@ -462,15 +446,15 @@ const styles = StyleSheet.create({
     padding: 8, // Padding to make it easier to press
     top: 0,
   },
-  sliderContainer: {
-    position: 'relative',
-    marginBottom: 16,
-  },
-  slider: {
-    marginTop: 30,
-    width: '100%',
-    height: 0,
-  },
+  // sliderContainer: {
+  //   position: 'relative',
+  //   marginBottom: 16,
+  // },
+  // slider: {
+  //   marginTop: 30,
+  //   width: '100%',
+  //   height: 0,
+  // },
   labelContainer: {
     marginTop: 16,
     position: 'absolute',

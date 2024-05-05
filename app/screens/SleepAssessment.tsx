@@ -35,8 +35,6 @@ const OptionButton: React.FC<{
     </TouchableOpacity>
   );
 
-  // TODO: Make all of the functions return the score so that you can store the values when you calculate the results
-
 const SleepAssessmentScreen: React.FC = ({ navigation }) => {
   const [isDeployed, setIsDeployed] = useState(false);
   const [isOnDuty, setIsOnDuty] = useState(false);

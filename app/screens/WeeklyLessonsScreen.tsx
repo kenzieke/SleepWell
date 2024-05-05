@@ -56,98 +56,94 @@ const WeeklyLessonsScreen = ({ navigation }) => {
       unsubscribeFocus();
       clearInterval(intervalId);
     };
-  }, [navigation]); // Dependency on navigation to ensure correct setup and cleanup on navigation changes   
-
-  // const fetchData = async (userId: string) => {
-  //   // Get today's date
-  //   const today = new Date();
-  //   const formattedToday = today.toISOString().split('T')[0];
-  
-  //   // Firestore reference
-  //   const healthCollectionRef = collection(FIRESTORE_DB, 'users', userId, 'healthData');
-  //   const todayDocRef = doc(healthCollectionRef, formattedToday);
-  
-  //   // Initialize variables to hold progress values
-  //   let physicalActivityPercentage = 0;
-  //   let dietPercentage = 0;
-  
-  //   // Retrieve data for today
-  //   const todaySnapshot = await getDoc(todayDocRef);
-  //   if (todaySnapshot.exists()) {
-  //     const data = todaySnapshot.data();
-      
-  //     // Physical Activity
-  //     const totalPhysicalActivity = Number(data.minPA || 0);
-  //     physicalActivityPercentage = Math.min(100, (totalPhysicalActivity / 150) * 100);
-  
-  //     // Diet Rating (percentage)
-  //     dietPercentage = dietPercentageMapping[data.rateDiet as OptionType] || 0;
-  //   } else {
-  //     console.log("No data available for today's date");
-  //   }
-  
-  //   // Update progress data with today's values
-  //   setProgressData(prevData => prevData.map(item => {
-  //     switch (item.label) {
-  //       case 'Physical Activity':
-  //         return { ...item, value: physicalActivityPercentage };
-  //       case 'Diet':
-  //         return { ...item, value: dietPercentage };
-  //       default:
-  //         return item;
-  //     }
-  //   }));
-  // };
+  }, [navigation]); // Dependency on navigation to ensure correct setup and cleanup on navigation changes
 
   const fetchData = async (userId: string) => {
-    // Calculate the start and end dates of the current week for Food Tracking
+    // Calculate the start and end dates of the current week
     const today = new Date();
-    const formattedToday = today.toISOString().split('T')[0];
     const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
     const startDate = new Date(today);
-    startDate.setDate(today.getDate() - dayOfWeek); // Adjust to the previous Sunday
+    startDate.setDate(today.getDate() - dayOfWeek); // Previous Sunday
     const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 6); // Set to the next Saturday
+    endDate.setDate(startDate.getDate() + 6); // Following Saturday
   
     const start = startDate.toISOString().split('T')[0];
     const end = endDate.toISOString().split('T')[0];
   
+    // Firestore references
     const healthCollectionRef = collection(FIRESTORE_DB, 'users', userId, 'healthData');
-    const weekQuery = query(healthCollectionRef, where('date', '>=', start), where('date', '<=', end));
-    const todayDocRef = doc(healthCollectionRef, formattedToday);
+    const sleepCollectionRef = collection(FIRESTORE_DB, 'users', userId, 'sleepData');
+  
+    // Queries for weekly data
+    const healthWeekQuery = query(healthCollectionRef, where('date', '>=', start), where('date', '<=', end));
+    const sleepWeekQuery = query(sleepCollectionRef, where('date', '>=', start), where('date', '<=', end));
+  
+    // Query for today's data specifically (for diet)
+    const todayDocRef = doc(healthCollectionRef, today.toISOString().split('T')[0]);
   
     // Initialize tracking variables
+    let totalPhysicalActivity = 0;
+    let daysWithSleepData = 0;
     let daysWithCaffeineData = 0;
-    let physicalActivityPercentage = 0;
     let dietPercentage = 0;
   
-    // Retrieve data for the entire week
-    const weekSnapshot = await getDocs(weekQuery);
-    weekSnapshot.forEach((doc) => {
+    // Process health data over the week
+    const healthWeekSnapshot = await getDocs(healthWeekQuery);
+    healthWeekSnapshot.forEach((doc) => {
       const data = doc.data();
+  
+      // Check for caffeine data
       if (data.caffeine && data.caffeine !== '') {
-        daysWithCaffeineData++; // Count days with caffeine data
+        daysWithCaffeineData++;
       }
-      const totalPhysicalActivity = Number(data.minPA || 0);
-      physicalActivityPercentage = Math.max(physicalActivityPercentage, Math.min(100, (totalPhysicalActivity / 150) * 100));
+  
+      // Aggregate physical activity
+      totalPhysicalActivity += Number(data.minPA || 0);
     });
   
-    // Retrieve data for today (Diet)
+    // Process sleep data over the week
+    const sleepWeekSnapshot = await getDocs(sleepWeekQuery);
+    sleepWeekSnapshot.forEach((doc) => {
+      const data = doc.data();
+  
+      // Check for valid sleep data
+      const totalSleepTimeHours = parseInt(data.timeAsleepHours) || 0;
+      const totalSleepTimeMinutes = parseInt(data.timeAsleepMinutes) || 0;
+      if (totalSleepTimeHours > 0 || totalSleepTimeMinutes > 0) {
+        daysWithSleepData++;
+      }
+    });
+  
+    // Retrieve diet data for today
     const todaySnapshot = await getDoc(todayDocRef);
     if (todaySnapshot.exists()) {
       const data = todaySnapshot.data();
-      dietPercentage = dietPercentageMapping[data.rateDiet as OptionType] || 0;
+      const dietPercentageMapping = {
+        'Very Poor': 20,
+        'Poor': 40,
+        'Okay': 60,
+        'Good': 80,
+        'Outstanding': 100,
+        'null': 0,
+      };
+  
+      dietPercentage = dietPercentageMapping[data.rateDiet] || 0;
     }
   
+    // Calculate percentages
     const foodTrackingPercentage = (daysWithCaffeineData / 7) * 100;
+    const sleepTrackingPercentage = (daysWithSleepData / 7) * 100;
+    const physicalActivityPercentage = Math.min(100, (totalPhysicalActivity / 150) * 100);
   
-    // Update progress data with calculated values
+    // Update progress data
     setProgressData(prevData => prevData.map(item => {
       switch (item.label) {
         case 'Food Tracking':
           return { ...item, value: foodTrackingPercentage };
         case 'Physical Activity':
           return { ...item, value: physicalActivityPercentage };
+        case 'Sleep Tracking':
+          return { ...item, value: sleepTrackingPercentage };
         case 'Diet':
           return { ...item, value: dietPercentage };
         default:
@@ -155,66 +151,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
       }
     }));
   };
-  
-  
 
-  // const fetchData = async (userId: string) => {
-  //   // Calculate the start and end dates of the current week
-  //   const today = new Date();
-  //   const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
-  //   const startDate = new Date(today);
-  //   startDate.setDate(today.getDate() - dayOfWeek); // Adjust to the previous Sunday
-  //   const endDate = new Date(startDate);
-  //   endDate.setDate(startDate.getDate() + 6); // Set to the next Saturday
-  
-  //   const start = startDate.toISOString().split('T')[0];
-  //   const end = endDate.toISOString().split('T')[0];
-  
-  //   const healthCollectionRef = collection(FIRESTORE_DB, 'users', userId, 'healthData');
-  //   const q = query(healthCollectionRef, where('date', '>=', start), where('date', '<=', end));
-  
-  //   const querySnapshot = await getDocs(q);
-  
-  //   // Initialize tracking variables
-  //   let daysWithCaffeineData = 0;
-  //   let physicalActivityPercentage = 0;
-  //   let dietPercentage = 0;
-  
-  //   querySnapshot.forEach((doc) => {
-  //     const data = doc.data();
-      
-  //     // Check for caffeine data (completed entry)
-  //     if (data.caffeine && data.caffeine !== '') {
-  //       daysWithCaffeineData++;
-  //     }
-  
-  //     // Physical Activity (if you want to include it in progress circles)
-  //     const totalPhysicalActivity = Number(data.minPA || 0);
-  //     physicalActivityPercentage = Math.min(100, (totalPhysicalActivity / 150) * 100);
-  
-  //     // Diet Rating (if applicable)
-  //     dietPercentage = dietPercentageMapping[data.rateDiet as OptionType] || 0;
-  //   });
-  
-  //   // Calculate sleep tracking progress as a percentage
-  //   const foodTrackingPercentage = Math.min((daysWithCaffeineData / 7) * 100, 100);
-  
-  //   // Update progress data with calculated values
-  //   setProgressData(prevData => prevData.map(item => {
-  //     switch (item.label) {
-  //       case 'Food Tracking':
-  //         return { ...item, value: foodTrackingPercentage };
-  //       case 'Physical Activity':
-  //         return { ...item, value: physicalActivityPercentage };
-  //       case 'Diet':
-  //         return { ...item, value: dietPercentage };
-  //       default:
-  //         return item;
-  //     }
-  //   }));
-  // };
-  
-  
   // Split the data into two rows
   const firstRowData = progressData.slice(0, 3);
   const secondRowData = progressData.slice(3);

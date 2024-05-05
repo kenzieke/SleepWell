@@ -10,9 +10,9 @@ type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
                   'null';
 
 const OptionButton: React.FC<{
-  label: OptionType,
-  onPress: () => void,
-  isSelected: boolean,
+  label: string;
+  onPress: () => void;
+  isSelected: boolean;
 }> = ({ label, onPress, isSelected }) => (
   <TouchableOpacity
     onPress={onPress}
@@ -25,6 +25,9 @@ const OptionButton: React.FC<{
         styles.optionText,
         isSelected && styles.optionTextSelected,
       ]}
+      numberOfLines={2} // Allow text to wrap to a new line
+      adjustsFontSizeToFit // Adjust the font size to ensure the text fits
+      minimumFontScale={0.5} // Minimum scale factor for text size
     >
       {label}
     </Text>
@@ -359,7 +362,7 @@ const styles = StyleSheet.create({
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      height: 40, // Set a fixed height for buttons
+      height: 40,
     },
     optionButtonSelected: {
       backgroundColor: '#52796F',
