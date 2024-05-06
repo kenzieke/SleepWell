@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import ProgressCircle from '../../components/ProgressCircle';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
-import { collection, doc, getDoc, getDocs, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 
 type OptionType = 'Very Poor' | 'Okay' | 'Good' | 'Outstanding' | 'Poor' | 'null';
 
@@ -15,15 +15,6 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     { label: 'Physical Activity', value: 0 },
     { label: 'Diet', value: 0 },
   ]);
-
-  const dietPercentageMapping: { [key in OptionType]: number } = {
-    'Very Poor': 20,
-    'Poor': 40,
-    'Okay': 60,
-    'Good': 80,
-    'Outstanding': 100,
-    'null': 0, // If not set, consider 0%
-  };
 
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;

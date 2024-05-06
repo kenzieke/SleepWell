@@ -22,6 +22,16 @@ const touchableAreas = [
   { id: 'physicalActivity', top: 80, left: 23, width: 75, height: 11 },
 ];
 
+// Map of goal IDs to their custom modal content
+const goalContentMap = {
+  'sleepDuration': 'Ensure you get at least 7-9 hours of sleep every night.',
+  'sleepQuality': 'Your sleep quality is the percent of time that you spent asleep while in bed. The higher your sleep quality the better. Most sleep specialists consider a sleep quality of 85% and higher to be healthy. Our program is designed to help firefighters improve their sleep quality. This means, falling asleep faster and improving sleep quality and duration.',
+  'bodyComposition': 'BMI is not a perfect measure but can help determine risk of sleep disorders and chronic diseases. If you have a BMI of 25 or more, our program includes proven strategies to promote healthy weight loss to improve sleep.',
+  'nutrition': 'A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.',
+  'stress': 'Managing stress is a key part of sleep health. Our program provides tools to help manage stress both on and off duty.',
+  'physicalActivity': 'Regular physical activity has been linked with improved sleep quality (but avoid vigorous activity right before bed).',
+};
+
 const WeeklyGoals: React.FC = () => {
   const insets = useSafeAreaInsets();
 
@@ -52,6 +62,9 @@ const WeeklyGoals: React.FC = () => {
     setSelectedGoal(goalId);
     setModalVisible(true);
   };
+
+  // Retrieve the content for the selected modal
+  const selectedGoalContent = goalContentMap[selectedGoal] || 'Content not available';
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -86,17 +99,14 @@ const WeeklyGoals: React.FC = () => {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
+        onRequestClose={() => setModalVisible(false)}
       >
-        {/* Modal content here */}
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>{`Content for ${selectedGoal}`}</Text>
+            <Text style={styles.modalText}>{selectedGoalContent}</Text>
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(!modalVisible)}
+              onPress={() => setModalVisible(false)}
             >
               <Text style={styles.textStyle}>Done</Text>
             </TouchableOpacity>
@@ -119,7 +129,7 @@ const styles = StyleSheet.create({
   },
   touchableArea: {
     position: 'absolute',
-    backgroundColor: 'rgba(0,0,0,0.2)', // Temporary background color to see the areas
+    backgroundColor: 'rgba(0,0,0,0)', // Temporary background color to see the areas
   },
   centeredView: {
     flex: 1,
