@@ -1,15 +1,16 @@
 import * as React from 'react';
-import { Button } from 'react-native'
+import { Button } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
 import LoginScreen from '../app/screens/LoginScreen';
 import SignUpScreen from '../app/screens/SignUpScreen';
+import ListScreen from '../app/screens/List';
 import SleepAssessmentScreen from '../app/screens/SleepAssessment';
 import ResultsScreen from '../app/screens/ResultsScreen';
-import { doc, getDoc } from 'firebase/firestore';
 import BottomTabNavigator from '../components/BottomTabNavigator';
-import { FIRESTORE_DB } from '../FirebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 
 const Stack = createStackNavigator();
 
@@ -31,7 +32,7 @@ function AppNavigator({ user }) {
             routes: [{ name: routeName }],
           });
         } else {
-          console.log("No user document!");
+          console.log('No user document!');
           navigationRef.current?.navigate('Sleep Assessment');
         }
       } else {
@@ -40,14 +41,23 @@ function AppNavigator({ user }) {
     };
 
     checkUserDocument();
-  }, [user]); // [user, navigationRef]);
+  }, [user]);
 
   return (
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-        {user && <Stack.Screen name="Main" component={BottomTabNavigator} />}
+        {user && (
+          <Stack.Screen name="Main" component={BottomTabNavigator} options={{ headerShown: false }} />
+        )}
+        {user && (
+          <Stack.Screen
+            name="Sleep Assessment"
+            component={SleepAssessmentScreen}
+            options={{ headerShown: true }}
+          />
+        )}
         <Stack.Screen
           name="ResultsScreen"
           component={ResultsScreen}
@@ -56,22 +66,44 @@ function AppNavigator({ user }) {
             headerBackTitleVisible: false,
             title: 'Sleep Assessment Results',
             headerRight: () => (
-              <Button
-                onPress={() => navigation.navigate('Main')}
-                title="Next"
-                color='#52796F'
-              />
+              <Button onPress={() => navigation.navigate('Main')} title="Next" color="#52796F" />
             ),
             headerLeft: () => (
-              <Button
-                onPress={() => navigation.navigate('Sleep Assessment')}
-                title="Back"
-                color='#52796F'
-              />
+              <Button onPress={() => navigation.navigate('Sleep Assessment')} title="Back" color="#52796F" />
             ),
           })}
         />
-        {user && <Stack.Screen name="Sleep Assessment" component={SleepAssessmentScreen} options={{ headerShown: true }} />}
+        {user && (
+          <Stack.Screen
+            name="ListMain"
+            component={ListScreen}
+            options={({ navigation }) => ({
+              title: 'Sleep Coaches',
+              headerShown: true,
+              headerTitleAlign: 'center',
+              // Back button to navigate back to Weekly Lessons
+              headerLeft: () => (
+                <Button
+                  onPress={() => navigation.goBack()}
+                  title="Back"
+                  color="#52796F"
+                />
+              ),
+              // Logout button to sign out and navigate to Login
+              headerRight: () => (
+                <Button
+                  onPress={() => {
+                    FIREBASE_AUTH.signOut()
+                      .then(() => navigation.navigate('Login'))
+                      .catch((error) => console.error('Logout error:', error));
+                  }}
+                  title="Logout"
+                  color="#52796F"
+                />
+              ),
+            })}
+          />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

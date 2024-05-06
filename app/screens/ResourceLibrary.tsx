@@ -59,7 +59,7 @@ const resources: ResourceItem[] = [
         id: '8',
         title: 'Nutrition',
         iconName: 'flame',
-        link: 'hhttps://www.nwcg.gov/committee/6mfs/firefighter-nutrition',
+        link: 'https://www.nwcg.gov/committee/6mfs/firefighter-nutrition',
     },
     {
         id: '9',

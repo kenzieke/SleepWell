@@ -9,6 +9,9 @@ import HealthTrackerScreen from '../app/screens/HealthTracker';
 import WeeklyGoals from '../app/screens/WeeklyGoals';
 import ResourceLibraryScreen from '../app/screens/ResourceLibrary';
 import WeeklyLessonsScreen from '../app/screens/WeeklyLessonsScreen';
+import List from '../app/screens/List';
+import { TouchableOpacity } from 'react-native';
+import { FIREBASE_AUTH } from '../FirebaseConfig';
 
 type screenType={
   SleepTrackerScreen:undefined,
@@ -45,13 +48,96 @@ function HealthTrackerStack() {
   );
 }
 
-function WeeklyLessonsStack() {
+// function ListStack({ navigation }) {
+//   const handleLogout = () => {
+//     FIREBASE_AUTH.signOut()
+//       .then(() => {
+//         navigation.navigate('Login'); // Navigate back to the login screen after logging out
+//       })
+//       .catch((error) => {
+//         console.error('Logout error:', error);
+//       });
+//   };
+
+//   return (
+//     <Stack.Navigator>
+//       <Stack.Screen
+//         name="ListMain"
+//         component={List}
+//         options={{
+//           title: 'Sleep Coaches',
+//           headerLeft: () => (
+//             <TouchableOpacity
+//               onPress={handleLogout} // Trigger the logout function
+//               style={{ marginLeft: 10 }}
+//             >
+//               <Ionicons name="ios-log-out" size={24} color="#52796F" />
+//             </TouchableOpacity>
+//           ),
+//           headerTitleAlign: 'center', // Center the header title
+//         }}
+//       />
+//     </Stack.Navigator>
+//   );
+// }
+
+// function WeeklyLessonsStack({ navigation }) {
+//   return (
+//     <Stack.Navigator>
+//       <Stack.Screen
+//         name="WeeklyLessonsMain"
+//         component={WeeklyLessonsScreen}
+//         options={{
+//           title: 'Improve My Sleep',
+//           headerRight: () => (
+//             <TouchableOpacity
+//               onPress={() => navigation.navigate('ListMain')} // Navigate to your List screen
+//               style={{ marginRight: 10 }}
+//             >
+//               <Ionicons name="ios-settings" size={24} color="#52796F" />
+//             </TouchableOpacity>
+//           ),
+//         }}
+//       />
+//     </Stack.Navigator>
+//   );
+// }
+
+{/* <Stack.Navigator>
+      <Stack.Screen
+        name="WeeklyLessonsMain"
+        component={WeeklyLessonsScreen}
+        options={{
+          title: 'Improve My Sleep',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ListMain')} // Navigate to the List screen
+              style={{ marginRight: 10 }}
+            >
+    //           <Ionicons name="ios-call" size={24} color="#52796F" /> {/* Changed to phone icon */}
+    //         </TouchableOpacity>
+    //       ),
+    //     }}
+    //   />
+    // </Stack.Navigator> */}
+
+function WeeklyLessonsStack({ navigation }) {
   return (
     <Stack.Navigator>
       <Stack.Screen
         name="WeeklyLessonsMain"
         component={WeeklyLessonsScreen}
-        options={{ title: 'Improve My Sleep' }}
+        options={{
+          title: 'Improve My Sleep',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ListMain')} // Now uses the main stack navigator
+              style={{ marginRight: 10 }}
+            >
+              <Ionicons name="ios-call" size={24} color="#52796F" />
+            </TouchableOpacity>
+          ),
+        }}
       />
     </Stack.Navigator>
   );
