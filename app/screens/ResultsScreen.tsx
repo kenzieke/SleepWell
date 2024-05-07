@@ -4,10 +4,14 @@ import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 
 const scaleImage = require('../../assets/scale.png');
+const scale1Image = require('../../assets/0_marker.png');
+const scale2Image = require('../../assets/20_marker.png');
+const scale3Image = require('../../assets/50_marker.png');
+const scale4Image = require('../../assets/80_marker.png');
+const scale5Image = require('../../assets/100_marker.png');
 
 const getInsomniaSeverityDescription = (score) => {
   let description = "The ISI score is a widely recognized and clinically validated screening tool used by clinicians to evaluate insomnia. Here's what the score means: ";
-
   if (score >= 8 && score <= 14) {
     description += `Sub-threshold insomnia - Sleep Well offers effective strategies to manage occasional sleep difficulties, enhance sleep quality, and prevent the progression into chronic insomnia.`;
   } else if (score >= 15 && score <= 21) {
@@ -122,37 +126,94 @@ Managing stress is a key part of sleep health. Our program provides tools to hel
 
 const getCategoryDetails = (results) => ({
   'Insomnia Severity Index': {
-    image: scaleImage,
+    image: results.insomniaSeverityIndex >= 8 && results.insomniaSeverityIndex <= 12
+            ? scale1Image
+            : results.insomniaSeverityIndex >= 13 && results.insomniaSeverityIndex <= 17
+            ? scale2Image
+            : results.insomniaSeverityIndex >= 18 && results.insomniaSeverityIndex <= 22
+            ? scale3Image
+            : results.insomniaSeverityIndex >= 23 && results.insomniaSeverityIndex <= 26
+            ? scale4Image
+            : results.insomniaSeverityIndex >= 27 && results.insomniaSeverityIndex <= 28
+            ? scale5Image
+            : scaleImage,
     score: results.insomniaSeverityIndex || 'Not available', // Use the actual score from state
     description: results.insomniaSeverityIndex ? getInsomniaSeverityDescription(results.insomniaSeverityIndex) : 'No score available.',
   },
   'Sleep Apnea Risk': {
-    image: scaleImage,
+    image: results.sleepApneaRisk === 5
+            ? scale1Image
+            : results.sleepApneaRisk === 3
+            ? scale3Image
+            : scale5Image,
     score: results.sleepApneaRisk || 'Not available',
     description: results.sleepApneaRisk ? getSleepApneaDescription(results.sleepApneaRisk) : 'No score available.',
   },
+  // 'Sleep Efficiency': {
+  //   image: scaleImage,
+  //   score: results.sleepEfficiency || 'Not available',
+  //   description: `Your sleep efficiency is the percent of time that you spent asleep while in bed. The higher your sleep efficiency the better.\n\nMost sleep specialists consider a sleep efficiency of 85% and higher to be healthy.\n\nOur program is designed to help firefighters improve their sleep efficiency. This means, falling asleep faster and improving sleep quality and duration.`,
+  // },
   'Sleep Efficiency': {
-    image: scaleImage,
+    image: results.sleepEfficiency <= 20
+            ? scale5Image
+            : results.sleepEfficiency <= 40
+            ? scale4Image
+            : results.sleepEfficiency <= 60
+            ? scale3Image
+            : results.sleepEfficiency <= 80
+            ? scale4Image
+            : scale5Image,
     score: results.sleepEfficiency || 'Not available',
     description: `Your sleep efficiency is the percent of time that you spent asleep while in bed. The higher your sleep efficiency the better.\n\nMost sleep specialists consider a sleep efficiency of 85% and higher to be healthy.\n\nOur program is designed to help firefighters improve their sleep efficiency. This means, falling asleep faster and improving sleep quality and duration.`,
   },
+  // 'Body Mass Index': {
+  //   image: scaleImage,
+  //   score: results.bmi || 'Not available',
+  //   description: results.bmi ? getBMIDescription(results.bmi) : 'No score available.',
+  // },
   'Body Mass Index': {
-    image: scaleImage,
+    image: results.bmi < 18
+            ? scale5Image
+            : results.bmi <= 25
+            ? scale2Image
+            : results.bmi <= 30
+            ? scale3Image
+            : scale4Image,
     score: results.bmi || 'Not available',
     description: results.bmi ? getBMIDescription(results.bmi) : 'No score available.',
   },
   'Diet': {
-    image: scaleImage,
+    // image: scaleImage,
+    image: results.diet === 1
+            ? scale1Image
+            : results.diet === 3
+            ? scale3Image
+            : scale5Image,
     score: results.diet || 'Not available',
     description: results.diet ? getDietDescription(results.diet) : 'No score available.',
   },
   'Physical Activity': {
-    image: scaleImage,
+    // image: scaleImage,
+    image: results.physicalActivity <= 20
+            ? scale5Image
+            : results.physicalActivity <= 40
+            ? scale4Image
+            : results.physicalActivity <= 60
+            ? scale3Image
+            : results.physicalActivity <= 80
+            ? scale4Image
+            : scale5Image,
     score: results.physicalActivity || 'Not available',
     description: results.physicalActivity ? getActivityDescription(results.physicalActivity) : 'No score available.',
   },
   'Stress': {
-    image: scaleImage,
+    // image: scaleImage,
+    image: results.stress === 5
+            ? scale1Image
+            : results.stress === 3
+            ? scale3Image
+            : scale5Image,
     score: results.stress || 'Not available',
     description: results.stress ? getStressDescription(results.stress) : 'No score available.',
   }
@@ -232,7 +293,7 @@ const ResultsScreen = ({ navigation }) => {
           >
             <Text style={styles.categoryText}>{category.name}</Text>
             <Image
-              source={category.image}
+              source={getCategoryDetails(results)[category.name].image}  // Dynamically set the image source
               style={styles.scaleImage}
               resizeMode="contain"
             />
