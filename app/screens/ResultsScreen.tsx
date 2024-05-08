@@ -149,11 +149,6 @@ const getCategoryDetails = (results) => ({
     score: results.sleepApneaRisk || 'Not available',
     description: results.sleepApneaRisk ? getSleepApneaDescription(results.sleepApneaRisk) : 'No score available.',
   },
-  // 'Sleep Efficiency': {
-  //   image: scaleImage,
-  //   score: results.sleepEfficiency || 'Not available',
-  //   description: `Your sleep efficiency is the percent of time that you spent asleep while in bed. The higher your sleep efficiency the better.\n\nMost sleep specialists consider a sleep efficiency of 85% and higher to be healthy.\n\nOur program is designed to help firefighters improve their sleep efficiency. This means, falling asleep faster and improving sleep quality and duration.`,
-  // },
   'Sleep Efficiency': {
     image: results.sleepEfficiency <= 20
             ? scale5Image
@@ -167,11 +162,6 @@ const getCategoryDetails = (results) => ({
     score: results.sleepEfficiency || 'Not available',
     description: `Your sleep efficiency is the percent of time that you spent asleep while in bed. The higher your sleep efficiency the better.\n\nMost sleep specialists consider a sleep efficiency of 85% and higher to be healthy.\n\nOur program is designed to help firefighters improve their sleep efficiency. This means, falling asleep faster and improving sleep quality and duration.`,
   },
-  // 'Body Mass Index': {
-  //   image: scaleImage,
-  //   score: results.bmi || 'Not available',
-  //   description: results.bmi ? getBMIDescription(results.bmi) : 'No score available.',
-  // },
   'Body Mass Index': {
     image: results.bmi < 18
             ? scale5Image
@@ -184,7 +174,6 @@ const getCategoryDetails = (results) => ({
     description: results.bmi ? getBMIDescription(results.bmi) : 'No score available.',
   },
   'Diet': {
-    // image: scaleImage,
     image: results.diet === 1
             ? scale1Image
             : results.diet === 3
@@ -194,7 +183,6 @@ const getCategoryDetails = (results) => ({
     description: results.diet ? getDietDescription(results.diet) : 'No score available.',
   },
   'Physical Activity': {
-    // image: scaleImage,
     image: results.physicalActivity <= 20
             ? scale5Image
             : results.physicalActivity <= 40
@@ -208,7 +196,6 @@ const getCategoryDetails = (results) => ({
     description: results.physicalActivity ? getActivityDescription(results.physicalActivity) : 'No score available.',
   },
   'Stress': {
-    // image: scaleImage,
     image: results.stress === 5
             ? scale1Image
             : results.stress === 3

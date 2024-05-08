@@ -96,15 +96,6 @@ const SleepTrackerScreen: React.FC = () => {
     setSleepRating('');
   };
 
-  // Function to convert slider value to a string
-  // const getSleepRating = (value: number): string => {
-  //   const ratings = ['Very Poor', 'Poor', 'Fair', 'Good', 'Very Good'];
-  //   return ratings[Math.floor(value / 1)]; // Since we have 5 steps, each step corresponds to one label
-  // };
-
-  // const sliderWidth = Dimensions.get('window').width - (20 * 2); // padding is 20 on each side
-  // const [labelWidth, setLabelWidth] = useState(0);
-  // const labelPosition = sliderValue / 5 * (sliderWidth - (isNaN(labelWidth) ? 0 : labelWidth)) + 20;
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -446,15 +437,6 @@ const styles = StyleSheet.create({
     padding: 8, // Padding to make it easier to press
     top: 0,
   },
-  // sliderContainer: {
-  //   position: 'relative',
-  //   marginBottom: 16,
-  // },
-  // slider: {
-  //   marginTop: 30,
-  //   width: '100%',
-  //   height: 0,
-  // },
   labelContainer: {
     marginTop: 16,
     position: 'absolute',

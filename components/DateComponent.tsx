@@ -26,9 +26,6 @@ export const DateComponent = ({ date, setDate }) => {
         >
           <Text style={styles.buttonText}>Select Date</Text>
         </TouchableOpacity>
-        {/* <Text style={styles.selectedDateText}>
-          Selected: {date.toLocaleDateString()}
-        </Text> */}
         <Text style={styles.selectedDateText}>
           Selected: {date ? date.toLocaleDateString() : 'No date selected'}
         </Text>
