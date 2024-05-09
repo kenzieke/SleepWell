@@ -10,7 +10,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
   const [progressData, setProgressData] = useState([
     { label: 'Sleep Tracking', value: 0 },
     { label: 'Food Tracking', value: 0 },
-    { label: 'Coaching', value: 0 },
+    { label: 'Stress', value: 0 },
     { label: 'Sleep Efficiency', value: 0 },
     { label: 'Physical Activity', value: 0 },
     { label: 'Nutrition', value: 0 },
@@ -81,6 +81,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     let daysWithSleepData = 0;
     let daysWithCaffeineData = 0;
     let dietDaysCount = 0;
+    let stressResponsesCount = 0;
 
     // Process health data from the previous week
     const prevWeekSnapshot = await getDocs(prevWeekQuery);
@@ -106,6 +107,11 @@ const WeeklyLessonsScreen = ({ navigation }) => {
         if (data.rateDiet && data.rateDiet !== 'null') {
             dietDaysCount++;
         }
+
+        // Count days with stress data
+        if (data.stressLevel && data.stressLevel !== 'null') {
+            stressResponsesCount++;
+        }
     });
 
     // Determine the diet percentage based on the count of days
@@ -116,6 +122,15 @@ const WeeklyLessonsScreen = ({ navigation }) => {
         dietPercentage = 66;
     } else if (dietDaysCount === 1) {
         dietPercentage = 33;
+    }
+
+    let stressPercentage = 0;
+    if (stressResponsesCount >= 3) {
+        stressPercentage = 100;
+    } else if (stressResponsesCount === 2) {
+        stressPercentage = 66;
+    } else if (stressResponsesCount === 1) {
+        stressPercentage = 33;
     }
 
     // Calculate the physical activity percentage based on new criteria
@@ -141,6 +156,8 @@ const WeeklyLessonsScreen = ({ navigation }) => {
                 return { ...item, value: sleepTrackingPercentage };
             case 'Nutrition':
                 return { ...item, value: dietPercentage };
+            case 'Stress':
+                return { ...item, value: stressPercentage };
             default:
                 return item;
         }
