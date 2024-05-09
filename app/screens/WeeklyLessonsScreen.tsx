@@ -16,6 +16,30 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     { label: 'Nutrition', value: 0 },
   ]);
 
+  const calculateSleepEfficiency = (data: {
+    fallAsleepHours: string,
+    fallAsleepMinutes: string,
+    inBedHours: string,
+    inBedMinutes: string,
+    timeAsleepHours: string,
+    timeAsleepMinutes: string,
+    timesWokeUp: string
+  }): number => {
+    const fallAsleepTime = parseInt(data.fallAsleepHours || '0') * 60 + parseInt(data.fallAsleepMinutes || '0');
+    const totalTimeInBed = parseInt(data.inBedHours || '0') * 60 + parseInt(data.inBedMinutes || '0');
+    const totalSleepTime = parseInt(data.timeAsleepHours || '0') * 60 + parseInt(data.timeAsleepMinutes || '0');
+    const timesWokeUp = parseInt(data.timesWokeUp || '0');
+  
+    // Directly return 0 if no time was spent in bed
+    if (totalTimeInBed === 0) {
+      return 0;
+    }
+  
+    // Calculate sleep efficiency if there's valid data
+    const sleepEfficiency = totalSleepTime / (fallAsleepTime + totalSleepTime + timesWokeUp) * 100;
+    return parseFloat(sleepEfficiency.toFixed(2));
+  };  
+
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
     if (!userId) {
@@ -57,7 +81,6 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6); // Following Saturday
 
-    // Calculate dates for the previous week
     const prevStartDate = new Date(startDate);
     prevStartDate.setDate(startDate.getDate() - 7);
     const prevEndDate = new Date(endDate);
@@ -69,7 +92,12 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     const prevEnd = prevEndDate.toISOString().split('T')[0];
 
     // Firestore references
+    const sleepCollectionRef = collection(FIRESTORE_DB, 'users', userId, 'sleepData');
     const healthCollectionRef = collection(FIRESTORE_DB, 'users', userId, 'healthData');
+
+    // Queries for weekly sleep data
+    const sleepWeekQuery = query(sleepCollectionRef, where('date', '>=', start), where('date', '<=', end));
+    const prevSleepWeekQuery = query(sleepCollectionRef, where('date', '>=', prevStart), where('date', '<=', prevEnd));
 
     // Queries for current and previous weekly data
     const healthWeekQuery = query(healthCollectionRef, where('date', '>=', start), where('date', '<=', end));
@@ -83,6 +111,37 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     let dietDaysCount = 0;
     let stressResponsesCount = 0;
 
+    // Initialize tracking variables
+    let totalSleepEfficiency = 0;
+    let countSleepDays = 0;
+    let prevTotalSleepEfficiency = 0;
+    let prevCountSleepDays = 0;
+
+    // Process current week sleep data
+    const sleepWeekSnapshot = await getDocs(sleepWeekQuery);
+    sleepWeekSnapshot.forEach((doc) => {
+        const data = doc.data();
+        const efficiency = calculateSleepEfficiency(data);
+        if (!isNaN(efficiency)) {
+            totalSleepEfficiency += efficiency;
+            countSleepDays++;
+        }
+    });
+
+    // Process previous week sleep data
+    const prevSleepWeekSnapshot = await getDocs(prevSleepWeekQuery);
+    prevSleepWeekSnapshot.forEach((doc) => {
+        const data = doc.data();
+        const efficiency = calculateSleepEfficiency(data);
+        if (!isNaN(efficiency)) {
+            prevTotalSleepEfficiency += efficiency;
+            prevCountSleepDays++;
+        }
+    });
+
+    // Calculate average efficiencies
+    const prevAvgSleepEfficiency = prevCountSleepDays > 0 ? prevTotalSleepEfficiency / prevCountSleepDays : 0;
+
     // Process health data from the previous week
     const prevWeekSnapshot = await getDocs(prevWeekQuery);
     prevWeekSnapshot.forEach((doc) => {
@@ -93,25 +152,25 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     // Process health data over the current week
     const healthWeekSnapshot = await getDocs(healthWeekQuery);
     healthWeekSnapshot.forEach((doc) => {
-        const data = doc.data();
+      const data = doc.data();
 
-        // Check for caffeine data
-        if (data.caffeine && data.caffeine !== '') {
-            daysWithCaffeineData++;
-        }
+      // Check for caffeine data
+      if (data.caffeine && data.caffeine !== '') {
+          daysWithCaffeineData++;
+      }
 
-        // Aggregate physical activity
-        totalPhysicalActivity += Number(data.minPA || 0);
+      // Aggregate physical activity
+      totalPhysicalActivity += Number(data.minPA || 0);
 
-        // Count days with diet data
-        if (data.rateDiet && data.rateDiet !== 'null') {
-            dietDaysCount++;
-        }
+      // Count days with diet data
+      if (data.rateDiet && data.rateDiet !== 'null') {
+          dietDaysCount++;
+      }
 
-        // Count days with stress data
-        if (data.stressLevel && data.stressLevel !== 'null') {
-            stressResponsesCount++;
-        }
+      // Count days with stress data
+      if (data.stressLevel && data.stressLevel !== 'null') {
+          stressResponsesCount++;
+      }
     });
 
     // Determine the diet percentage based on the count of days
@@ -145,23 +204,51 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     const foodTrackingPercentage = (daysWithCaffeineData / 7) * 100;
     const sleepTrackingPercentage = (daysWithSleepData / 7) * 100;
 
-    // Update progress data
+    // Calculate average efficiencies
+    const avgSleepEfficiency = countSleepDays > 0 ? totalSleepEfficiency / countSleepDays : 0;
+
+    // Check if there's any valid sleep data
+    const validSleepData = countSleepDays > 0 && totalSleepEfficiency > 0;
+
+    // Logging the sleep efficiency scores for debugging
+    console.log(`Previous Week's Average Sleep Efficiency: ${prevAvgSleepEfficiency}`);
+    console.log(`This Week's Average Sleep Efficiency: ${avgSleepEfficiency}`);
+
+    // Determine sleep efficiency score
+    let sleepEfficiencyScore = 0;
+    if (countSleepDays === 0) {
+      sleepEfficiencyScore = 0; // No valid data
+      console.log("No sleep data available for this week.");
+    } else if (avgSleepEfficiency >= 85 || (avgSleepEfficiency > prevAvgSleepEfficiency)) {
+      sleepEfficiencyScore = 100; // Sleep quality/efficiency increased or is 85% or greater
+      console.log("Sleep efficiency is excellent or improved.");
+    } else if (avgSleepEfficiency < 85 && avgSleepEfficiency < (prevAvgSleepEfficiency - (prevAvgSleepEfficiency * 0.05))) {
+      sleepEfficiencyScore = 66; // Sleep was tracked but decreased by 5% or more and was lower than 85%
+      console.log("Sleep efficiency decreased by more than 5% and is below 85%.");
+    } else {
+      console.log("Sleep efficiency data does not meet any specific criteria for scoring.");
+    }
+
+    // Update progress data with sleep efficiency
     setProgressData((prevData) => prevData.map((item) => {
-        switch (item.label) {
-            case 'Food Tracking':
-                return { ...item, value: foodTrackingPercentage };
-            case 'Physical Activity':
-                return { ...item, value: physicalActivityPercentage };
-            case 'Sleep Tracking':
-                return { ...item, value: sleepTrackingPercentage };
-            case 'Nutrition':
-                return { ...item, value: dietPercentage };
-            case 'Stress':
-                return { ...item, value: stressPercentage };
-            default:
-                return item;
-        }
+      switch (item.label) {
+        case 'Food Tracking':
+          return { ...item, value: foodTrackingPercentage };
+        case 'Physical Activity':
+          return { ...item, value: physicalActivityPercentage };
+        case 'Sleep Tracking':
+          return { ...item, value: sleepTrackingPercentage };
+        case 'Nutrition':
+          return { ...item, value: dietPercentage };
+        case 'Stress':
+          return { ...item, value: stressPercentage };
+        case 'Sleep Efficiency':
+          return { ...item, value: sleepEfficiencyScore };
+        default:
+          return item;
+      }
     }));
+
 };
 
   return (
