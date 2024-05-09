@@ -175,7 +175,7 @@ const HealthTrackerScreen: React.FC = () => {
               </View>
 
               <View style={styles.questionContainer}>
-                <Text style={styles.questionText}>Overall, how would you rate your diet today?</Text>
+                <Text style={styles.questionText}>How are you doing today in managing portions, eating vegetables, and limiting caffeine and sugary drinks?</Text>
                 {renderOptions('rateDiet', ['Very Poor', 'Poor', 'Okay', 'Good', 'Outstanding'], rateDiet, setRateDiet)}
               </View>
 
