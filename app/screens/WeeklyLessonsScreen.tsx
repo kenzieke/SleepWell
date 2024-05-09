@@ -57,22 +57,39 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6); // Following Saturday
 
+    // Calculate dates for the previous week
+    const prevStartDate = new Date(startDate);
+    prevStartDate.setDate(startDate.getDate() - 7);
+    const prevEndDate = new Date(endDate);
+    prevEndDate.setDate(endDate.getDate() - 7);
+
     const start = startDate.toISOString().split('T')[0];
     const end = endDate.toISOString().split('T')[0];
+    const prevStart = prevStartDate.toISOString().split('T')[0];
+    const prevEnd = prevEndDate.toISOString().split('T')[0];
 
     // Firestore references
     const healthCollectionRef = collection(FIRESTORE_DB, 'users', userId, 'healthData');
 
-    // Queries for weekly data
+    // Queries for current and previous weekly data
     const healthWeekQuery = query(healthCollectionRef, where('date', '>=', start), where('date', '<=', end));
+    const prevWeekQuery = query(healthCollectionRef, where('date', '>=', prevStart), where('date', '<=', prevEnd));
 
     // Initialize tracking variables
     let totalPhysicalActivity = 0;
+    let prevTotalPhysicalActivity = 0;
     let daysWithSleepData = 0;
     let daysWithCaffeineData = 0;
     let dietDaysCount = 0;
 
-    // Process health data over the week
+    // Process health data from the previous week
+    const prevWeekSnapshot = await getDocs(prevWeekQuery);
+    prevWeekSnapshot.forEach((doc) => {
+        const data = doc.data();
+        prevTotalPhysicalActivity += Number(data.minPA || 0);
+    });
+
+    // Process health data over the current week
     const healthWeekSnapshot = await getDocs(healthWeekQuery);
     healthWeekSnapshot.forEach((doc) => {
         const data = doc.data();
@@ -101,10 +118,17 @@ const WeeklyLessonsScreen = ({ navigation }) => {
         dietPercentage = 33;
     }
 
+    // Calculate the physical activity percentage based on new criteria
+    let physicalActivityPercentage = 0;
+    if (totalPhysicalActivity >= 150 || totalPhysicalActivity > prevTotalPhysicalActivity) {
+        physicalActivityPercentage = 100;
+    } else if (totalPhysicalActivity > 0 && (totalPhysicalActivity <= (prevTotalPhysicalActivity * 0.95) || totalPhysicalActivity < 150)) {
+        physicalActivityPercentage = 50;
+    }
+
     // Calculate other percentages
     const foodTrackingPercentage = (daysWithCaffeineData / 7) * 100;
     const sleepTrackingPercentage = (daysWithSleepData / 7) * 100;
-    const physicalActivityPercentage = Math.min(100, (totalPhysicalActivity / 150) * 100);
 
     // Update progress data
     setProgressData((prevData) => prevData.map((item) => {
