@@ -310,13 +310,23 @@ const WeeklyLessonsScreen = ({ navigation }) => {
               <>
                 <Text style={styles.modalText}>
                   Sleep Efficiency: {selectedItem.avgEfficiency.toFixed(2)}% -
-                  {selectedItem.avgEfficiency >= 85 && " Doing Great"}
-                  {selectedItem.avgEfficiency < 85 && selectedItem.avgEfficiency >= 50 && " On your way"}
-                  {selectedItem.avgEfficiency < 50 && " Reminder to track your sleep every day"}
+                  {selectedItem.avgEfficiency >= 85 && " Doing Great!"}
+                  {selectedItem.avgEfficiency < 85 && selectedItem.avgEfficiency >= 50 && " On your way."}
+                  {selectedItem.avgEfficiency < 50 && " Reminder to track your sleep every day."}
                 </Text>
               </>
             )}
-            {selectedItem && selectedItem.label !== 'Sleep Efficiency' && (
+            {selectedItem && selectedItem.label === 'Nutrition' && (
+              <>
+                <Text style={styles.modalText}>
+                  {selectedItem.value === 100 && "Great job tracking your diet this week!"}
+                  {selectedItem.value === 66 && "Getting there…reminder to track your eating every day for best results."}
+                  {selectedItem.value < 66 && selectedItem.value > 0 && "! - Reminder to track your eating every day for best results."}
+                  {selectedItem.value === 0 && "! - No diet data tracked this week."}
+                </Text>
+              </>
+            )}
+            {selectedItem && selectedItem.label !== 'Sleep Efficiency' && selectedItem.label !== 'Nutrition' && (
               <Text style={styles.modalText}>Details for {selectedItem.label}</Text>
             )}
             <Button
