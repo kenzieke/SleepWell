@@ -310,9 +310,9 @@ const WeeklyLessonsScreen = ({ navigation }) => {
               <>
                 <Text style={styles.modalText}>
                   Sleep Efficiency: {selectedItem.avgEfficiency.toFixed(2)}% -
-                  {selectedItem.avgEfficiency >= 85 && " Doing Great!"}
-                  {selectedItem.avgEfficiency < 85 && selectedItem.avgEfficiency >= 50 && " On your way."}
-                  {selectedItem.avgEfficiency < 50 && " Reminder to track your sleep every day."}
+                  {selectedItem.avgEfficiency >= 85 && " Doing Great"}
+                  {selectedItem.avgEfficiency < 85 && selectedItem.avgEfficiency >= 50 && " On your way"}
+                  {selectedItem.avgEfficiency < 50 && " Reminder to track your sleep every day"}
                 </Text>
               </>
             )}
@@ -326,7 +326,14 @@ const WeeklyLessonsScreen = ({ navigation }) => {
                 </Text>
               </>
             )}
-            {selectedItem && selectedItem.label !== 'Sleep Efficiency' && selectedItem.label !== 'Nutrition' && (
+            {selectedItem && selectedItem.label === 'Stress' && (
+              <Text style={styles.modalText}>
+                {selectedItem.value === 100 && "Great job tracking your stress this week. Try different tools until you find the ones that work best for you to reduce stress."}
+                {selectedItem.value === 66 && "Try to track your stress level every day and different tools until you find the ones that work best for you to reduce stress."}
+                {selectedItem.value < 66 && "! - Reminder to track your stress levels every day and try different tools until you find the ones that work best for you to reduce stress."}
+              </Text>
+            )}
+            {selectedItem && selectedItem.label !== 'Sleep Efficiency' && selectedItem.label !== 'Nutrition' && selectedItem.label !== 'Stress' && (
               <Text style={styles.modalText}>Details for {selectedItem.label}</Text>
             )}
             <Button
