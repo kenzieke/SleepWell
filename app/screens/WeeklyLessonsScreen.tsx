@@ -7,8 +7,15 @@ import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firesto
 type OptionType = 'Very Poor' | 'Okay' | 'Good' | 'Outstanding' | 'Poor' | 'null';
 
 const WeeklyLessonsScreen = ({ navigation }) => {
-  const [progressData, setProgressData] = useState([
-    { label: 'Sleep Efficiency', value: 0 },
+  interface ProgressDataItem {
+    label: string;
+    value?: number;
+    score?: number;
+    avgEfficiency?: number;
+  }
+
+  const [progressData, setProgressData] = useState<ProgressDataItem[]>([
+    { label: 'Sleep Efficiency', score: 0, avgEfficiency: 0 },
     { label: 'Body Comp', value: 0 },
     { label: 'Nutrition', value: 0 },
     { label: 'Physical Activity', value: 0 },
@@ -120,23 +127,22 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     let daysWithCaffeineData = 0;
     let dietDaysCount = 0;
     let stressResponsesCount = 0;
-
-    // Initialize tracking variables
-    let totalSleepEfficiency = 0;
-    let countSleepDays = 0;
     let prevTotalSleepEfficiency = 0;
     let prevCountSleepDays = 0;
+    let totalSleepEfficiency = 0;
+    let countSleepDays = 0;
 
-    // Process current week sleep data
     const sleepWeekSnapshot = await getDocs(sleepWeekQuery);
     sleepWeekSnapshot.forEach((doc) => {
-        const data = doc.data();
-        const efficiency = calculateSleepEfficiency(data);
-        if (!isNaN(efficiency)) {
-            totalSleepEfficiency += efficiency;
-            countSleepDays++;
-        }
+      const data = doc.data();
+      const efficiency = calculateSleepEfficiency(data);
+      if (!isNaN(efficiency)) {
+        totalSleepEfficiency += efficiency;
+        countSleepDays++;
+      }
     });
+
+    const avgSleepEfficiency = countSleepDays > 0 ? totalSleepEfficiency / countSleepDays : 0;
 
     // Process previous week sleep data
     const prevSleepWeekSnapshot = await getDocs(prevSleepWeekQuery);
@@ -214,9 +220,6 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     const foodTrackingPercentage = (daysWithCaffeineData / 7) * 100;
     const sleepTrackingPercentage = (daysWithSleepData / 7) * 100;
 
-    // Calculate average efficiencies
-    const avgSleepEfficiency = countSleepDays > 0 ? totalSleepEfficiency / countSleepDays : 0;
-
     // Check if there's any valid sleep data
     const validSleepData = countSleepDays > 0 && totalSleepEfficiency > 0;
 
@@ -242,23 +245,22 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     // Update progress data with sleep efficiency
     setProgressData((prevData) => prevData.map((item) => {
       switch (item.label) {
-        case 'Food Tracking':
-          return { ...item, value: foodTrackingPercentage };
+        case 'Body Comp':
+          return { ...item, value: 0 };
         case 'Physical Activity':
           return { ...item, value: physicalActivityPercentage };
-        case 'Sleep Tracking':
-          return { ...item, value: sleepTrackingPercentage };
+        case 'Weekly Lesson':
+          return { ...item, value: 0 };
         case 'Nutrition':
           return { ...item, value: dietPercentage };
         case 'Stress':
           return { ...item, value: stressPercentage };
         case 'Sleep Efficiency':
-          return { ...item, value: sleepEfficiencyScore };
+          return { ...item, score: sleepEfficiencyScore, avgEfficiency: avgSleepEfficiency };
         default:
           return item;
       }
     }));
-
 };
 
   return (
@@ -304,7 +306,19 @@ const WeeklyLessonsScreen = ({ navigation }) => {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Details for {selectedItem?.label}</Text>
+            {selectedItem && selectedItem.label === 'Sleep Efficiency' && (
+              <>
+                <Text style={styles.modalText}>
+                  Sleep Efficiency: {selectedItem.avgEfficiency.toFixed(2)}% -
+                  {selectedItem.avgEfficiency >= 85 && " Doing Great"}
+                  {selectedItem.avgEfficiency < 85 && selectedItem.avgEfficiency >= 50 && " On your way"}
+                  {selectedItem.avgEfficiency < 50 && " Reminder to track your sleep every day"}
+                </Text>
+              </>
+            )}
+            {selectedItem && selectedItem.label !== 'Sleep Efficiency' && (
+              <Text style={styles.modalText}>Details for {selectedItem.label}</Text>
+            )}
             <Button
               title="Close"
               onPress={() => setModalVisible(!modalVisible)}
