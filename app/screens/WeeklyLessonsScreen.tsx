@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, Button, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import ProgressCircle from '../../components/ProgressCircle';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
@@ -8,13 +8,23 @@ type OptionType = 'Very Poor' | 'Okay' | 'Good' | 'Outstanding' | 'Poor' | 'null
 
 const WeeklyLessonsScreen = ({ navigation }) => {
   const [progressData, setProgressData] = useState([
-    { label: 'Sleep Tracking', value: 0 },
-    { label: 'Food Tracking', value: 0 },
-    { label: 'Stress', value: 0 },
     { label: 'Sleep Efficiency', value: 0 },
-    { label: 'Physical Activity', value: 0 },
+    { label: 'Body Comp', value: 0 },
     { label: 'Nutrition', value: 0 },
+    { label: 'Physical Activity', value: 0 },
+    { label: 'Stress', value: 0 },
+    { label: 'Weekly Lesson', value: 0 },
   ]);
+
+  // State to handle modal visibility
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  // Function to handle opening modal
+  const handleOpenModal = (item) => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
 
   const calculateSleepEfficiency = (data: {
     fallAsleepHours: string,
@@ -264,22 +274,44 @@ const WeeklyLessonsScreen = ({ navigation }) => {
       <Text style={styles.header}>Weekly Progress</Text>
       <View style={styles.progressRow}>
         {progressData.slice(0, 3).map((item, index) => (
-          <ProgressCircle
-            key={`first-row-${index}`}
-            percentage={item.value}
-            label={item.label}
-          />
+          <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
+            <ProgressCircle
+              key={`first-row-${index}`}
+              percentage={item.value}
+              label={item.label}
+            />
+          </TouchableOpacity>
         ))}
       </View>
       <View style={styles.progressRow}>
         {progressData.slice(3).map((item, index) => (
-          <ProgressCircle
-            key={`second-row-${index}`}
-            percentage={item.value}
-            label={item.label}
-          />
+          <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
+            <ProgressCircle
+              key={`second-row-${index}`}
+              percentage={item.value}
+              label={item.label}
+            />
+          </TouchableOpacity>
         ))}
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Details for {selectedItem?.label}</Text>
+            <Button
+              title="Close"
+              onPress={() => setModalVisible(!modalVisible)}
+            />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -321,6 +353,31 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
+  }
 });
 
 export default WeeklyLessonsScreen;
