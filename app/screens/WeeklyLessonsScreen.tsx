@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, Button, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import ProgressCircle from '../../components/ProgressCircle';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 
 type OptionType = 'Very Poor' | 'Okay' | 'Good' | 'Outstanding' | 'Poor' | 'null';
 
@@ -55,13 +55,71 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     // Calculate sleep efficiency if there's valid data
     const sleepEfficiency = totalSleepTime / (fallAsleepTime + totalSleepTime + timesWokeUp) * 100;
     return parseFloat(sleepEfficiency.toFixed(2));
-  };  
+  };
 
+  const calculateBmiProgress = async (userId) => {
+    const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+    const resultsDocRef = doc(userDocRef, 'results', `scores_${userId}`);
+  
+    // Fetch initial BMI and weight data
+    const resultsSnapshot = await getDoc(resultsDocRef);
+    if (!resultsSnapshot.exists()) {
+      console.log("No initial BMI and weight data available.");
+      return 0;  // Handle case where there is no initial data
+    }
+  
+    const resultsData = resultsSnapshot.data();
+    const initialBmi = resultsData.bmi;
+    const initialWeightKg = parseFloat(resultsData.weightInKg); // Assume initial weight is always in kg
+
+    // Fetch the most recent weight entry
+    const healthDataRef = collection(userDocRef, 'healthData');
+    const weightQuery = query(healthDataRef, orderBy('date', 'desc'), limit(1));
+    const querySnapshot = await getDocs(weightQuery);
+    if (querySnapshot.empty) {
+      console.log("No weight data tracked after the initial entry.");
+      return 0; // No weight data tracked after the initial entry
+    }
+  
+    const latestEntry = querySnapshot.docs[0].data();
+    const mostRecentWeight = parseFloat(latestEntry.weight.value);
+    const weightUnit = latestEntry.weight.unit; // 'lbs' or 'kgs'
+    
+    // Check the unit of the weight and convert if necessary
+    const mostRecentWeightKg = weightUnit === 'lbs' ? mostRecentWeight * 0.453592 : mostRecentWeight;
+  
+    // Calculate weight change in kg
+    const weightChangeKg = mostRecentWeightKg - initialWeightKg;
+
+    if (initialBmi >= 25) {
+      if (weightChangeKg <= 0) {
+        console.log("Weight maintained or lost from initial.");
+        return 100;  // Return 100% if weight is maintained or lost
+      } else if (weightChangeKg > 2.27) {  // More than 5 pounds (2.27 kg) gained
+        console.log("Gained more than 5 pounds from initial weight.");
+        return 66;  // Return 66% if more than 5 pounds are gained
+      }
+    }
+
+    // TODO: Ask about this
+    if (initialBmi <= 24) {
+      console.log("BMI was less than 25, automatically 100%?");
+      return 100;
+    }
+  
+    console.log("Conditions for BMI progress not met.");
+    return 0;
+  };  
+  
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
     if (!userId) {
       console.log('User is not logged in.');
       return;
+    }
+
+    if (userId) {
+      fetchData(userId);
     }
 
     // Function to check if today is Sunday and fetch data if it is
@@ -107,6 +165,34 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     const end = endDate.toISOString().split('T')[0];
     const prevStart = prevStartDate.toISOString().split('T')[0];
     const prevEnd = prevEndDate.toISOString().split('T')[0];
+
+    const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+    // const resultsDocRef = doc(userDocRef, 'results');
+    const resultsDocRef = doc(FIRESTORE_DB, 'users', userId, 'results', `scores_${userId}`);
+
+    // Get the latest results for baseline data
+    const resultsSnapshot = await getDoc(resultsDocRef);
+    let baselineBmi = 0;
+    let baselineWeight = 0;
+    if (resultsSnapshot.exists()) {
+      const resultsData = resultsSnapshot.data();
+      baselineBmi = resultsData.bmi;
+      baselineWeight = resultsData.weightInKg;
+    }
+
+    // Attempt to fetch the latest weight entry from the health tracker
+    const healthDataRef = collection(userDocRef, 'healthData');
+    const querySnapshot = await getDocs(query(healthDataRef, orderBy('date', 'desc'), limit(1)));
+    let lastWeightEntry = baselineWeight; // Default to baseline weight
+    querySnapshot.forEach((doc) => {
+      const healthData = doc.data();
+      if (healthData.weightInKg) {
+        lastWeightEntry = healthData.weightInKg;
+      }
+    });
+
+    const bmiProgress = await calculateBmiProgress(userId, baselineWeight, baselineBmi);
+    console.log("BMI Progress Calculated:", bmiProgress);
 
     // Firestore references
     const sleepCollectionRef = collection(FIRESTORE_DB, 'users', userId, 'sleepData');
@@ -216,10 +302,6 @@ const WeeklyLessonsScreen = ({ navigation }) => {
         physicalActivityPercentage = 50;
     }
 
-    // Calculate other percentages
-    const foodTrackingPercentage = (daysWithCaffeineData / 7) * 100;
-    const sleepTrackingPercentage = (daysWithSleepData / 7) * 100;
-
     // Check if there's any valid sleep data
     const validSleepData = countSleepDays > 0 && totalSleepEfficiency > 0;
 
@@ -230,23 +312,20 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     // Determine sleep efficiency score
     let sleepEfficiencyScore = 0;
     if (countSleepDays === 0) {
-      sleepEfficiencyScore = 0; // No valid data
-      console.log("No sleep data available for this week.");
+      sleepEfficiencyScore = 0;  // No valid data
     } else if (avgSleepEfficiency >= 85 || (avgSleepEfficiency > prevAvgSleepEfficiency)) {
-      sleepEfficiencyScore = 100; // Sleep quality/efficiency increased or is 85% or greater
-      console.log("Sleep efficiency is excellent or improved.");
+      sleepEfficiencyScore = 100;  // Sleep quality/efficiency increased or is 85% or greater
     } else if (avgSleepEfficiency < 85 && avgSleepEfficiency < (prevAvgSleepEfficiency - (prevAvgSleepEfficiency * 0.05))) {
-      sleepEfficiencyScore = 66; // Sleep was tracked but decreased by 5% or more and was lower than 85%
-      console.log("Sleep efficiency decreased by more than 5% and is below 85%.");
+      sleepEfficiencyScore = 66;  // Sleep was tracked but decreased by 5% or more and was lower than 85%
     } else {
-      console.log("Sleep efficiency data does not meet any specific criteria for scoring.");
+      sleepEfficiencyScore = 0;  // Default to 0 if none of the above conditions are met
     }
 
     // Update progress data with sleep efficiency
     setProgressData((prevData) => prevData.map((item) => {
       switch (item.label) {
         case 'Body Comp':
-          return { ...item, value: 0 };
+          return { ...item, value: bmiProgress };
         case 'Physical Activity':
           return { ...item, value: physicalActivityPercentage };
         case 'Weekly Lesson':
@@ -256,7 +335,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
         case 'Stress':
           return { ...item, value: stressPercentage };
         case 'Sleep Efficiency':
-          return { ...item, score: sleepEfficiencyScore, avgEfficiency: avgSleepEfficiency };
+          return { ...item, value: sleepEfficiencyScore, avgEfficiency: avgSleepEfficiency };
         default:
           return item;
       }
@@ -333,9 +412,16 @@ const WeeklyLessonsScreen = ({ navigation }) => {
                 {selectedItem.value < 66 && "! - Reminder to track your stress levels every day and try different tools until you find the ones that work best for you to reduce stress."}
               </Text>
             )}
-            {selectedItem && selectedItem.label !== 'Sleep Efficiency' && selectedItem.label !== 'Nutrition' && selectedItem.label !== 'Stress' && (
-              <Text style={styles.modalText}>Details for {selectedItem.label}</Text>
+            {selectedItem && selectedItem.label === 'Body Comp' && (
+              <Text style={styles.modalText}>
+                {selectedItem.value === 100 && "Great job this week!"}
+                {selectedItem.value === 66 && "Keep working to meet yor goals."}
+                {selectedItem.value < 66 && "! - Reminder to track your body weight every day."}
+              </Text>
             )}
+            {/* {selectedItem && selectedItem.label !== 'Sleep Efficiency' && selectedItem.label !== 'Nutrition' && selectedItem.label !== 'Stress' && (
+              <Text style={styles.modalText}>Details for {selectedItem.label}</Text>
+            )} */}
             <Button
               title="Close"
               onPress={() => setModalVisible(!modalVisible)}

@@ -281,6 +281,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
     const physicalActivity = getPhysicalActivity();
     const stress = getStress();
     const heightInMeters = calculateHeight();
+    const weightInKg = weightUnit === 'lbs' ? parseFloat(weight) * 0.453592 : parseFloat(weight);
 
     const results = {
       isDeployed,
@@ -293,6 +294,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
       sleepEfficiency,
       stress,
       heightInMeters,
+      weightInKg,
       completedAssessment: true
     };
   
@@ -302,7 +304,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
         const userId = user.uid;
         const userDocRef = doc(FIRESTORE_DB, 'users', userId);
         const resultsDocRef = doc(collection(userDocRef, 'results'), `scores_${userId}`);
-        await setDoc(resultsDocRef, results);
+        await setDoc(resultsDocRef, results, { merge: true });
         console.log('Results stored successfully!');
         navigation.navigate('ResultsScreen');
       } else {
