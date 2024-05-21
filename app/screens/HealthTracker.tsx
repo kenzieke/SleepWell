@@ -77,6 +77,19 @@ const HealthTrackerScreen: React.FC = () => {
   };
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const isValidIntegerOrEmpty = (input) => {
+    if (input === undefined || input.trim() === '') return true;
+    const num = parseInt(input);
+    return !isNaN(num) && num.toString() === input.trim();
+  };  
+
+  const validateInput = (input, fieldName) => {
+    if (input.trim() === '' || !isValidInteger(input)) {
+      return false;
+    }
+    return true;
+  };
   
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
@@ -104,8 +117,6 @@ const HealthTrackerScreen: React.FC = () => {
         setDailyWeight(data.weight?.value);
         console.log('Setting weight unit:', data.weight?.unit || 'kgs');
         setWeightUnit(data.weight?.unit || 'kgs');      
-        // setRateDiet(data.rateDiet as OptionType);
-        // setStressLevel(data.stressLevel as OptionType);
         setRateDiet(data.rateDiet || 'null');
         setStressLevel(data.stressLevel || 'null');
         console.log('Calling setIsLoading(false) after data exists'); // Debug: Check when setIsLoading is called
@@ -152,6 +163,49 @@ const HealthTrackerScreen: React.FC = () => {
 
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
     const healthDataRef = doc(collection(userDocRef, 'healthData'), formattedDate);
+
+    const addFieldIfValid = (fieldValue, fieldName) => {
+      if (isValidIntegerOrEmpty(fieldValue)) {
+        healthData[fieldName] = fieldValue;
+      } else {
+      }
+    };
+  
+    addFieldIfValid(caffeine, 'caffeine');
+    addFieldIfValid(vegetables, 'vegetables');
+    addFieldIfValid(sugaryDrinks, 'sugaryDrinks');
+    addFieldIfValid(fastFood, 'fastFood');
+    addFieldIfValid(minPA, 'minPA');
+
+    if (isValidIntegerOrEmpty(caffeine)) {
+      healthData.caffeine = caffeine;
+    } else {
+      alert("Drinks with caffeine today must be a valid integer or empty.");
+    }
+
+    if (isValidIntegerOrEmpty(vegetables)) {
+      healthData.vegetables = vegetables;
+    } else {
+      alert("Vegetable servings today must be a valid integer or empty.");
+    }
+
+    if (isValidIntegerOrEmpty(sugaryDrinks)) {
+      healthData.sugaryDrinks = sugaryDrinks;
+    } else {
+      alert("Sugary drinks today must be a valid integer or empty.");
+    }
+
+    if (isValidIntegerOrEmpty(fastFood)) {
+      healthData.fastFood = fastFood;
+    } else {
+      alert("Fast food today must be a valid integer or empty.");
+    }
+
+    if (isValidIntegerOrEmpty(minPA)) {
+      healthData.minPA = minPA;
+    } else {
+      alert("Minutes of physical activity today must be a valid integer or empty.");
+    }
 
     try {
       await setDoc(healthDataRef, healthData);
@@ -281,7 +335,7 @@ const HealthTrackerScreen: React.FC = () => {
                       style={styles.healthInput}
                       onChangeText={setGoals}
                       value={goals}
-                      keyboardType="numeric"
+                      // keyboardType="numeric"
                       placeholder="Enter your goals here"
                   />
               </View>
