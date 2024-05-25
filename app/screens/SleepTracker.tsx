@@ -55,6 +55,11 @@ const SleepTrackerScreen: React.FC = () => {
       );
   };
 
+  const isValidIntegerOrEmpty = (input) => {
+    return input.trim() === '' || /^\d+$/.test(input.trim());
+  };
+  
+
   const [date, setDate] = useState(new Date());
   const [isDeployed, setIsDeployed] = useState(false);
   const [isOnDuty, setIsOnDuty] = useState(false);
@@ -151,25 +156,38 @@ const SleepTrackerScreen: React.FC = () => {
   
     const formattedDate = date.toISOString().split('T')[0];
   
+    const validateAndPrepareData = (value, field) => {
+      if (!isValidIntegerOrEmpty(value)) {
+        errors.push(field);
+      } else {
+        return value;
+      }
+    };
+  
     const sleepData = {
       date: formattedDate,
       isDeployed,
       isOnDuty,
       isAtHome,
-      timesWokeUp,
+      timesWokeUp: validateAndPrepareData(timesWokeUp, 'times woke up'),
       naps,
       sleepMedications,
       comments,
-      inBedHours,
-      inBedMinutes,
-      napTimeHours,
-      napTimeMinutes,
-      timeAsleepHours,
-      timeAsleepMinutes,
-      fallAsleepHours,
-      fallAsleepMinutes,
-      sleepRating,
+      inBedHours: validateAndPrepareData(inBedHours, 'hours in bed'),
+      inBedMinutes: validateAndPrepareData(inBedMinutes, 'minutes in bed'),
+      napTimeHours: validateAndPrepareData(napTimeHours, 'nap hours'),
+      napTimeMinutes: validateAndPrepareData(napTimeMinutes, 'nap minutes'),
+      timeAsleepHours: validateAndPrepareData(timeAsleepHours, 'sleep hours'),
+      timeAsleepMinutes: validateAndPrepareData(timeAsleepMinutes, 'sleep minutes'),
+      fallAsleepHours: validateAndPrepareData(fallAsleepHours, 'fall asleep hours'),
+      fallAsleepMinutes: validateAndPrepareData(fallAsleepMinutes, 'fall asleep minutes'),
+      sleepRating
     };
+  
+    if (errors.length > 0) {
+      alert(`Please correct the following fields: ${errors.join(', ')}`);
+      return;
+    }
   
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
     const sleepDataRef = doc(collection(userDocRef, 'sleepData'), formattedDate);
