@@ -18,21 +18,21 @@ const coaches: CoachItem[] = [
     name: 'Dr. Samantha Miller',
     phoneNumber: '+1 (555) 123-4567',
     email: 'samantha.miller@sleepcoach.com',
-    iconName: 'ios-person',
+    iconName: 'person',
   },
   {
     id: '2',
     name: 'Dr. Robert Smith',
     phoneNumber: '+1 (555) 234-5678',
     email: 'robert.smith@sleepcoach.com',
-    iconName: 'ios-person',
+    iconName: 'person',
   },
   {
     id: '3',
     name: 'Dr. Laura Johnson',
     phoneNumber: '+1 (555) 345-6789',
     email: 'laura.johnson@sleepcoach.com',
-    iconName: 'ios-person',
+    iconName: 'person',
   },
   // Add more coaches if needed
 ];
