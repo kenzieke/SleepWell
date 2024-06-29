@@ -61,7 +61,7 @@ function WeeklyLessonsStack({ navigation }) {
               onPress={() => navigation.navigate('ListMain')} // Now uses the main stack navigator
               style={{ marginRight: 10 }}
             >
-              <Ionicons name="ios-call" size={24} color="#52796F" />
+              <Ionicons name="call" size={24} color="#52796F" />
             </TouchableOpacity>
           ),
         }}
@@ -110,15 +110,15 @@ const BottomTabNavigator: React.FC = () => {
             let iconName;
             if (route.name === 'SleepTrackerScreen') {
               iconName = focused
-                ? 'ios-ellipse' : 'ios-ellipse';
+                ? 'ellipse' : 'ellipse';
             } else if (route.name === 'HealthTrackerScreen') {
-              iconName = focused ? 'ios-ellipse' : 'ios-ellipse';
+              iconName = focused ? 'ellipse' : 'ellipse';
             } else if (route.name === 'WeeklyGoals') {
-              iconName = focused ? 'ios-ellipse' : 'ios-ellipse';
+              iconName = focused ? 'ellipse' : 'ellipse';
             } else if (route.name === 'WeeklyLessonsScreen') {
-              iconName = focused ? 'ios-ellipse' : 'ios-ellipse';
+              iconName = focused ? 'ellipse' : 'ellipse';
             } else if (route.name === 'ResourceLibraryScreen') {
-              iconName = focused ? 'ios-ellipse' : 'ios-ellipse';
+              iconName = focused ? 'ellipse' : 'ellipse';
             }
 
             // Modify this to return custom icons
