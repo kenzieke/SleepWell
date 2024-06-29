@@ -460,14 +460,14 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   button: {
-    backgroundColor: '#83F45C',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
   },
   buttonText: {
     fontSize: 18,
-    color: '#fff',
+    color: '#000000',
     fontWeight: 'bold',
   },
   centeredView: {
