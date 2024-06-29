@@ -9,9 +9,7 @@ import HealthTrackerScreen from '../app/screens/HealthTracker';
 import WeeklyGoals from '../app/screens/WeeklyGoals';
 import ResourceLibraryScreen from '../app/screens/ResourceLibrary';
 import WeeklyLessonsScreen from '../app/screens/WeeklyLessonsScreen';
-import List from '../app/screens/List';
 import { TouchableOpacity } from 'react-native';
-import { FIREBASE_AUTH } from '../FirebaseConfig';
 
 type screenType={
   SleepTrackerScreen:undefined,
