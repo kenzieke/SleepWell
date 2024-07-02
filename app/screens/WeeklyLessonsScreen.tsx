@@ -33,6 +33,17 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     setModalVisible(true);
   };
 
+  const [userProgress, setUserProgress] = useState({});
+
+  const updateProgressBasedOnWeek = (creationDate, lessonProgress) => {
+    const currentDate = new Date();
+    const timeDiff = currentDate - creationDate;
+    const weekNumber = Math.floor(timeDiff / (7 * 24 * 60 * 60 * 1000)) + 1;
+    console.log("Week Number: ", weekNumber);
+  
+    return lessonProgress[weekNumber] || false;
+  };
+
   const calculateSleepEfficiency = (data: {
     fallAsleepHours: string,
     fallAsleepMinutes: string,
@@ -148,7 +159,57 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     };
   }, [navigation]);
 
+  // useEffect(() => {
+  //   const userId = FIREBASE_AUTH.currentUser?.uid;
+  //   if (!userId) {
+  //     console.log('User is not logged in.');
+  //     return;
+  //   }
+  
+  //   fetchData(userId);
+  // }, [userProgress]);
+
+  // useEffect(() => {
+  //   console.log("Current User Progress State:", userProgress);
+  // }, [userProgress]);
+
   const fetchData = async (userId: string) => {
+    const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+    const userDocSnapshot = await getDoc(userDocRef);
+
+    if (userDocSnapshot.exists()) {
+        const userData = userDocSnapshot.data();
+        console.log("User Data:", userData);
+
+        const lessonTrackingRef = doc(FIRESTORE_DB, 'users', userId, 'lessonTracking', 'progress');
+        const lessonTrackingSnapshot = await getDoc(lessonTrackingRef);
+
+        if (lessonTrackingSnapshot.exists()) {
+            const lessonProgress = lessonTrackingSnapshot.data();
+            setUserProgress(lessonProgress);  // This assumes that the structure directly mirrors the progressData array
+
+            // Calculate current week completion status immediately after setting state
+            const creationDate = new Date(userData.creationDate);
+            const currentWeekLessonCompleted = updateProgressBasedOnWeek(creationDate, lessonProgress);
+            console.log("Current Week Lesson Completed:", currentWeekLessonCompleted);
+
+            // Update the progressData state
+            setProgressData(prevData => prevData.map(item => {
+                if (item.label === 'Weekly Lesson') {
+                    return {
+                        ...item,
+                        value: currentWeekLessonCompleted ? 100 : 0,
+                    };
+                }
+                return item;
+            }));
+        } else {
+            console.log("No lesson tracking data available.");
+        }
+    } else {
+        console.log("User document does not exist.");
+    }
+
     const today = new Date();
     const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
     const startDate = new Date(today);
@@ -166,8 +227,6 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     const prevStart = prevStartDate.toISOString().split('T')[0];
     const prevEnd = prevEndDate.toISOString().split('T')[0];
 
-    const userDocRef = doc(FIRESTORE_DB, 'users', userId);
-    // const resultsDocRef = doc(userDocRef, 'results');
     const resultsDocRef = doc(FIRESTORE_DB, 'users', userId, 'results', `scores_${userId}`);
 
     // Get the latest results for baseline data
@@ -227,6 +286,13 @@ const WeeklyLessonsScreen = ({ navigation }) => {
         countSleepDays++;
       }
     });
+
+    // useEffect(() => {
+    //   const userId = FIREBASE_AUTH.currentUser?.uid;
+    //   if (userId) {
+    //       fetchData(userId);
+    //   }
+    // }, [userId]);
 
     const avgSleepEfficiency = countSleepDays > 0 ? totalSleepEfficiency / countSleepDays : 0;
 
@@ -328,8 +394,8 @@ const WeeklyLessonsScreen = ({ navigation }) => {
           return { ...item, value: bmiProgress };
         case 'Physical Activity':
           return { ...item, value: physicalActivityPercentage };
-        case 'Weekly Lesson':
-          return { ...item, value: 0 };
+        // case 'Weekly Lesson':
+        //   return { ...item, value: currentWeekLessonCompleted ? 100 : 0 };
         case 'Nutrition':
           return { ...item, value: dietPercentage };
         case 'Stress':
@@ -342,6 +408,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     }));
 };
 
+  // TODO: Add physical activity and weekly lesson
   return (
     <ScrollView style={styles.container}>
       <View style={styles.greenHeader}>

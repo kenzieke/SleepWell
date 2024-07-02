@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 
 const lessons = [
   {
@@ -69,51 +69,116 @@ const lessons = [
 
 const LessonTrackingScreen = () => {
   const [userProgress, setUserProgress] = useState({});
+  const [accountCreationDate, setAccountCreationDate] = useState(null);
   const [allLessonsCompleted, setAllLessonsCompleted] = useState(false);
   const navigation = useNavigation();
   const userId = FIREBASE_AUTH.currentUser?.uid;
 
+    const getCurrentWeek = () => {
+    const currentDate = new Date();
+    const startDate = new Date(currentDate.getFullYear(), 0, 1); // Assuming the week starts from Jan 1
+    const days = Math.floor((currentDate - startDate) / (24 * 60 * 60 * 1000)) + 1;
+    const currentWeek = Math.ceil(days / 7);
+    return currentWeek;
+  };  
+
   useEffect(() => {
     if (userId) {
-      const lessonTrackingRef = doc(FIRESTORE_DB, 'users', userId, 'lessonTracking', 'progress');
-      
-      // Setting up the Firestore listener
-      const unsubscribe = onSnapshot(lessonTrackingRef, (doc) => {
-        if (doc.exists()) {
-          const data = doc.data();
-          setUserProgress(data);
-          const allCompleted = Object.keys(data).length === lessons.length && Object.values(data).every(status => status);
-          setAllLessonsCompleted(allCompleted);
-        } else {
-          // Set initial false for each lesson if no progress document exists
-          const initialProgress = lessons.reduce((acc, lesson) => ({ ...acc, [lesson.id]: false }), {});
-          setUserProgress(initialProgress);
-          setAllLessonsCompleted(false);
-        }
-      });
+        const userDocRef = doc(FIRESTORE_DB, 'users', userId);
 
-      // Cleanup function to unsubscribe from the listener when the component unmounts
-      return () => unsubscribe();
+        // Fetch the account creation date
+        getDoc(userDocRef).then((docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const userData = docSnapshot.data();
+                setAccountCreationDate(userData.creationDate);
+                const allCompleted = Object.keys(userData.lessonProgress || {}).length === lessons.length && Object.values(userData.lessonProgress).every(status => status);
+                setAllLessonsCompleted(allCompleted);
+            }
+        });
+
+        // Listen for changes in lesson progress
+        const lessonTrackingRef = doc(userDocRef, 'lessonTracking', 'progress');
+        const unsubscribe = onSnapshot(lessonTrackingRef, (doc) => {
+            if (doc.exists()) {
+                setUserProgress(doc.data()); // Assuming doc.data() returns the progress directly
+                console.log("Updated User Progress:", doc.data());
+            } else {
+                console.log("No lesson tracking data available.");
+            }
+        });
+
+        return () => unsubscribe(); // This is correctly returning the unsubscribe function
     }
-  }, [userId]);
+}, [userId]);
 
   return (
     <ScrollView style={styles.container}>
       {allLessonsCompleted && (
         <Text style={styles.completedText}>All lessons completed!</Text>
       )}
-      {lessons.map((lesson) => (
+      {lessons.map((lesson, index) => (
         <TouchableOpacity
           key={lesson.id}
           style={styles.lessonItem}
           onPress={() => navigation.navigate('LessonDetailScreen', { lesson })}
         >
           <Text style={styles.lessonTitle}>{lesson.title}</Text>
+          {index + 1 === getCurrentWeek() && userProgress[lesson.id] && (
+            <Text style={styles.weeklyProgressText}>This Week's Progress: 100%</Text>
+          )}
         </TouchableOpacity>
       ))}
     </ScrollView>
   );
 };
+
+// const LessonTrackingScreen = () => {
+//   const [userProgress, setUserProgress] = useState({});
+//   const [allLessonsCompleted, setAllLessonsCompleted] = useState(false);
+//   const navigation = useNavigation();
+//   const userId = FIREBASE_AUTH.currentUser?.uid;
+
+//   useEffect(() => {
+//     if (userId) {
+//       const lessonTrackingRef = doc(FIRESTORE_DB, 'users', userId, 'lessonTracking', 'progress');
+      
+//       // Setting up the Firestore listener
+//       const unsubscribe = onSnapshot(lessonTrackingRef, (doc) => {
+//         if (doc.exists()) {
+//           const data = doc.data();
+//           setUserProgress(data);
+//           const allCompleted = Object.keys(data).length === lessons.length && Object.values(data).every(status => status);
+//           setAllLessonsCompleted(allCompleted);
+//         } else {
+//           // Set initial false for each lesson if no progress document exists
+//           const initialProgress = lessons.reduce((acc, lesson) => ({ ...acc, [lesson.id]: false }), {});
+//           setUserProgress(initialProgress);
+//           setAllLessonsCompleted(false);
+//         }
+//       });
+
+//       // Cleanup function to unsubscribe from the listener when the component unmounts
+//       return () => unsubscribe();
+//     }
+//   }, [userId]);
+
+//   return (
+//     <ScrollView style={styles.container}>
+//       {allLessonsCompleted && (
+//         <Text style={styles.completedText}>All lessons completed!</Text>
+//       )}
+//       {lessons.map((lesson) => (
+//         <TouchableOpacity
+//           key={lesson.id}
+//           style={styles.lessonItem}
+//           onPress={() => navigation.navigate('LessonDetailScreen', { lesson })}
+//         >
+//           <Text style={styles.lessonTitle}>{lesson.title}</Text>
+//         </TouchableOpacity>
+//       ))}
+//     </ScrollView>
+//   );
+// };
 
 const styles = StyleSheet.create({
   container: {

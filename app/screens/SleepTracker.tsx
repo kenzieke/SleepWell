@@ -158,7 +158,7 @@ const SleepTrackerScreen: React.FC = () => {
   
     const validateAndPrepareData = (value, field) => {
       if (!isValidIntegerOrEmpty(value)) {
-        errors.push(field);
+        // errors.push(field);
       } else {
         return value;
       }
@@ -184,10 +184,10 @@ const SleepTrackerScreen: React.FC = () => {
       sleepRating
     };
   
-    if (errors.length > 0) {
-      alert(`Please correct the following fields: ${errors.join(', ')}`);
-      return;
-    }
+    // if (errors.length > 0) {
+    //   alert(`Please correct the following fields: ${errors.join(', ')}`);
+    //   return;
+    // }
   
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
     const sleepDataRef = doc(collection(userDocRef, 'sleepData'), formattedDate);

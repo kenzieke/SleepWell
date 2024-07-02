@@ -1,28 +1,64 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { FIREBASE_AUTH } from '../../FirebaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+// import React, { useState } from 'react';
+// import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+// import { FIREBASE_AUTH } from '../../FirebaseConfig';
+// import { createUserWithEmailAndPassword } from 'firebase/auth';
 
-export default function SignUpScreen({ navigation }: any) { // probably shouldn't do this
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+
+export default function SignUpScreen({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const auth = FIREBASE_AUTH;
 
   const onPressSignUp = async () => {
     setLoading(true);
     try {
-      const response = await createUserWithEmailAndPassword(auth, email, password);
-      console.log(response);
-      alert('Account created successfully, now you can login!');
-    } catch (error: any) {
-      console.log(error);
-      alert('Sign in failed: ' + error.message)
+      const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      const user = response.user;
+
+      // Set the document in Firestore
+      const userDocRef = doc(FIRESTORE_DB, 'users', user.uid);
+      await setDoc(userDocRef, {
+        name: name,
+        email: email,
+        creationDate: new Date().toISOString() // Store the creation date
+      });
+
+      Alert.alert('Account created successfully, now you can login!');
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Sign up failed: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
+
+// export default function SignUpScreen({ navigation }: any) { // probably shouldn't do this
+//   const [name, setName] = useState('');
+//   const [email, setEmail] = useState('');
+//   const [password, setPassword] = useState('');
+//   const [loading, setLoading] = useState(false);
+//   const auth = FIREBASE_AUTH;
+
+//   const onPressSignUp = async () => {
+//     setLoading(true);
+//     try {
+//       const response = await createUserWithEmailAndPassword(auth, email, password);
+//       console.log(response);
+//       alert('Account created successfully, now you can login!');
+//     } catch (error: any) {
+//       console.log(error);
+//       alert('Sign in failed: ' + error.message)
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
   const onPressLogin = () => {
     navigation.navigate('Login'); // Use navigate with the name of the screen
