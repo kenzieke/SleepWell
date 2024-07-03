@@ -4,6 +4,7 @@ import SwitchSelector from 'react-native-switch-selector'; // Import the switch 
 import { DateComponent } from '../../components/DateComponent';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const OptionButton: React.FC<{
   label: string;
@@ -100,6 +101,44 @@ const SleepTrackerScreen: React.FC = () => {
     setFallAsleepMinutes('0');
     setSleepRating('');
   };
+
+  // useEffect(() => {
+  //   const checkDateChange = async () => {
+  //     const storedDate = await AsyncStorage.getItem('lastUsedDate');
+  //     const today = new Date().toISOString().split('T')[0];
+
+  //     if (storedDate !== today) {
+  //       clearForm(); // Clear form if it's a new day
+  //       await AsyncStorage.setItem('lastUsedDate', today); // Update the stored date
+  //     }
+  //   };
+
+  //   checkDateChange();
+  // }, []);
+
+  // useEffect(() => {
+  //   async function checkDateChange() {
+  //     const storedDate = await AsyncStorage.getItem('lastUsedDate');
+  //     const today = new Date().toISOString().split('T')[0];
+  
+  //     if (storedDate !== today) {
+  //       clearForm(); // Clear form if it's a new day
+  //       await AsyncStorage.setItem('lastUsedDate', today); // Update the stored date
+  //     }
+  //   }
+  
+  //   // Set a timer to check the date change at midnight
+  //   const currentTime = new Date();
+  //   const nextMidnight = new Date(currentTime.getFullYear(), currentTime.getMonth(), currentTime.getDate() + 1);
+  //   const timeout = nextMidnight - currentTime;
+  
+  //   // Check date change on app start
+  //   checkDateChange();
+  
+  //   const timer = setTimeout(checkDateChange, timeout);
+  
+  //   return () => clearTimeout(timer); // Clear timeout on component unmount
+  // }, []);  
 
   const [isLoading, setIsLoading] = useState(false);
 

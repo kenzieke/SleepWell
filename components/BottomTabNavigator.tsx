@@ -130,30 +130,36 @@ const BottomTabNavigator: React.FC = () => {
         name="SleepTrackerScreen"
         component={SleepTrackerStack}
         options={{ 
-          headerShown: true,
+          headerShown: false,
           tabBarLabel: 'Sleep Tracker' }}
       />
       <Tab.Screen
         name="HealthTrackerScreen"
         component={HealthTrackerStack}
         options={{ 
-          headerShown: true,
+          headerShown: false,
           title: 'Health Tracker' }}
       />
       <Tab.Screen
         name="WeeklyLessonsScreen"
         component={WeeklyLessonsStack}
-        options={{ title: 'Weekly Lessons' }}
+        options={{ 
+          headerShown: false,
+          title: 'Weekly Lessons' }}
       />
       <Tab.Screen
         name="WeeklyGoals"
         component={WeeklyGoalsStack}
-        options={{ title: 'Weekly Goals' }}
+        options={{ 
+          headerShown: false,
+          title: 'Weekly Goals' }}
       />
       <Tab.Screen
         name="ResourceLibraryScreen"
         component={ResourceLibraryStack}
-        options={{ title: 'Resource Library' }}
+        options={{ 
+          headerShown: false,
+          title: 'Resource Library' }}
       />
     </Tab.Navigator>
   );
