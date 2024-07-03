@@ -394,8 +394,6 @@ const WeeklyLessonsScreen = ({ navigation }) => {
           return { ...item, value: bmiProgress };
         case 'Physical Activity':
           return { ...item, value: physicalActivityPercentage };
-        // case 'Weekly Lesson':
-        //   return { ...item, value: currentWeekLessonCompleted ? 100 : 0 };
         case 'Nutrition':
           return { ...item, value: dietPercentage };
         case 'Stress':
@@ -408,7 +406,6 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     }));
 };
 
-  // TODO: Add physical activity and weekly lesson
   return (
     <ScrollView style={styles.container}>
       <View style={styles.greenHeader}>
@@ -486,9 +483,19 @@ const WeeklyLessonsScreen = ({ navigation }) => {
                 {selectedItem.value < 66 && "! - Reminder to track your body weight every day."}
               </Text>
             )}
-            {/* {selectedItem && selectedItem.label !== 'Sleep Efficiency' && selectedItem.label !== 'Nutrition' && selectedItem.label !== 'Stress' && (
-              <Text style={styles.modalText}>Details for {selectedItem.label}</Text>
-            )} */}
+            {selectedItem && selectedItem.label === 'Physical Activity' && (
+              <Text style={styles.modalText}>
+                {selectedItem.value === 100 && "Great job this week!"}
+                {selectedItem.value === 50 && "Keep working to meet yor goals."}
+                {selectedItem.value < 50 && "! - Reminder to track your physical activity every day."}
+              </Text>
+            )}
+            {selectedItem && selectedItem.label === 'Weekly Lesson' && (
+              <Text style={styles.modalText}>
+                {selectedItem.value === 100 && "Great job this week!"}
+                {selectedItem.value === 0 && "! - Reminder to do your lesson every week."}
+              </Text>
+            )}
             <Button
               title="Close"
               onPress={() => setModalVisible(!modalVisible)}
