@@ -19,90 +19,87 @@ type ResourceItem = {
 const resources: ResourceItem[] = [
   {
     id: '1',
-    title: 'Avoiding Nightmares',
+    title: 'Relaxing Sounds',
     iconName: 'flame',
     links: [
-      { name: '6 Tips to Avoid Nightmares from a Therapist', url: 'https://www.youtube.com/watch?v=WJXY_u0KAR0' },
+      { name: 'White Noise', url: 'https://youtu.be/nMfPqeZjc2c?si=hMfu_wdrrcAo36TK' },
+      { name: 'Music - Weightless 10 hours', url: 'https://youtu.be/UfcAVejslrU?si=NCuKn4EYiaVleCaQ' },
+      { name: 'Music - Relaxing XX hours', url: 'https://youtu.be/1ZYbU82GVz4?si=ct-rUdft7VXCYofm' },
+      { name: 'Sleep Stories', url: 'https://youtu.be/A5J1MZ4SMrU?si=a54ClaYXvnA0wNmJ' }
     ],
   },
   {
     id: '2',
-    title: 'White Noise/Relaxing Music/Bedtime Stories',
-    iconName: 'flame',
-    links: [
-      { name: 'Relaxing Stories', url: 'https://youtu.be/1ZYbU82GVz4?si=ct-rUdft7VXCYofm' },
-      { name: 'Bedtime Stories', url: 'https://youtu.be/EVxkcRY8JHA?si=SL3cMXxVgLO0_UQC' },
-      { name: 'Weightless Marconi Union', url: 'http://example.com/more' }
-    ],
-  },
-  {
-    id: '3',
     title: 'Stress Tools: Guided Meditation, PMR, Deep Breathing',
     iconName: 'flame',
     links: [
-      { name: 'Meditation', url: 'https://youtu.be/2K4T9HmEhWE?si=M94unrpZ7xaTvuoK' },
-      { name: 'Deep Breathing', url: 'https://youtu.be/Z8emmFOuhxE?si=XP09rNxIEvwWHKjy' },
-      { name: 'Mindfulness', url: 'https://youtu.be/H0kWYFwciZA?si=1kEZW7nneg4Dbjnl' },
+      { name: 'Meditation Before Sleep (5 min)', url: 'https://youtu.be/2K4T9HmEhWE?si=M94unrpZ7xaTvuoK' },
+      { name: 'Deep Breathing (5 min)', url: 'https://youtu.be/Z8emmFOuhxE?si=XP09rNxIEvwWHKjy' },
       { name: 'Progressive Muscle Relaxation', url: 'https://youtu.be/bQu3JjtJG88?si=g4FlHBXJ4xrxARlG' }
     ],
   },
   {
-    id: '4',
-    title: 'Nutrition',
+    id: '3',
+    title: 'Mental Health',
     iconName: 'flame',
     links: [
-      { name: 'Firefighter Specific Data', url: 'https://www.youtube.com/watch?v=jfWbkCmF4yY' },
-      { name: 'How to Log Food on MyFitnessPal', url: 'https://www.youtube.com/watch?v=I9cdBAcuhXU' },
-      { name: '5 Tips to Lose Weight (AHA)', url: 'https://www.heart.org/en/healthy-living/healthy-eating/losing-weight/conquer-cravings-with-these-healthy-substitutions' },
-      { name: '15 Healthy Food Swaps', url: 'https://www.youtube.com/watch?v=4D8KEU3HVyw' },
-      { name: 'Easy Snack Food Swaps', url: 'https://www.youtube.com/watch?v=6oQFWCDI4EM' }
+      { name: 'Set Aside Worry Time', url: 'https://www.youtube.com/watch?v=OUNR0wh-0o4&t=29s' }
+    ],
+  },
+  {
+    id: '4',
+    title: 'Special Topics',
+    iconName: 'flame',
+    links: [
+      { name: 'Military Method for Falling Asleep', url: 'https://youtu.be/FWGuy4oOQgQ?si=tXD_Gy35nApgRb55' },
+      { name: 'Managing Nightmares', url: 'https://youtu.be/8SwEQEoyqXg?si=Pnhue6TU53smW8lG' },
+      { name: 'Things To Do When You Cannot Sleep', url: 'https://www.youtube.com/watch?v=IeojaKaSpf0' },
+      { name: 'Ideas on Ways to Relax (1 min video)', url: 'https://www.youtube.com/watch?v=6eArqqaMkyQ&t=68s' },
+      { name: 'Managing Shift Work Schedule', url: 'https://www.youtube.com/watch?v=T114qhKIMag' },
     ],
   },
   {
     id: '5',
-    title: 'Falling Asleep',
+    title: 'Motivation',
     iconName: 'flame',
     links: [
-      { name: 'Military Method', url: 'https://youtu.be/FWGuy4oOQgQ?si=tXD_Gy35nApgRb55' },
-      { name: 'Box Breathing', url: 'https://youtu.be/G802lT0YNJ8?si=cr2C70uJZBb9ehTn' }
-    ],
+      { name: 'Remind Yourself of Key Sleep Strategies (2 min)', url: 'https://www.dhs.gov/medialibrary/assets/videos/9196' },
+      { name: 'Recovering From Lapses', url: 'https://www.youtube.com/watch?v=Jh7PxmsbhhQ&t=5s' },
+      { name: 'Sleep & Heart Health', url: 'https://www.heart.org/en/health-topics/sleep-disorders' },
+      { name: 'Ways to Sleep Better (7 min)', url: 'https://www.youtube.com/watch?v=uckGbixdXgs&t=4s' },
+      ],
   },
   {
     id: '6',
-    title: 'Fitness',
+    title: 'Healthy Nutrition',
     iconName: 'flame',
     links: [
-      { name: 'Building Muscle', url: 'https://www.youtube.com/watch?v=47Dt93KB3T4' },
-      { name: 'Simple Cardio Workout', url: 'https://www.youtube.com/watch?v=r8ljh2JuDLc' }
+      { name: 'Healthy Eating for Firefighters (7 min)', url: 'https://www.youtube.com/watch?v=jfWbkCmF4yY' },
+      { name: 'How to Log Food on MyFitnessPal', url: 'https://www.youtube.com/watch?v=I9cdBAcuhXU' },
+      { name: 'Healthy Eating for Firefighters (50 min course)', url: 'https://www.youtube.com/watch?v=vposs0dsYsI&list=PLid8i4Cga6mAXUJi1TNjqGX4TusXEngvU&t=1s' },
+      { name: 'MyPlate (2 min)', url: 'https://www.youtube.com/watch?v=j7CcaUZrUoE' },
+      ],
+  },
+  {
+    id: '7',
+    title: 'Healthy Weight',
+    iconName: 'flame',
+    links: [
+      { name: 'Healthy Weight Loss', url: 'https://www.heart.org/en/healthy-living/healthy-eating/losing-weight' },
+      { name: 'Healthy Food Substitutions', url: 'https://www.youtube.com/watch?v=4D8KEU3HVyw' },
+      { name: 'Protein Mistakes to Avoid', url: 'https://www.heart.org/en/healthy-living/healthy-eating/eat-smart/nutrition-basics/4-protein-mistakes-to-avoid' },
+      { name: 'Meal Plan - Weight Based', url: 'https://cpslo-my.sharepoint.com/personal/sphelan_calpoly_edu/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fsphelan%5Fcalpoly%5Fedu%2FDocuments%2FGRANTS%2FFirefighters%2FFIREFIGHTERS%5FShared%20Folder%2FResource%20Library&view=0' },
+      ],
+  },
+  {
+    id: '8',
+    title: 'Building Muscle',
+    iconName: 'flame',
+    links: [
+      { name: 'Exercises for Firefighters', url: 'https://www.youtube.com/watch?v=B6yIQnYigWU' },
+      { name: 'Upper Body Strength', url: 'https://www.youtube.com/watch?v=DIFXrfSu0gM' }
     ],
   },
-  // {
-  //   id: '7',
-  //   title: 'Brain Rules',
-  //   iconName: 'flame',
-  //   links: [
-  //     { name: 'Relaxing Stories', url: 'http://example.com/stories' },
-  //     { name: 'Soothing Music', url: 'http://example.com/music' }
-  //   ],
-  // },
-  // {
-  //   id: '8',
-  //   title: 'Nutrition',
-  //   iconName: 'flame',
-  //   links: [
-  //     { name: 'Relaxing Stories', url: 'http://example.com/stories' },
-  //     { name: 'Soothing Music', url: 'http://example.com/music' }
-  //   ],
-  // },
-  // {
-  //   id: '9',
-  //   title: 'Stress',
-  //   iconName: 'flame',
-  //   links: [
-  //     { name: 'Relaxing Stories', url: 'http://example.com/stories' },
-  //     { name: 'Soothing Music', url: 'http://example.com/music' }
-  //   ],
-  // },
 ];
 
 const ResourceLibraryScreen: React.FC = () => {
