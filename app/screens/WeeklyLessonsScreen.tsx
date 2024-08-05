@@ -20,7 +20,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     { label: 'Nutrition', value: 0 },
     { label: 'Physical Activity', value: 0 },
     { label: 'Stress', value: 0 },
-    { label: 'Weekly Lesson', value: 0 },
+    { label: 'Weekly Module', value: 0 },
   ]);
 
   // State to handle modal visibility
@@ -191,11 +191,11 @@ const WeeklyLessonsScreen = ({ navigation }) => {
             // Calculate current week completion status immediately after setting state
             const creationDate = new Date(userData.creationDate);
             const currentWeekLessonCompleted = updateProgressBasedOnWeek(creationDate, lessonProgress);
-            console.log("Current Week Lesson Completed:", currentWeekLessonCompleted);
+            console.log("Current Week Module Completed:", currentWeekLessonCompleted);
 
             // Update the progressData state
             setProgressData(prevData => prevData.map(item => {
-                if (item.label === 'Weekly Lesson') {
+                if (item.label === 'Weekly Module') {
                     return {
                         ...item,
                         value: currentWeekLessonCompleted ? 100 : 0,
@@ -204,7 +204,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
                 return item;
             }));
         } else {
-            console.log("No lesson tracking data available.");
+            console.log("No module tracking data available.");
         }
     } else {
         console.log("User document does not exist.");
@@ -413,7 +413,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
           style={styles.button}
           onPress={() => navigation.navigate('LessonTrackingScreen')}
         >
-          <Text style={styles.buttonText}>Start Lessons</Text>
+          <Text style={styles.buttonText}>Open Modules</Text>
         </TouchableOpacity>
       </View>
       <Text style={styles.header}>Weekly Progress</Text>
@@ -479,7 +479,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
             {selectedItem && selectedItem.label === 'Body Comp' && (
               <Text style={styles.modalText}>
                 {selectedItem.value === 100 && "Great job this week!"}
-                {selectedItem.value === 66 && "Keep working to meet yor goals."}
+                {selectedItem.value === 66 && "Keep working to meet yor goals! Strive to eat at least a cup of vegetables at every meal and reduce portions of unhealthy foods."}
                 {selectedItem.value < 66 && "! - Reminder to track your body weight every day."}
               </Text>
             )}
@@ -490,10 +490,10 @@ const WeeklyLessonsScreen = ({ navigation }) => {
                 {selectedItem.value < 50 && "! - Reminder to track your physical activity every day."}
               </Text>
             )}
-            {selectedItem && selectedItem.label === 'Weekly Lesson' && (
+            {selectedItem && selectedItem.label === 'Weekly Module' && (
               <Text style={styles.modalText}>
                 {selectedItem.value === 100 && "Great job this week!"}
-                {selectedItem.value === 0 && "! - Reminder to do your lesson every week."}
+                {selectedItem.value === 0 && "! - Reminder to do your module every week."}
               </Text>
             )}
             <Button

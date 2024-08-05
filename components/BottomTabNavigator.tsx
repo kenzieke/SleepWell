@@ -145,7 +145,7 @@ const BottomTabNavigator: React.FC = () => {
         component={WeeklyLessonsStack}
         options={{ 
           headerShown: false,
-          title: 'Weekly Lessons' }}
+          title: 'Weekly Modules' }}
       />
       <Tab.Screen
         name="WeeklyGoals"

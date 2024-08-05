@@ -107,7 +107,7 @@ function AppNavigator({ user }) {
             name="LessonTrackingScreen"
             component={LessonTrackingScreen}
             options={({ navigation }) => ({
-              title: 'Lessons',
+              title: 'Modules',
               headerShown: true,
               headerTitleAlign: 'center',
               headerLeft: () => (
@@ -124,7 +124,7 @@ function AppNavigator({ user }) {
           <Stack.Screen
             name="LessonDetailScreen"
             component={LessonDetailScreen}
-            options={{ title: 'Lesson Detail' }}
+            options={{ title: 'Module Detail' }}
           />
         )}
       </Stack.Navigator>

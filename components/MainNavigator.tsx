@@ -33,7 +33,7 @@ const MainNavigator: React.FC = () => {
         name="LessonTrackingScreen"
         component={LessonTrackingScreen}
         options={({ navigation }) => ({
-          title: 'Lessons',
+          title: 'Modules',
           headerShown: true,
           headerLeft: ({ navigation }) => (
             <TouchableOpacity
