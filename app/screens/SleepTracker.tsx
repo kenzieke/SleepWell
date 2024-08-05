@@ -257,8 +257,8 @@ const SleepTrackerScreen: React.FC = () => {
                   borderColor={'#BDBDBD'} // border color
                   hasPadding
                   options={[
-                  { label: 'yes', value: 'no' },
                   { label: 'no', value: 'yes' },
+                  { label: 'yes', value: 'no' },
                   ]}
                   style={styles.switchSelector}
                   buttonStyle={styles.switchButton}
@@ -276,27 +276,8 @@ const SleepTrackerScreen: React.FC = () => {
                   borderColor={'#BDBDBD'} // border color
                   hasPadding
                   options={[
-                  { label: 'yes', value: 'no' },
                   { label: 'no', value: 'yes' },
-                  ]}
-                  style={styles.switchSelector}
-                  buttonStyle={styles.switchButton}
-              />
-          </View>
-
-          <View style={styles.switchContainer}>
-              <Text style={styles.questionText}>At home?</Text>
-              <SwitchSelector
-                  initial={0}
-                  onPress={value => setIsAtHome(value)}
-                  textColor={'#BDBDBD'} // your active text color
-                  selectedColor={'#52796F'} // the color for the label text when it is selected
-                  buttonColor={'#BDBDBD'} // the color for the button when it is selected
-                  borderColor={'#BDBDBD'} // border color
-                  hasPadding
-                  options={[
                   { label: 'yes', value: 'no' },
-                  { label: 'no', value: 'yes' },
                   ]}
                   style={styles.switchSelector}
                   buttonStyle={styles.switchButton}
