@@ -24,7 +24,7 @@ const resources: ResourceItem[] = [
     links: [
       { name: 'White Noise', url: 'https://youtu.be/nMfPqeZjc2c?si=hMfu_wdrrcAo36TK' },
       { name: 'Music - Weightless 10 hours', url: 'https://youtu.be/UfcAVejslrU?si=NCuKn4EYiaVleCaQ' },
-      { name: 'Music - Relaxing XX hours', url: 'https://youtu.be/1ZYbU82GVz4?si=ct-rUdft7VXCYofm' },
+      { name: 'Music - Relaxing 3 hours', url: 'https://youtu.be/1ZYbU82GVz4?si=ct-rUdft7VXCYofm' },
       { name: 'Sleep Stories', url: 'https://youtu.be/A5J1MZ4SMrU?si=a54ClaYXvnA0wNmJ' }
     ],
   },

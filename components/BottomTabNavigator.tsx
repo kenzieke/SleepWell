@@ -116,7 +116,7 @@ const BottomTabNavigator: React.FC = () => {
             } else if (route.name === 'WeeklyLessonsScreen') {
               iconName = focused ? 'ellipse' : 'ellipse';
             } else if (route.name === 'ResourceLibraryScreen') {
-              iconName = focused ? 'ellipse' : 'ellipse';
+              iconName = focused ? 'book' : 'book-outline';
             }
 
             // Modify this to return custom icons
