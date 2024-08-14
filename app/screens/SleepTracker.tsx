@@ -4,7 +4,10 @@ import SwitchSelector from 'react-native-switch-selector'; // Import the switch 
 import { DateComponent } from '../../components/DateComponent';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
+                  'Very Poor' | 'Okay' | 'Good' | 'Outstanding' | 'Poor' |
+                  'null';
 
 const OptionButton: React.FC<{
   label: string;
@@ -31,35 +34,43 @@ const OptionButton: React.FC<{
   </TouchableOpacity>
 );
 
-const SleepTrackerScreen: React.FC = () => {
+const TrackerScreen: React.FC = () => {
   // Generic function to render option buttons for a question
-  const renderOptions = <T extends string>(
-      question: string,
-      value: T,
-      setValue: React.Dispatch<React.SetStateAction<T>>,
-      options: T[]
-  ) => {
-      return (
+  interface RenderOptionsProps<T extends string | OptionType> {
+    question?: string;
+    value: T;
+    setValue: React.Dispatch<React.SetStateAction<T>>;
+    options: T[];
+  }
+  
+  function renderOptions<T extends string | OptionType>({
+    question,
+    value,
+    setValue,
+    options = []
+  }: RenderOptionsProps<T>) {
+    console.log("Options: ", options);
+    console.log("Current Value: ", value);
+    return (
       <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>{question}</Text>
-          <View style={styles.optionsRow}>
-          {options.map((option) => (
-              <OptionButton
-                  key={option}
-                  label={option}
-                  onPress={() => setValue(option)}
-                  isSelected={value === option && value !== ''}
-              />
-              ))}
-          </View>
+        {question && <Text style={styles.questionText}>{question}</Text>}
+        <View style={styles.optionsRow}>
+          {options.map((option, index) => (
+            <OptionButton
+              key={index}
+              label={option}
+              onPress={() => setValue(option)}
+              isSelected={value === option}
+            />
+          ))}
+        </View>
       </View>
-      );
-  };
+    );
+  }
 
   const isValidIntegerOrEmpty = (input) => {
     return input.trim() === '' || /^\d+$/.test(input.trim());
   };
-  
 
   const [date, setDate] = useState(new Date());
   const [isDeployed, setIsDeployed] = useState(false);
@@ -100,47 +111,77 @@ const SleepTrackerScreen: React.FC = () => {
     setFallAsleepHours('0');
     setFallAsleepMinutes('0');
     setSleepRating('');
+    setCaffeine('');
+    setVegetables('');
+    setSugaryDrinks('');
+    setFastFood('');
+    setMinPA('');
+    setGoals('');
+    setDailyWeight('');
+    setWeightUnit('kgs');
+    setRateDiet('null');
+    setStressLevel('null');
   };
 
-  // useEffect(() => {
-  //   const checkDateChange = async () => {
-  //     const storedDate = await AsyncStorage.getItem('lastUsedDate');
-  //     const today = new Date().toISOString().split('T')[0];
-
-  //     if (storedDate !== today) {
-  //       clearForm(); // Clear form if it's a new day
-  //       await AsyncStorage.setItem('lastUsedDate', today); // Update the stored date
-  //     }
-  //   };
-
-  //   checkDateChange();
-  // }, []);
-
-  // useEffect(() => {
-  //   async function checkDateChange() {
-  //     const storedDate = await AsyncStorage.getItem('lastUsedDate');
-  //     const today = new Date().toISOString().split('T')[0];
-  
-  //     if (storedDate !== today) {
-  //       clearForm(); // Clear form if it's a new day
-  //       await AsyncStorage.setItem('lastUsedDate', today); // Update the stored date
-  //     }
-  //   }
-  
-  //   // Set a timer to check the date change at midnight
-  //   const currentTime = new Date();
-  //   const nextMidnight = new Date(currentTime.getFullYear(), currentTime.getMonth(), currentTime.getDate() + 1);
-  //   const timeout = nextMidnight - currentTime;
-  
-  //   // Check date change on app start
-  //   checkDateChange();
-  
-  //   const timer = setTimeout(checkDateChange, timeout);
-  
-  //   return () => clearTimeout(timer); // Clear timeout on component unmount
-  // }, []);  
-
   const [isLoading, setIsLoading] = useState(false);
+
+  const [caffeine, setCaffeine] = useState<string>('');
+  const [vegetables, setVegetables] = useState<string>('');
+  const [sugaryDrinks, setSugaryDrinks] = useState<string>('');
+  const [fastFood, setFastFood] = useState<string>('');
+  const [minPA, setMinPA] = useState<string>('');
+  const [goals, setGoals] = useState<string>('');
+  const [dailyWeight, setDailyWeight] = useState('');
+  const [weightUnit, setWeightUnit] = useState<string>('kgs');
+  const [stressLevel, setStressLevel] = useState<OptionType>('null'); // default value
+  const [rateDiet, setRateDiet] = useState<OptionType>('null'); // default value
+  const stressOptions: OptionType[] = ['None', 'Mild', 'Moderate', 'Severe', 'Very Severe'];
+  const dietOptions: OptionType[] = ['Very Poor', 'Poor', 'Okay', 'Good', 'Outstanding'];
+
+  useEffect(() => {
+    const userId = FIREBASE_AUTH.currentUser?.uid;
+    if (!userId) return;
+  
+    console.log('Before subscription: isLoading=', isLoading); // Debug: Check state before subscription
+  
+    const formattedDate = date.toISOString().split('T')[0];
+    const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'healthData'), formattedDate);
+  
+    console.log('Calling setIsLoading(true)'); // Debug: Check when setIsLoading is called
+    setIsLoading(true);
+  
+    const unsubscribe = onSnapshot(healthDataRef, (docSnap) => {
+      console.log('Snapshot received: isLoading=', isLoading); // Debug: State when snapshot is received
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setCaffeine(data.caffeine);
+        setVegetables(data.vegetables);
+        setSugaryDrinks(data.sugaryDrinks);
+        setFastFood(data.fastFood);
+        setMinPA(data.minPA);
+        setGoals(data.goals);
+        console.log('Setting daily weight:', data.weight?.value);
+        setDailyWeight(data.weight?.value);
+        console.log('Setting weight unit:', data.weight?.unit || 'kgs');
+        setWeightUnit(data.weight?.unit || 'kgs');      
+        setRateDiet(data.rateDiet || 'null');
+        setStressLevel(data.stressLevel || 'null');
+        console.log('Calling setIsLoading(false) after data exists'); // Debug: Check when setIsLoading is called
+        setIsLoading(false);
+      } else {
+        if (!isLoading) {
+          clearForm();
+        }
+        console.log('Calling setIsLoading(false) when no data'); // Debug: Check when setIsLoading is called
+        setIsLoading(false);
+      }
+    });
+  
+    return () => {
+      console.log('Unsubscribing'); // Debug: Check when unsubscribe happens
+      unsubscribe();
+    };
+  }, [date]); // Dependencies array
 
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
@@ -222,20 +263,78 @@ const SleepTrackerScreen: React.FC = () => {
       fallAsleepMinutes: validateAndPrepareData(fallAsleepMinutes, 'fall asleep minutes'),
       sleepRating
     };
-  
-    // if (errors.length > 0) {
-    //   alert(`Please correct the following fields: ${errors.join(', ')}`);
-    //   return;
-    // }
+
+    const healthData = {
+      date: formattedDate,
+      caffeine,
+      vegetables,
+      sugaryDrinks,
+      fastFood,
+      minPA,
+      rateDiet,  // Store the original value directly
+      stressLevel,  // Store the original value directly
+      goals,
+      weight: {
+        value: dailyWeight,
+        unit: weightUnit
+      },
+    };
   
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
+    const healthDataRef = doc(collection(userDocRef, 'healthData'), formattedDate);
     const sleepDataRef = doc(collection(userDocRef, 'sleepData'), formattedDate);
   
+    const addFieldIfValid = (fieldValue, fieldName) => {
+      if (isValidIntegerOrEmpty(fieldValue)) {
+        healthData[fieldName] = fieldValue;
+      } else {
+      }
+    };
+  
+    addFieldIfValid(caffeine, 'caffeine');
+    addFieldIfValid(vegetables, 'vegetables');
+    addFieldIfValid(sugaryDrinks, 'sugaryDrinks');
+    addFieldIfValid(fastFood, 'fastFood');
+    addFieldIfValid(minPA, 'minPA');
+
+    if (isValidIntegerOrEmpty(caffeine)) {
+      healthData.caffeine = caffeine;
+    } else {
+      alert("Drinks with caffeine today must be a valid integer or empty.");
+    }
+
+    if (isValidIntegerOrEmpty(vegetables)) {
+      healthData.vegetables = vegetables;
+    } else {
+      alert("Vegetable servings today must be a valid integer or empty.");
+    }
+
+    if (isValidIntegerOrEmpty(sugaryDrinks)) {
+      healthData.sugaryDrinks = sugaryDrinks;
+    } else {
+      alert("Sugary drinks today must be a valid integer or empty.");
+    }
+
+    if (isValidIntegerOrEmpty(fastFood)) {
+      healthData.fastFood = fastFood;
+    } else {
+      alert("Fast food today must be a valid integer or empty.");
+    }
+
+    if (isValidIntegerOrEmpty(minPA)) {
+      healthData.minPA = minPA;
+    } else {
+      alert("Minutes of physical activity today must be a valid integer or empty.");
+    }
+
     try {
       await setDoc(sleepDataRef, sleepData);
+      await setDoc(healthDataRef, healthData);
+      console.log('Health data saved successfully.');
       console.log('Sleep data saved successfully.');
     } catch (error) {
       console.error('Error saving sleep data:', error);
+      console.error('Error saving health data:', error);
     }
   };
 
@@ -447,6 +546,127 @@ const SleepTrackerScreen: React.FC = () => {
         />
       </View>
 
+      <View style={styles.questionContainer}>
+        {renderOptions({
+          question: 'Rate your stress level today:',
+          value: stressLevel,
+          setValue: setStressLevel,
+          options: stressOptions
+        })}
+        {renderOptions({
+          question: 'How are you doing today in managing portions, eating vegetables, and limiting caffeine and sugary drinks?',
+          value: rateDiet,
+          setValue: setRateDiet,
+          options: dietOptions
+        })}
+      </View>
+
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>Weight:</Text>
+          <View style={styles.inputRow}>
+            <TextInput
+                style={styles.healthInput}
+                onChangeText={setDailyWeight}
+                value={dailyWeight}
+                keyboardType="numeric"
+                placeholder="Enter here"
+            />
+            <SwitchSelector
+              key={weightUnit} // add this line
+              initial={weightUnit === 'lbs' ? 0 : 1}
+              onPress={(value) => setWeightUnit(value)}
+              textColor={'#BDBDBD'}
+              selectedColor={'#52796F'}
+              buttonColor={'#BDBDBD'}
+              borderColor={'#BDBDBD'}
+              hasPadding
+              options={[
+                { label: 'lbs', value: 'lbs' },
+                { label: 'kgs', value: 'kgs' },
+              ]}
+              style={styles.switchSelector}
+              buttonStyle={styles.switchButton}
+            />
+          </View>
+      </View>
+
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>
+              Drinks with caffeine today:
+          </Text>
+          <TextInput
+              style={styles.healthInput}
+              onChangeText={setCaffeine}
+              value={caffeine}
+              keyboardType="numeric"
+              placeholder="# of drinks"
+          />
+      </View>
+
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>
+              Vegetable servings today:
+          </Text>
+          <TextInput
+              style={styles.healthInput}
+              onChangeText={setVegetables}
+              value={vegetables}
+              keyboardType="numeric"
+              placeholder="# of vegetable servings"
+          />
+      </View>
+
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>
+              Sugary drinks today:
+          </Text>
+          <TextInput
+              style={styles.healthInput}
+              onChangeText={setSugaryDrinks}
+              value={sugaryDrinks}
+              keyboardType="numeric"
+              placeholder="# of sugary drinks"
+          />
+      </View>
+
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>
+              Fast food today:
+          </Text>
+          <TextInput
+              style={styles.healthInput}
+              onChangeText={setFastFood}
+              value={fastFood}
+              keyboardType="numeric"
+              placeholder="# of fast food items"
+          />
+      </View>
+
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>
+              Minutes of physical activity today:
+          </Text>
+          <TextInput
+              style={styles.healthInput}
+              onChangeText={setMinPA}
+              value={minPA}
+              keyboardType="numeric"
+              placeholder="Minutes of physical activity"
+          />
+      </View>
+
+      <View style={styles.questionContainer}>
+          <Text style={styles.questionText}>
+              Other goals for today:
+          </Text>
+          <TextInput
+              style={styles.healthInput}
+              onChangeText={setGoals}
+              value={goals}
+              placeholder="Enter your goals here"
+          />
+      </View>
+
       <TouchableOpacity style={styles.button} onPress={saveData}>
         <Text style={styles.buttonText}>Save</Text>
       </TouchableOpacity>
@@ -600,4 +820,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SleepTrackerScreen;
+export default TrackerScreen;

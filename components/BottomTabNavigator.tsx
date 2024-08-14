@@ -108,15 +108,13 @@ const BottomTabNavigator: React.FC = () => {
             let iconName;
             if (route.name === 'SleepTrackerScreen') {
               iconName = focused
-                ? 'ellipse' : 'ellipse';
-            } else if (route.name === 'HealthTrackerScreen') {
-              iconName = focused ? 'ellipse' : 'ellipse';
+                ? 'create' : 'create-outline';
             } else if (route.name === 'WeeklyGoals') {
-              iconName = focused ? 'ellipse' : 'ellipse';
+              iconName = focused ? 'ribbon' : 'ribbon-outline';
             } else if (route.name === 'WeeklyLessonsScreen') {
-              iconName = focused ? 'ellipse' : 'ellipse';
-            } else if (route.name === 'ResourceLibraryScreen') {
               iconName = focused ? 'book' : 'book-outline';
+            } else if (route.name === 'ResourceLibraryScreen') {
+              iconName = focused ? 'library' : 'library-outline';
             }
 
             // Modify this to return custom icons
@@ -131,15 +129,15 @@ const BottomTabNavigator: React.FC = () => {
         component={SleepTrackerStack}
         options={{ 
           headerShown: false,
-          tabBarLabel: 'Sleep Tracker' }}
+          tabBarLabel: 'Sleep and Health Tracker' }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="HealthTrackerScreen"
         component={HealthTrackerStack}
         options={{ 
           headerShown: false,
           title: 'Health Tracker' }}
-      />
+      /> */}
       <Tab.Screen
         name="WeeklyLessonsScreen"
         component={WeeklyLessonsStack}
