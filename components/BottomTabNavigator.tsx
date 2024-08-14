@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from '@expo/vector-icons/build/Ionicons';
 
 import SleepTrackerScreen from '../app/screens/SleepTracker';
-import HealthTrackerScreen from '../app/screens/HealthTracker';
+// import HealthTrackerScreen from '../app/screens/HealthTracker';
 import WeeklyGoals from '../app/screens/WeeklyGoals';
 import ResourceLibraryScreen from '../app/screens/ResourceLibrary';
 import WeeklyLessonsScreen from '../app/screens/WeeklyLessonsScreen';
@@ -34,17 +34,17 @@ function SleepTrackerStack() {
   );
 }
 
-function HealthTrackerStack() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="HealthTrackerMain"
-        component={HealthTrackerScreen}
-        options={{ title: 'Health Tracker' }}
-      />
-    </Stack.Navigator>
-  );
-}
+// function HealthTrackerStack() {
+//   return (
+//     <Stack.Navigator>
+//       <Stack.Screen
+//         name="HealthTrackerMain"
+//         component={HealthTrackerScreen}
+//         options={{ title: 'Health Tracker' }}
+//       />
+//     </Stack.Navigator>
+//   );
+// }
 
 function WeeklyLessonsStack({ navigation }) {
   return (

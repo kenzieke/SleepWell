@@ -34,7 +34,7 @@ const OptionButton: React.FC<{
   </TouchableOpacity>
 );
 
-const TrackerScreen: React.FC = () => {
+const SleepTrackerScreen = ({ navigation }) => {
   // Generic function to render option buttons for a question
   interface RenderOptionsProps<T extends string | OptionType> {
     question?: string;
@@ -332,6 +332,7 @@ const TrackerScreen: React.FC = () => {
       await setDoc(healthDataRef, healthData);
       console.log('Health data saved successfully.');
       console.log('Sleep data saved successfully.');
+      navigation.navigate('WeeklyLessonsScreen');
     } catch (error) {
       console.error('Error saving sleep data:', error);
       console.error('Error saving health data:', error);
@@ -384,7 +385,12 @@ const TrackerScreen: React.FC = () => {
           </View>
 
         <View style={styles.questionContainer}>
-          {renderOptions('Rate your last sleep:', sleepRating, setSleepRating, sleepOptions)}
+          {renderOptions({
+          question: 'Rate your last sleep:',
+          value: sleepRating,
+          setValue: setSleepRating,
+          options: sleepOptions
+        })}
         </View>
 
       <View style={styles.questionContainer}>
@@ -820,4 +826,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TrackerScreen;
+export default SleepTrackerScreen;
