@@ -489,8 +489,8 @@ const SleepTrackerScreen = ({ navigation }) => {
             borderColor={'#BDBDBD'} // border color
             hasPadding
             options={[
-            { label: 'yes', value: 'no' },
             { label: 'no', value: 'yes' },
+            { label: 'yes', value: 'no' },
             ]}
             style={styles.switchSelector}
             buttonStyle={styles.switchButton}
@@ -508,8 +508,8 @@ const SleepTrackerScreen = ({ navigation }) => {
             borderColor={'#BDBDBD'} // border color
             hasPadding
             options={[
-            { label: 'yes', value: 'no' },
             { label: 'no', value: 'yes' },
+            { label: 'yes', value: 'no' },
             ]}
             style={styles.switchSelector}
             buttonStyle={styles.switchButton}
@@ -587,8 +587,8 @@ const SleepTrackerScreen = ({ navigation }) => {
               borderColor={'#BDBDBD'}
               hasPadding
               options={[
-                { label: 'lbs', value: 'lbs' },
                 { label: 'kgs', value: 'kgs' },
+                { label: 'lbs', value: 'lbs' },
               ]}
               style={styles.switchSelector}
               buttonStyle={styles.switchButton}
