@@ -102,7 +102,7 @@ const BottomTabNavigator: React.FC = () => {
         component={WeeklyLessonsStack}
         options={{
           headerShown: false,  // Hide the header
-          tabBarLabel: 'Lessons'  // Set label to show under the icon
+          tabBarLabel: 'Modules'  // Set label to show under the icon
         }}
       />
       <Tab.Screen
