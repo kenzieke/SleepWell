@@ -159,20 +159,6 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     };
   }, [navigation]);
 
-  // useEffect(() => {
-  //   const userId = FIREBASE_AUTH.currentUser?.uid;
-  //   if (!userId) {
-  //     console.log('User is not logged in.');
-  //     return;
-  //   }
-  
-  //   fetchData(userId);
-  // }, [userProgress]);
-
-  // useEffect(() => {
-  //   console.log("Current User Progress State:", userProgress);
-  // }, [userProgress]);
-
   const fetchData = async (userId: string) => {
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
     const userDocSnapshot = await getDoc(userDocRef);
@@ -286,13 +272,6 @@ const WeeklyLessonsScreen = ({ navigation }) => {
         countSleepDays++;
       }
     });
-
-    // useEffect(() => {
-    //   const userId = FIREBASE_AUTH.currentUser?.uid;
-    //   if (userId) {
-    //       fetchData(userId);
-    //   }
-    // }, [userId]);
 
     const avgSleepEfficiency = countSleepDays > 0 ? totalSleepEfficiency / countSleepDays : 0;
 
