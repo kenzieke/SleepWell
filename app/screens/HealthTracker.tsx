@@ -113,13 +113,10 @@ const HealthTrackerScreen: React.FC = () => {
         setFastFood(data.fastFood);
         setMinPA(data.minPA);
         setGoals(data.goals);
-        console.log('Setting daily weight:', data.weight?.value);
         setDailyWeight(data.weight?.value);
-        console.log('Setting weight unit:', data.weight?.unit || 'kgs');
         setWeightUnit(data.weight?.unit || 'kgs');      
         setRateDiet(data.rateDiet || 'null');
         setStressLevel(data.stressLevel || 'null');
-        console.log('Calling setIsLoading(false) after data exists'); // Debug: Check when setIsLoading is called
         setIsLoading(false);
       } else {
         if (!isLoading) {

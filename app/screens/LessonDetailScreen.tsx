@@ -23,9 +23,19 @@ const LessonDetailScreen = ({ route, navigation }) => {
 
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.scrollViewStyle}>
+        {/* Zoomable ScrollView */}
+        <ScrollView
+          style={styles.scrollViewStyle}
+          minimumZoomScale={1}
+          maximumZoomScale={5} // Adjust this to control zoom level
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* FullWidthPicture component inside ScrollView */}
           <FullWidthPicture uri={Image.resolveAssetSource(lesson.image).uri} />
         </ScrollView>
+
+        {/* Done button */}
         <TouchableOpacity onPress={markLessonComplete} style={styles.doneBtn}>
             <Text style={styles.doneText}>Done</Text>
         </TouchableOpacity>
