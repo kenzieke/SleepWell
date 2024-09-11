@@ -90,19 +90,19 @@ const BottomTabNavigator: React.FC = () => {
       })}
     >
       <Tab.Screen
-        name="SleepTrackerScreen"
-        component={SleepTrackerStack}
-        options={{
-          headerShown: false,  // Hide the header
-          tabBarLabel: 'Tracker'  // Set label to show under the icon
-        }}
-      />
-      <Tab.Screen
         name="WeeklyLessonsScreen"
         component={WeeklyLessonsStack}
         options={{
           headerShown: false,  // Hide the header
           tabBarLabel: 'Modules'  // Set label to show under the icon
+        }}
+      />
+      <Tab.Screen
+        name="SleepTrackerScreen"
+        component={SleepTrackerStack}
+        options={{
+          headerShown: false,  // Hide the header
+          tabBarLabel: 'Tracker'  // Set label to show under the icon
         }}
       />
       <Tab.Screen
