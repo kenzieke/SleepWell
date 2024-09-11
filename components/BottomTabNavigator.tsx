@@ -57,7 +57,7 @@ function WeeklyGoalsStack() {
 function ResourceLibraryStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="ResourceLibraryMain" component={ResourceLibraryScreen}/>
+      <Stack.Screen name="ResourceLibraryMain" component={ResourceLibraryScreen} options={{ title: 'Resource Library' }} />
     </Stack.Navigator>
   );
 }

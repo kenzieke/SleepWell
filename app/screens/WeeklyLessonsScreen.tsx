@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, Button, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, Button, TouchableOpacity, Modal, StyleSheet, Image } from 'react-native';
 import ProgressCircle from '../../components/ProgressCircle';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
@@ -388,6 +388,11 @@ const WeeklyLessonsScreen = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.greenHeader}>
+        <Image
+            source={require('../../assets/Pillow.jpg')} 
+            style={styles.imageStyle}
+            resizeMode="contain"
+          />
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate('LessonTrackingScreen')}
@@ -493,10 +498,15 @@ const styles = StyleSheet.create({
   },
   greenHeader: {
     backgroundColor: '#52796F',
-    paddingTop: 250, // TODO: This should be dynamic if possible, but it will need to be changed in final production
+    paddingTop: 50, // Reduce padding so the image isn't pushed too far down
     paddingBottom: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    height: 300, // You can define the height based on the green box height
+  },
+  imageStyle: {
+    width: '100%', 
+    height: 200,
   },
   header: {
     paddingTop: 10,
