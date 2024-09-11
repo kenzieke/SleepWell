@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons'; // For icons
 
 const lessons = [
@@ -26,29 +26,42 @@ const LessonTrackingScreen = () => {
   const navigation = useNavigation();
   const userId = FIREBASE_AUTH.currentUser?.uid;
 
-  const customGreenColor = '#52796F'; // Replace with your app's green color
+  const customGreenColor = '#52796F';
 
-  const getCurrentWeek = () => {
+  const calculateWeekSinceSignup = (creationDate: string | number | Date) => {
     const currentDate = new Date();
-    const startDate = new Date(currentDate.getFullYear(), 0, 1); // Assuming the week starts from Jan 1
-    const days = Math.floor((currentDate - startDate) / (24 * 60 * 60 * 1000)) + 1;
-    const currentWeek = Math.ceil(days / 7);
-    return currentWeek;
+    const signupDate = new Date(creationDate);
+  
+    const differenceInTime = currentDate - signupDate;
+    const differenceInWeeks = Math.floor(differenceInTime / (1000 * 60 * 60 * 24 * 7));
+  
+    return differenceInWeeks + 1;
   };
-
+  
   useEffect(() => {
     if (userId) {
       const userDocRef = doc(FIRESTORE_DB, 'users', userId);
-
+  
       // Fetch the account creation date and progress data
       getDoc(userDocRef).then((docSnapshot) => {
         if (docSnapshot.exists()) {
           const userData = docSnapshot.data();
+          const creationDate = userData.creationDate;
+  
+          // Calculate the current week based on the creationDate
+          const currentWeek = calculateWeekSinceSignup(creationDate);
+  
+          // Update the week in the Firestore database
+          updateDoc(userDocRef, {
+            currentWeek: currentWeek, // Store the current week in the user's document
+          });
+  
+          // Logic to check if all lessons are completed
           const allCompleted = Object.keys(userData.lessonProgress || {}).length === lessons.length && Object.values(userData.lessonProgress).every(status => status);
           setAllLessonsCompleted(allCompleted);
         }
       });
-
+  
       // Listen for changes in lesson progress
       const lessonTrackingRef = doc(userDocRef, 'lessonTracking', 'progress');
       const unsubscribe = onSnapshot(lessonTrackingRef, (doc) => {
@@ -58,7 +71,7 @@ const LessonTrackingScreen = () => {
           console.log("No module tracking data available.");
         }
       });
-
+  
       return () => unsubscribe();
     }
   }, [userId]);
