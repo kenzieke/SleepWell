@@ -399,6 +399,8 @@ const WeeklyLessonsScreen = ({ navigation }) => {
             style={styles.imageStyle}
             resizeMode="contain"
           />
+      </View>
+      <View>
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate('LessonTrackingScreen')}
@@ -504,8 +506,8 @@ const styles = StyleSheet.create({
   },
   greenHeader: {
     backgroundColor: '#52796F',
-    paddingTop: 50, // Reduce padding so the image isn't pushed too far down
-    paddingBottom: 20,
+    paddingTop: 30, // Reduce padding so the image isn't pushed too far down
+    paddingBottom: 30,
     alignItems: 'center',
     justifyContent: 'center',
     height: 300, // You can define the height based on the green box height
@@ -529,14 +531,16 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   button: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#007BFF',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
-    fontSize: 18,
-    color: '#000000',
+    fontSize: 24,
+    color: '#FFFFFF',
     fontWeight: 'bold',
   },
   centeredView: {
