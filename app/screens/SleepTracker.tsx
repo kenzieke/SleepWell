@@ -238,7 +238,6 @@ const SleepTrackerScreen = ({ navigation }) => {
   
     const validateAndPrepareData = (value, field) => {
       if (!isValidIntegerOrEmpty(value)) {
-        // errors.push(field);
       } else {
         return value;
       }

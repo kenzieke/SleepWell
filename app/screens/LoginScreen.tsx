@@ -5,24 +5,31 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
- 
+
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const auth = FIREBASE_AUTH;
 
-  const onPressLogin = async () => {
-    setLoading(true);
+  // Check if user is already logged in
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, navigate directly
+        checkUserAssessment(user.uid);
+      }
+    });
+    return unsubscribe; // Cleanup on unmount
+  }, []);
+
+  const checkUserAssessment = async (uid) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // Navigate directly after login for now
-      const user = FIREBASE_AUTH.currentUser;
-      const userDocRef = doc(FIRESTORE_DB, 'users', user.uid, 'results', `scores_${user.uid}`);
+      const userDocRef = doc(FIRESTORE_DB, 'users', uid, 'results', `scores_${uid}`);
       const docSnap = await getDoc(userDocRef);
       if (docSnap.exists()) {
         const userData = docSnap.data();
@@ -31,7 +38,20 @@ export default function LoginScreen({ navigation }) {
       } else {
         navigation.replace('Sleep Assessment');
       }
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error checking assessment:', error);
+    }
+  };
+
+  const onPressLogin = async () => {
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      const user = auth.currentUser;
+      if (user) {
+        checkUserAssessment(user.uid);
+      }
+    } catch (error) {
       console.error(error);
       alert('Login failed: ' + error.message);
     } finally {
@@ -40,11 +60,11 @@ export default function LoginScreen({ navigation }) {
   };
 
   const onPressForgotPassword = async () => {
-    // Do something about forgot password operation
+    // Handle forgot password operation
   };
 
   const onPressSignUp = async () => {
-    navigation.navigate('SignUp'); // Use navigate with the name of the screen
+    navigation.navigate('SignUp'); // Navigate to sign-up screen
   };
 
   return (
