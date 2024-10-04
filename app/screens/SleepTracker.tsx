@@ -338,6 +338,14 @@ const SleepTrackerScreen = ({ navigation }) => {
     }
   };
 
+  // Utility function to handle empty string or zero for display purposes
+  const displayEmptyOrValue = (value) => value === '0' ? '' : value;
+
+  // Utility function to handle empty inputs and default them to '0'
+  const handleInputChange = (setter) => (value) => {
+    setter(value === '' ? '0' : value);
+  };
+
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
@@ -399,18 +407,18 @@ const SleepTrackerScreen = ({ navigation }) => {
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setInBedHours}
-            value={inBedHours}
+            onChangeText={handleInputChange(setInBedHours)}  // Handle the input change
+            value={displayEmptyOrValue(inBedHours)}  // Display empty if '0'
             keyboardType="numeric"
-            maxLength={2} // Assuming we want to limit to 99 hours
+            maxLength={2} // Limit to 99 hours
           />
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setInBedMinutes}
-            value={inBedMinutes}
+            onChangeText={handleInputChange(setInBedMinutes)}  // Handle the input change
+            value={displayEmptyOrValue(inBedMinutes)}  // Display empty if '0'
             keyboardType="numeric"
-            maxLength={2} // Assuming we want to limit to 59 minutes
+            maxLength={2} // Limit to 59 minutes
           />
           <Text style={styles.unitText}>min</Text>
         </View>
@@ -423,16 +431,16 @@ const SleepTrackerScreen = ({ navigation }) => {
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setTimeAsleepHours}
-            value={timeAsleepHours}
+            onChangeText={handleInputChange(setTimeAsleepHours)}
+            value={displayEmptyOrValue(timeAsleepHours)}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 99 hours
           />
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setTimeAsleepMinutes}
-            value={timeAsleepMinutes}
+            onChangeText={handleInputChange(setTimeAsleepMinutes)}
+            value={displayEmptyOrValue(timeAsleepMinutes)}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 59 minutes
           />
@@ -447,16 +455,16 @@ const SleepTrackerScreen = ({ navigation }) => {
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setFallAsleepHours}
-            value={fallAsleepHours}
+            onChangeText={handleInputChange(setFallAsleepHours)}
+            value={displayEmptyOrValue(fallAsleepHours)}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 99 hours
           />
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setFallAsleepMinutes}
-            value={fallAsleepMinutes}
+            onChangeText={handleInputChange(setFallAsleepMinutes)}
+            value={displayEmptyOrValue(fallAsleepMinutes)}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 59 minutes
           />
@@ -470,8 +478,8 @@ const SleepTrackerScreen = ({ navigation }) => {
         </Text>
         <TextInput
           style={styles.healthInput}
-          onChangeText={setTimesWokeUp}
-          value={timesWokeUp}
+          onChangeText={handleInputChange(setTimesWokeUp)}
+          value={displayEmptyOrValue(timesWokeUp)}
           keyboardType="numeric"
           placeholder="# of times"
         />
@@ -522,16 +530,16 @@ const SleepTrackerScreen = ({ navigation }) => {
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setNapTimeHours}
-            value={napTimeHours}
+            onChangeText={handleInputChange(setNapTimeHours)}
+            value={displayEmptyOrValue(napTimeHours)}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 99 hours
           />
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={setNapTimeMinutes}
-            value={napTimeMinutes}
+            onChangeText={handleInputChange(setNapTimeMinutes)}
+            value={displayEmptyOrValue(napTimeMinutes)}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 59 minutes
           />
