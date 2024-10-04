@@ -76,6 +76,20 @@ const LessonTrackingScreen = () => {
     }
   }, [userId]);
 
+  // Handle unchecking a completed lesson
+  const handleUncheckLesson = async (lessonId) => {
+    if (userId && userProgress[lessonId]) {
+      const userDocRef = doc(FIRESTORE_DB, 'users', userId, 'lessonTracking', 'progress');
+      const updatedProgress = { ...userProgress, [lessonId]: false }; // Mark lesson as incomplete
+      try {
+        await updateDoc(userDocRef, updatedProgress);
+        setUserProgress(updatedProgress); // Update local state
+      } catch (error) {
+        console.error('Error updating progress:', error);
+      }
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       {allLessonsCompleted && (
@@ -94,7 +108,9 @@ const LessonTrackingScreen = () => {
             </View>
             {/* Checkmark or empty circle based on lesson completion */}
             {userProgress[lesson.id] ? (
-              <Ionicons name="checkmark-circle" size={24} color={customGreenColor} />
+              <TouchableOpacity onPress={() => handleUncheckLesson(lesson.id)}>
+                <Ionicons name="checkmark-circle" size={24} color={customGreenColor} />
+              </TouchableOpacity>
             ) : (
               <Ionicons name="ellipse-outline" size={24} color={customGreenColor} />
             )}
