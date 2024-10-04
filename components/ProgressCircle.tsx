@@ -13,10 +13,12 @@ const diameter = radius * 2;
 
 const ProgressCircle: React.FC<ProgressCircleProps> = ({ percentage, label }) => {
   const circumference = 2 * Math.PI * radius;
-  const svgProgress = circumference - (percentage / 100) * circumference;
+  const svgProgress = 0; // Always set the circle to be fully filled
 
+  // Define colors based on the percentage
   let progressColorBackground = '#FFDCD8'; // Light red
   let progressColor = '#FD7C6B'; // Darker red for low percentages
+
   if (percentage >= 50) {
     progressColorBackground = '#FFFCE5'; // Light yellow
     progressColor = '#FDEE6B'; // Yellow for mid percentages
@@ -45,7 +47,7 @@ const ProgressCircle: React.FC<ProgressCircleProps> = ({ percentage, label }) =>
           r={radius - strokeWidth / 2}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
-          strokeDashoffset={svgProgress}
+          strokeDashoffset={svgProgress} // Always fully filled
           strokeLinecap="round"
           transform={`rotate(-90 ${radius} ${radius})`}
         />
