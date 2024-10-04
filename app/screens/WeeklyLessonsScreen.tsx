@@ -160,6 +160,7 @@ const WeeklyLessonsScreen = ({ navigation }) => {
   }, [navigation]);
 
   const fetchData = async (userId: string) => {
+    console.log("Fetching data for userId:", userId);
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
     const userDocSnapshot = await getDoc(userDocRef);
 
@@ -367,22 +368,27 @@ const WeeklyLessonsScreen = ({ navigation }) => {
     }
 
     // Update progress data with sleep efficiency
-    setProgressData((prevData) => prevData.map((item) => {
-      switch (item.label) {
-        case 'Body Comp':
-          return { ...item, value: bmiProgress };
-        case 'Physical Activity':
-          return { ...item, value: physicalActivityPercentage };
-        case 'Nutrition':
-          return { ...item, value: dietPercentage };
-        case 'Stress':
-          return { ...item, value: stressPercentage };
-        case 'Sleep Efficiency':
-          return { ...item, value: sleepEfficiencyScore, avgEfficiency: avgSleepEfficiency };
-        default:
-          return item;
-      }
-    }));
+    setProgressData((prevData) => {
+      const newData = prevData.map((item) => {
+        // Update based on the label
+        switch (item.label) {
+          case 'Body Comp':
+            return { ...item, value: bmiProgress };
+          case 'Physical Activity':
+            return { ...item, value: physicalActivityPercentage };
+          case 'Nutrition':
+            return { ...item, value: dietPercentage };
+          case 'Stress':
+            return { ...item, value: stressPercentage };
+          case 'Sleep Efficiency':
+            return { ...item, value: sleepEfficiencyScore, avgEfficiency: avgSleepEfficiency };
+          default:
+            return item;
+        }
+      });
+      console.log("Updated Progress Data:", newData);
+      return newData;
+    });    
 };
 
   return (
@@ -447,8 +453,8 @@ const WeeklyLessonsScreen = ({ navigation }) => {
               <>
                 <Text style={styles.modalText}>
                   {selectedItem.value === 100 && "Great job tracking your diet this week!"}
-                  {selectedItem.value === 66 && "Getting there…reminder to track your eating every day for best results."}
-                  {selectedItem.value < 66 && selectedItem.value > 0 && "! - Reminder to track your eating every day for best results."}
+                  {selectedItem.value === 33 && "Getting there…reminder to track your eating every day for best results."}
+                  {selectedItem.value < 33 && selectedItem.value > 0 && "! - Reminder to track your eating every day for best results."}
                   {selectedItem.value === 0 && "! - No diet data tracked this week."}
                 </Text>
               </>
@@ -456,15 +462,15 @@ const WeeklyLessonsScreen = ({ navigation }) => {
             {selectedItem && selectedItem.label === 'Stress' && (
               <Text style={styles.modalText}>
                 {selectedItem.value === 100 && "Great job tracking your stress this week. Try different tools until you find the ones that work best for you to reduce stress."}
-                {selectedItem.value === 66 && "Try to track your stress level every day and different tools until you find the ones that work best for you to reduce stress."}
-                {selectedItem.value < 66 && "! - Reminder to track your stress levels every day and try different tools until you find the ones that work best for you to reduce stress."}
+                {selectedItem.value === 33 && "Try to track your stress level every day and different tools until you find the ones that work best for you to reduce stress."}
+                {selectedItem.value < 33 && "! - Reminder to track your stress levels every day and try different tools until you find the ones that work best for you to reduce stress."}
               </Text>
             )}
             {selectedItem && selectedItem.label === 'Body Comp' && (
               <Text style={styles.modalText}>
                 {selectedItem.value === 100 && "Great job this week!"}
-                {selectedItem.value === 66 && "Keep working to meet yor goals! Strive to eat at least a cup of vegetables at every meal and reduce portions of unhealthy foods."}
-                {selectedItem.value < 66 && "! - Reminder to track your body weight every day."}
+                {selectedItem.value === 33 && "Keep working to meet yor goals! Strive to eat at least a cup of vegetables at every meal and reduce portions of unhealthy foods."}
+                {selectedItem.value < 33 && "! - Reminder to track your body weight every day."}
               </Text>
             )}
             {selectedItem && selectedItem.label === 'Physical Activity' && (
