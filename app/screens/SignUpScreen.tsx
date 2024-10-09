@@ -1,8 +1,3 @@
-// import React, { useState } from 'react';
-// import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-// import { FIREBASE_AUTH } from '../../FirebaseConfig';
-// import { createUserWithEmailAndPassword } from 'firebase/auth';
-
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
@@ -38,27 +33,6 @@ export default function SignUpScreen({ navigation }) {
       setLoading(false);
     }
   };
-
-// export default function SignUpScreen({ navigation }: any) { // probably shouldn't do this
-//   const [name, setName] = useState('');
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [loading, setLoading] = useState(false);
-//   const auth = FIREBASE_AUTH;
-
-//   const onPressSignUp = async () => {
-//     setLoading(true);
-//     try {
-//       const response = await createUserWithEmailAndPassword(auth, email, password);
-//       console.log(response);
-//       alert('Account created successfully, now you can login!');
-//     } catch (error: any) {
-//       console.log(error);
-//       alert('Sign in failed: ' + error.message)
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
 
   const onPressLogin = () => {
     navigation.navigate('Login'); // Use navigate with the name of the screen
