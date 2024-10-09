@@ -24,5 +24,4 @@ declare module 'react-native-switch-selector' {
     }
   
     export default function SwitchSelector(props: SwitchSelectorProps): JSX.Element;
-  }
-  
+}
