@@ -6,7 +6,9 @@ import { Lesson } from '../stores/LessonTrackingStore';
 export type RootStackParamList = {
   Main: undefined;
   'Sleep Assessment': undefined;
+  ResultsScreen: undefined;
   SignUp: undefined;
+  Login: undefined;
   LessonTrackingScreen: undefined;
   LessonDetailScreen: { lesson: Lesson };
   ListMain: undefined;

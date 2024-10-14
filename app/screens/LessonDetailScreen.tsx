@@ -6,22 +6,10 @@ import { FIRESTORE_DB } from "../../FirebaseConfig";
 import { ScrollView } from 'react-native-gesture-handler';
 import { useLessonStore } from '../../stores/LessonStore';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
-// Define the lesson object type
-type Lesson = {
-  id: string;
-  title: string;
-  image: any;
-};
+import { RootStackParamList } from '../../types/navigationTypes'; // Adjust the path based on your file structure
 
 // Define the props for the LessonDetailScreen
-type LessonDetailProps = NativeStackScreenProps<any, 'LessonDetail'> & {
-  route: {
-    params: {
-      lesson: Lesson;
-    };
-  };
-};
+type LessonDetailProps = NativeStackScreenProps<RootStackParamList, 'LessonDetailScreen'>;
 
 const LessonDetailScreen: React.FC<LessonDetailProps> = ({ route, navigation }) => {
   const { lesson } = route.params;
@@ -29,16 +17,20 @@ const LessonDetailScreen: React.FC<LessonDetailProps> = ({ route, navigation }) 
 
   useEffect(() => {
     setLesson(lesson); // Set the lesson data in the store
-    setUserId(); // Fetch and set the user ID in the store
+    setUserId(); // Ensure setUserId fetches and sets the user ID properly
   }, [lesson, setLesson, setUserId]);
 
   const markLessonComplete = async () => {
     if (userId) {
       const lessonTrackingRef = doc(FIRESTORE_DB, 'users', userId, 'lessonTracking', 'progress');
       const updatedProgress = { [lesson.id]: true };
-      await setDoc(lessonTrackingRef, updatedProgress, { merge: true });
-      console.log(`Marking ${lesson.title} as complete`);
-      navigation.goBack();
+      try {
+        await setDoc(lessonTrackingRef, updatedProgress, { merge: true });
+        console.log(`Marking ${lesson.title} as complete`);
+        navigation.goBack();
+      } catch (error) {
+        console.error("Error marking lesson complete:", error);
+      }
     } else {
       console.error("User ID is undefined.");
     }

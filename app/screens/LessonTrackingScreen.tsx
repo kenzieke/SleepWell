@@ -1,20 +1,19 @@
 import React, { useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { useLessonTrackingStore, Lesson } from '../../stores/LessonTrackingStore';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types/navigationTypes';
 
-type RootStackParamList = {
-  LessonDetailScreen: { lesson: Lesson };
-};
+type LessonTrackingScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'LessonTrackingScreen'>;
 
-type LessonTrackingScreenProps = NativeStackScreenProps<RootStackParamList, 'LessonDetailScreen'>;
+const LessonTrackingScreen: React.FC = () => {
+  const navigation = useNavigation<LessonTrackingScreenNavigationProp>();
 
-const LessonTrackingScreen: React.FC<LessonTrackingScreenProps> = () => {
-  const navigation = useNavigation<LessonTrackingScreenProps['navigation']>();
+  // Access Zustand store
   const { lessons, userProgress, allLessonsCompleted, fetchUserProgress, updateLessonProgress } = useLessonTrackingStore();
-
+  
   const customGreenColor = '#52796F';
 
   useEffect(() => {
@@ -23,7 +22,7 @@ const LessonTrackingScreen: React.FC<LessonTrackingScreenProps> = () => {
 
   const handleUncheckLesson = async (lessonId: number) => {
     const completed = userProgress[lessonId];
-    await updateLessonProgress(lessonId, !completed);
+    await updateLessonProgress(lessonId, !completed); // Toggle completion status
   };
 
   return (

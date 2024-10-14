@@ -1,62 +1,48 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BottomTabNavigator from './BottomTabNavigator';
-import List from '../app/screens/List';
 import LessonTrackingScreen from '../app/screens/LessonTrackingScreen';
+import ListMain from '../app/screens/SleepCoachScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
+import { RootStackParamList } from '../types/navigationTypes';
 
-const MainStack = createStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const MainNavigator: React.FC = () => {
   return (
-    <MainStack.Navigator>
-      <MainStack.Screen name="MainTabs" component={BottomTabNavigator} options={{ headerShown: false }} />
-      <MainStack.Screen
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Main"
+        component={BottomTabNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="ListMain"
-        component={List}
+        component={ListMain}
         options={{
           title: 'Sleep Coaches',
-          headerShown: true,
-          headerLeft: ({ navigation }) => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('MainTabs')}
-              style={{ marginLeft: 10 }}
-            >
-              <Ionicons name="arrow-back" size={24} color="#52796F" />
+          headerLeft: () => (
+            <TouchableOpacity style={{ marginLeft: 10 }}>
+              <Ionicons name="call" size={24} color="#52796F" />
             </TouchableOpacity>
           ),
           headerTitleAlign: 'center',
         }}
       />
-      <MainStack.Screen
+      <Stack.Screen
         name="LessonTrackingScreen"
         component={LessonTrackingScreen}
-        options={({ navigation }) => ({
+        options={{
           title: 'Modules',
-          headerShown: true,
-          headerLeft: ({ navigation }) => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ marginLeft: 10 }}
-            >
-              <Ionicons name="arrow-back" size={24} color="#52796F" />
-            </TouchableOpacity>
-          ),
           headerRight: () => (
-            <TouchableOpacity
-              onPress={() => {
-                // Function to mark lesson complete or handle what happens when "Done" is pressed
-              }}
-              style={{ marginRight: 10 }}
-            >
+            <TouchableOpacity style={{ marginRight: 10 }}>
               <Ionicons name="checkmark" size={24} color="#52796F" />
             </TouchableOpacity>
           ),
-          headerTitleAlign: 'center',
-        })}
+        }}
       />
-    </MainStack.Navigator>
+    </Stack.Navigator>
   );
 };
 
