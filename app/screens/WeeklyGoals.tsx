@@ -1,18 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, StyleSheet, View, Dimensions, TouchableOpacity, Modal, Text } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context'; // If not already installed, install react-native-safe-area-context
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// Get the screen's width
+// Constants
 const screenWidth = Dimensions.get('window').width;
-
-// Original dimensions of the image
+const screenHeight = Dimensions.get('window').height;
 const originalWidth = 1126;
 const originalHeight = 1882;
 
-// Calculate the height with the aspect ratio of the image
-const calculatedHeight = (originalHeight / originalWidth) * screenWidth;
+// Aspect Ratio Calculations
+const aspectRatio = originalHeight / originalWidth;
+const calculatedHeight = screenWidth * aspectRatio;
 
-// Define the positions and sizes of the touchable areas based on the above measurements
+// Goal Content Map
+const goalContentMap: { [key: string]: string } = {
+  sleepDuration: 'Ensure you get at least 7-9 hours of sleep every night.',
+  sleepQuality: 'Your sleep quality is measured by the percentage of time spent asleep while in bed. Our program is designed to help improve this quality.',
+  bodyComposition: 'BMI is not perfect but helps gauge risk of sleep disorders. Our program includes strategies for weight management to improve sleep.',
+  nutrition: 'A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Aim for balanced meals with vegetables.',
+  stress: 'Managing stress is crucial for sleep health. Our program offers tools to help manage stress effectively.',
+  physicalActivity: 'Regular physical activity improves sleep quality. Avoid vigorous activities right before bed.',
+};
+
+// Touchable Areas
 const touchableAreas = [
   { id: 'sleepDuration', top: -5, left: 21, width: 44, height: 8 },
   { id: 'sleepQuality', top: 9, left: 43, width: 36, height: 10 },
@@ -22,49 +32,24 @@ const touchableAreas = [
   { id: 'physicalActivity', top: 80, left: 23, width: 75, height: 11 },
 ];
 
-// Map of goal IDs to their custom modal content
-const goalContentMap = {
-  'sleepDuration': 'Ensure you get at least 7-9 hours of sleep every night.',
-  'sleepQuality': 'Your sleep quality is the percent of time that you spent asleep while in bed. The higher your sleep quality the better. Most sleep specialists consider a sleep quality of 85% and higher to be healthy. Our program is designed to help firefighters improve their sleep quality. This means, falling asleep faster and improving sleep quality and duration.',
-  'bodyComposition': 'BMI is not a perfect measure but can help determine risk of sleep disorders and chronic diseases. If you have a BMI of 25 or more, our program includes proven strategies to promote healthy weight loss to improve sleep.',
-  'nutrition': 'A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.',
-  'stress': 'Managing stress is a key part of sleep health. Our program provides tools to help manage stress both on and off duty.',
-  'physicalActivity': 'Regular physical activity has been linked with improved sleep quality (but avoid vigorous activity right before bed).',
-};
-
+// Main Component
 const WeeklyGoals: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState('');
 
-  // Calculate available height by subtracting top and bottom insets
-  const screenHeight = Dimensions.get('window').height;
-  const topBarHeight = -60; // Adjust this based on your actual top bar height
-  const bottomBarHeight = 148; // Adjust this based on your actual bottom bar height
-
-  // Calculate the top offset to position the image right below the top bar
+  // Calculations
+  const topBarHeight = -60; // Adjust according to your design
+  const bottomBarHeight = 148; // Adjust according to your design
   const imageTopOffset = insets.top + topBarHeight;
-
-  // Adjust image height to leave space for bottom bar, maintaining aspect ratio
   const adjustedHeight = screenHeight - imageTopOffset - insets.bottom - bottomBarHeight;
-  const adjustedWidth = adjustedHeight * (originalWidth / originalHeight);
+  const adjustedWidth = adjustedHeight / aspectRatio;
 
-  // Adjust the top position of each touchable area based on the image's actual position
-  const adjustedTouchableAreas = touchableAreas.map((area) => ({
-    ...area,
-    top: insets.top + (calculatedHeight * area.top) / 100, // Calculate the top position based on the image height and safe area
-  }));
-
-  // State to control the visibility of the modal
-  const [modalVisible, setModalVisible] = React.useState(false);
-  const [selectedGoal, setSelectedGoal] = React.useState('');
-
-  // Function to open the modal with the selected goal
+  // Open modal with specific goal
   const openModal = (goalId: string) => {
     setSelectedGoal(goalId);
     setModalVisible(true);
   };
-
-  // Retrieve the content for the selected modal
-  const selectedGoalContent = goalContentMap[selectedGoal] || 'Content not available';
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -73,28 +58,30 @@ const WeeklyGoals: React.FC = () => {
         style={[
           styles.image,
           {
-            top: imageTopOffset, // Position image below the top bar
-            height: adjustedHeight, // Adjust height based on available space
-            width: adjustedWidth, // Maintain aspect ratio
+            top: imageTopOffset,
+            height: adjustedHeight,
+            width: adjustedWidth,
           },
         ]}
         resizeMode="contain"
       />
-      {adjustedTouchableAreas.map((area) => (
+      
+      {touchableAreas.map((area) => (
         <TouchableOpacity
           key={area.id}
           style={[
             styles.touchableArea,
             {
-              top: area.top, // Use the adjusted top position
-              left: (screenWidth * area.left) / 100, // Calculate left position based on screen width
-              width: (screenWidth * area.width) / 100, // Calculate width based on screen width
-              height: (calculatedHeight * area.height) / 100, // Calculate height based on image height
+              top: imageTopOffset + (calculatedHeight * area.top) / 100,
+              left: (screenWidth * area.left) / 100,
+              width: (screenWidth * area.width) / 100,
+              height: (calculatedHeight * area.height) / 100,
             },
           ]}
           onPress={() => openModal(area.id)}
         />
       ))}
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -103,7 +90,9 @@ const WeeklyGoals: React.FC = () => {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>{selectedGoalContent}</Text>
+            <Text style={styles.modalText}>
+              {goalContentMap[selectedGoal] || 'Content not available'}
+            </Text>
             <TouchableOpacity
               style={[styles.button, styles.buttonClose]}
               onPress={() => setModalVisible(false)}
@@ -117,57 +106,56 @@ const WeeklyGoals: React.FC = () => {
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative', // Use relative for the parent to use absolute positioning for children
+    position: 'relative',
   },
   image: {
-    position: 'absolute', // Position the image absolutely to control its exact location
-    left: 0, // Align image to the left edge of the container
-    right: 0, // Align image to the right edge of the container
+    position: 'absolute',
+    left: 0,
+    right: 0,
   },
   touchableArea: {
     position: 'absolute',
-    backgroundColor: 'rgba(0,0,0,0)', // Temporary background color to see the areas
+    backgroundColor: 'rgba(0,0,0,0)', // Transparent to make touchable areas invisible
   },
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Adds overlay for modal
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
   },
   modalText: {
     marginBottom: 15,
-    textAlign: "center"
+    textAlign: 'center',
+    fontSize: 16,
   },
   button: {
     borderRadius: 20,
     padding: 10,
-    elevation: 2
+    elevation: 2,
   },
   buttonClose: {
-    backgroundColor: "#52796F",
+    backgroundColor: '#52796F',
   },
   textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
