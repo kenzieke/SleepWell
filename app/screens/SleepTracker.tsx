@@ -4,6 +4,11 @@ import SwitchSelector from 'react-native-switch-selector'; // Import the switch 
 import { DateComponent } from '../../components/DateComponent';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
+import { RootStackParamList } from '../../types/navigationTypes';
+
+type SleepTrackerScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SleepTrackerScreen'>;
 
 type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
                   'Very Poor' | 'Okay' | 'Good' | 'Outstanding' | 'Poor' |
@@ -34,7 +39,8 @@ const OptionButton: React.FC<{
   </TouchableOpacity>
 );
 
-const SleepTrackerScreen = ({ navigation }) => {
+const SleepTrackerScreen: React.FC = () => {
+  const navigation = useNavigation<SleepTrackerScreenNavigationProp>();
   // Generic function to render option buttons for a question
   interface RenderOptionsProps<T extends string | OptionType> {
     question?: string;

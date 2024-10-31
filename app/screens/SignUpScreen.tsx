@@ -3,8 +3,14 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
+import { RootStackParamList } from '../../types/navigationTypes';
+import { useNavigation } from '@react-navigation/native';
 
-export default function SignUpScreen({ navigation }) {
+type SignUpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
+
+const SignUpScreen: React.FC = () => {
+  const navigation = useNavigation<SignUpScreenNavigationProp>();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,17 +31,17 @@ export default function SignUpScreen({ navigation }) {
       });
 
       Alert.alert('Account created successfully, now you can login!');
-      navigation.navigate('Login');
+      navigation.navigate('LoginScreen');
     } catch (error) {
       console.error(error);
-      Alert.alert('Sign up failed: ' + error.message);
+      Alert.alert('Sign up failed: ' + (error as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
   const onPressLogin = () => {
-    navigation.navigate('Login'); // Use navigate with the name of the screen
+    navigation.navigate('LoginScreen'); // Use navigate with the name of the screen
   };
 
   return (
@@ -139,3 +145,5 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
+export default SignUpScreen;

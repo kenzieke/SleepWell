@@ -134,6 +134,7 @@ export const calculateHealthMetrics = async (
     // Calculate percentage for diet, stress, physical activity
     const dietPercentage = dietDaysCount >= 3 ? 100 : dietDaysCount === 2 ? 66 : dietDaysCount === 1 ? 33 : 0;
     const stressPercentage = stressResponsesCount >= 3 ? 100 : stressResponsesCount === 2 ? 66 : stressResponsesCount === 1 ? 33 : 0;
+    console.log(stressPercentage);
 
     let physicalActivityPercentage = 0;
     if (totalPhysicalActivity >= 150 || totalPhysicalActivity > prevTotalPhysicalActivity) {

@@ -9,8 +9,14 @@ import React, { useState, useEffect } from 'react';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
+import { RootStackParamList } from '../../types/navigationTypes';
 
-export default function LoginScreen({ navigation }) {
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'LoginScreen'>;
+
+const LoginScreen: React.FC = () => {
+  const navigation = useNavigation<LoginScreenNavigationProp>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,7 +33,7 @@ export default function LoginScreen({ navigation }) {
     return unsubscribe; // Cleanup on unmount
   }, []);
 
-  const checkUserAssessment = async (uid) => {
+  const checkUserAssessment = async (uid: string) => {
     try {
       const userDocRef = doc(FIRESTORE_DB, 'users', uid, 'results', `scores_${uid}`);
       const docSnap = await getDoc(userDocRef);
@@ -53,7 +59,7 @@ export default function LoginScreen({ navigation }) {
       }
     } catch (error) {
       console.error(error);
-      alert('Login failed: ' + error.message);
+      alert('Login failed: ' + (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -64,7 +70,7 @@ export default function LoginScreen({ navigation }) {
   };
 
   const onPressSignUp = async () => {
-    navigation.navigate('SignUp'); // Navigate to sign-up screen
+    navigation.navigate('SignUpScreen'); // Navigate to sign-up screen
   };
 
   return (
@@ -164,3 +170,5 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
+export default LoginScreen;
