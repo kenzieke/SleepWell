@@ -1,0 +1,24 @@
+{
+    "entryPoints": [
+      "./app",
+      "./components",
+      "./navigation",
+      "./interfaces",
+      "./stores",
+      "./types",
+      "./utils"
+    ],
+    "entryPointStrategy": "expand",
+    "out": "./docs",
+    "tsconfig": "./tsconfig.json",
+    "exclude": [
+      "**/node_modules/**",
+      "**/public/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx"
+    ],
+    "includeVersion": true
+  }
+  
