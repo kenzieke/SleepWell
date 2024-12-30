@@ -13,7 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';
 
-type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'LoginScreen'>;
+type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
@@ -39,10 +39,10 @@ const LoginScreen: React.FC = () => {
       const docSnap = await getDoc(userDocRef);
       if (docSnap.exists()) {
         const userData = docSnap.data();
-        const routeName = userData.completedAssessment ? 'Main' : 'Sleep Assessment';
+        const routeName = userData.completedAssessment ? 'Main' : 'SleepAssessmentScreen';
         navigation.replace(routeName);
       } else {
-        navigation.replace('Sleep Assessment');
+        navigation.replace('SleepAssessmentScreen');
       }
     } catch (error) {
       console.error('Error checking assessment:', error);
@@ -70,7 +70,7 @@ const LoginScreen: React.FC = () => {
   };
 
   const onPressSignUp = async () => {
-    navigation.navigate('SignUpScreen'); // Navigate to sign-up screen
+    navigation.navigate('SignUp'); // Navigate to sign-up screen
   };
 
   return (

@@ -7,7 +7,7 @@ import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/n
 import { RootStackParamList } from '../../types/navigationTypes';
 import { useNavigation } from '@react-navigation/native';
 
-type SignUpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUpScreen'>;
+type SignUpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUp'>;
 
 const SignUpScreen: React.FC = () => {
   const navigation = useNavigation<SignUpScreenNavigationProp>();
@@ -31,7 +31,7 @@ const SignUpScreen: React.FC = () => {
       });
 
       Alert.alert('Account created successfully, now you can login!');
-      navigation.navigate('LoginScreen');
+      navigation.navigate('Login');
     } catch (error) {
       console.error(error);
       Alert.alert('Sign up failed: ' + (error as Error).message);
@@ -41,7 +41,7 @@ const SignUpScreen: React.FC = () => {
   };
 
   const onPressLogin = () => {
-    navigation.navigate('LoginScreen'); // Use navigate with the name of the screen
+    navigation.navigate('Login'); // Use navigate with the name of the screen
   };
 
   return (
