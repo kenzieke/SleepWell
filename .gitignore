@@ -16,6 +16,9 @@ web-build/
 *.key
 *.mobileprovision
 
+# TypeDoc documentation
+docs/
+
 # Metro
 .metro-health-check*
 

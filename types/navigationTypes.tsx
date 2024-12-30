@@ -5,10 +5,9 @@ import { Lesson } from '../stores/LessonTrackingStore';
 // Modify the existing RootStackParamList to include your new screens
 export type RootStackParamList = {
   Main: undefined;
-  'Sleep Assessment': undefined;
   ResultsScreen: undefined;
-  SignUpScreen: undefined;
-  LoginScreen: undefined;
+  SignUp: undefined;
+  Login: undefined;
   LessonTrackingScreen: undefined;
   LessonDetailScreen: { lesson: Lesson };
   ListMain: undefined;
@@ -30,10 +29,10 @@ export type WeeklyLessonsScreenProps = NativeStackScreenProps<RootStackParamList
 export type ResultsScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'ResultsScreen'>;
 
 // Define the props for SignUpScreen
-export type SignUpScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'SignUpScreen'>;
+export type SignUpScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
 export type SleepAssessmentScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'SleepAssessmentScreen'>;
 
-export type LoginScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'LoginScreen'>;
+export type LoginScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export type SleepTrackerScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'SleepTrackerScreen'>;

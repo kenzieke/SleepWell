@@ -6,7 +6,7 @@ import LoginScreen from '../app/screens/LoginScreen';
 import SignUpScreen from '../app/screens/SignUpScreen';
 import ListScreen from '../app/screens/SleepCoachScreen';
 import LessonTrackingScreen from '../app/screens/LessonTrackingScreen';
-import SleepAssessmentScreen from '../app/screens/SleepAssessment';
+import SleepAssessmentScreen from '../app/screens/SleepAssessmentScreen';
 import ResultsScreen from '../app/screens/ResultsScreen';
 import LessonDetailScreen from '../app/screens/LessonDetailScreen';
 import BottomTabNavigator from '../components/BottomTabNavigator';
@@ -31,14 +31,14 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
 
       if (docSnap.exists()) {
         const userData = docSnap.data();
-        const routeName = userData?.completedAssessment ? 'Main' : 'Sleep Assessment';
+        const routeName = userData?.completedAssessment ? 'Main' : 'SleepAssessmentScreen';
         navigationRef.current?.reset({
           index: 0,
           routes: [{ name: routeName }],
         });
       } else {
         console.log('No user document!');
-        navigationRef.current?.navigate('Sleep Assessment');
+        navigationRef.current?.navigate('SleepAssessmentScreen');
       }
     } else {
       navigationRef.current?.navigate('Login');
@@ -61,9 +61,15 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
           <>
             <Stack.Screen name="Main" component={BottomTabNavigator} />
             <Stack.Screen
-              name="Sleep Assessment"
+              name="SleepAssessmentScreen"
               component={SleepAssessmentScreen}
-              options={{ headerShown: true }}
+              options={{
+                headerShown: true,
+                headerBackTitleVisible: false,
+                headerBackAccessibilityLabel: undefined,
+                title: 'Sleep Assessment',
+                headerTitleAlign: 'center',
+               }}
             />
             <Stack.Screen
               name="ResultsScreen"
@@ -76,7 +82,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                   <Button onPress={() => navigation.navigate('Main')} title="Next" color="#52796F" />
                 ),
                 headerLeft: () => (
-                  <Button onPress={() => navigation.navigate('Sleep Assessment')} title="Back" color="#52796F" />
+                  <Button onPress={() => navigation.navigate('SleepAssessmentScreen')} title="Back" color="#52796F" />
                 ),
               })}
             />
