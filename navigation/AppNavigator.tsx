@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Button } from 'react-native';
-import { createStackNavigator, StackNavigationProp } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import LoginScreen from '../app/screens/LoginScreen';
 import SignUpScreen from '../app/screens/SignUpScreen';
