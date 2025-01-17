@@ -1,5 +1,14 @@
 import { Firestore, doc, getDoc, collection, query, orderBy, limit, getDocs, where } from "firebase/firestore";
-import { SleepData } from "../interfaces/sleepData";
+
+interface SleepData {
+    fallAsleepHours: string;
+    fallAsleepMinutes: string;
+    inBedHours: string;
+    inBedMinutes: string;
+    timeAsleepHours: string;
+    timeAsleepMinutes: string;
+    timesWokeUp: string;
+}
 
 // Define interfaces for Firestore data
 interface ResultsData {

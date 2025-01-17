@@ -1,41 +1,18 @@
 import { doc, setDoc, collection } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
+import OptionButton, { OptionType } from '../../components/OptionButton';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
+import { RootStackParamList } from '../../types/navigationTypes';
+import * as assessmentHelpers from '../../utils/sleepAssessmentHelpers';
 
-type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |
-                  'Very Satisfied' | 'Satisfied' | 'Somewhat' | 'Dissatisfied' | 'Very Dissatisfied' |
-                  'Not Noticeable' | 'Rarely' | 'Noticeable' | 'Very Noticeable' |
-                  'Never' | 'Often' | 'Always' |
-                  'Low' | 'High' | 'Very High' | 'null';
+type SleepAssessmentScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SleepAssessmentScreen'>;
 
-const OptionButton: React.FC<{
-    label: string;
-    onPress: () => void;
-    isSelected: boolean;
-  }> = ({ label, onPress, isSelected }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[
-        styles.optionButton,
-        isSelected && styles.optionButtonSelected,
-      ]}>
-      <Text
-        style={[
-          styles.optionText,
-          isSelected && styles.optionTextSelected,
-        ]}
-        numberOfLines={2} // Allow text to wrap to a new line
-        adjustsFontSizeToFit // Adjust the font size to ensure the text fits
-        minimumFontScale={0.5} // Minimum scale factor for text size
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-
-const SleepAssessmentScreen: React.FC = ({ navigation }) => {
+const SleepAssessmentScreen = () => {
+  const navigation = useNavigation<SleepAssessmentScreenNavigationProp>();
   const [isDeployed, setIsDeployed] = useState(false);
   const [isOnDuty, setIsOnDuty] = useState(false);
   const [difficultyFallingAsleep, setDifficultyFallingAsleep] = useState<{ text: OptionType, value: number }>({ text: 'null', value: -1 });
@@ -66,223 +43,58 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
   const [height, setHeight] = useState<string>('');
   const [heightUnit, setHeightUnit] = useState<string>('cm');
   const [weight, setWeight] = useState<string>('');
-  const [weightUnit, setWeightUnit] = useState<string>('kgs');
-
-  // Define a mapping
-  const severityMapping: { [key in OptionType]: number } = {
-    'None': 1,
-    'Mild': 2,
-    'Moderate': 3,
-    'Severe': 4,
-    'Very Severe': 5,
-    'Very Satisfied': 1, // Very satisfied assumes minimal problems with sleep
-    'Satisfied': 2,
-    'Somewhat': 3,
-    'Dissatisfied': 4,
-    'Very Dissatisfied': 5,
-    'Not Noticeable': 1,
-    'Rarely': 2,
-    'Noticeable': 4,
-    'Very Noticeable': 5,
-    'Never': 1,
-    'Often': 4,
-    'Always': 5,
-    'Low': 2,
-    'High': 4,
-    'Very High': 5,
-    'null': -1,
-  };
-
-  const getMappedValue = (option: OptionType): number => {
-    return severityMapping[option] || -1; // Return -1 as default if the option is not found
-  };
-
-  const hoursToMinutes = (hoursString: string): number => {
-    const hours = parseInt(hoursString, 10); // Convert string to integer base 10
-    if (!isNaN(hours)) {
-      return hours * 60; // Convert hours to minutes
-    } else {
-      console.log('Invalid input for hours:', hoursString);
-      return 0; // Return 0 or some error value if the input is not a number
-    }
-  };  
-
-  // This will return a numerical score, which will need to be mapped to the result image
-  // TODO: replace console returns with a mapping to an image displayed on the results screen
-  // TODO: implement error checking to ensure function calls attention to user if they skip a question, otherwise results won't be accurate
-  const getInsomniaSeverityIndex = () => {
-    console.log('Function getInsomniaSeverityIndex started'); // For debugging
-  
-    const scores = {
-      difficultyStayingAsleepScore: getMappedValue(difficultyStayingAsleep.text),
-      difficultyFallingAsleepScore: getMappedValue(difficultyFallingAsleep.text),
-      problemsWakingUpEarlyScore: getMappedValue(problemsWakingUpEarly.text),
-      sleepSatisfactionScore: getMappedValue(sleepSatisfaction.text),
-      interferingWithSleepScore: getMappedValue(interferingWithSleep.text),
-      noticeableSleepScore: getMappedValue(noticeableSleep.text),
-      worriedAboutSleepScore: getMappedValue(worriedAboutSleep.text),
-    };
-    
-    let total = 0;
-  
-    // Go through each score, add to total if not -1, otherwise log it was skipped
-    Object.entries(scores).forEach(([question, score]) => {
-      if (score !== -1) {
-        total += score;
-      } else {
-        console.log(`${question} was skipped.`);
-      }
-    });
-  
-    console.log('Total ISI Score:', total);
-  
-    if (total >= 0 && total <= 7) {
-      console.log('No clinically significant insomnia, score:', total);
-    } else if (total >= 8 && total <= 14) {
-      console.log('Subthreshold insomnia, score:', total);
-    } else if (total >= 15 && total <= 21) {
-      console.log('Clinical insomnia (moderate severity), score:', total);
-    } else if (total >= 22) {
-      console.log('Clinical insomnia (severe), score:', total);
-    }
-    return total;
-  };
-
-  const calculateHeight = () => {
-    let heightInMeters;
-    const parsedHeight = parseFloat(height);
-    if (isNaN(parsedHeight)) {
-      console.log('Invalid height input:', height);
-      return;
-    }
-    heightInMeters = heightUnit === 'in' ? parsedHeight * 0.0254 : parsedHeight / 100;
-    return heightInMeters;
-  }
-
-  const calculateBMI = () => {
-    let weightInKg;
-    const parsedWeight = parseFloat(weight);
-    if (isNaN(parsedWeight)) {
-      console.log('Invalid weight input:', weight);
-      return;
-    }
-    weightInKg = weightUnit === 'lbs' ? parsedWeight * 0.45359237 : parsedWeight;
-
-    const heightInMeters = calculateHeight();
-    // BMI = weight in kg / (height in meters)^2
-    const bmi = weightInKg / Math.pow(heightInMeters, 2);
-    console.log('Your BMI is:', bmi);
-    return Math.round(bmi);
-  };  
-
-  const getSleepApneaRisk = () => {
-    console.log('Function getSleepApneaRisk started'); // For debugging
-
-    const scores = {
-      snoreLoudlyScore: getMappedValue(snoreLoudly.text),
-      feelTiredScore: getMappedValue(feelTired.text),
-      stopBreathingScore: getMappedValue(stopBreathing.text),
-      bmi: calculateBMI(),
-    };
-
-    let risk = 0;
-
-    if (scores.stopBreathingScore !== 1) {
-      console.log("You're at a high risk of sleep apnea.");
-      risk = 5;
-    } else if ((scores.snoreLoudlyScore >= 3 && scores.feelTiredScore >= 3) || ((scores.snoreLoudlyScore >= 3 || scores.feelTiredScore >= 3) && scores.bmi >= 25)) { // potentially undefined if incorrect user input
-      console.log("You're at risk of sleep apnea.");
-      risk = 3;
-    } else {
-      console.log("You're at a low risk of sleep apnea.");
-      risk = 1;
-    }
-    return risk;
-  };
-
-  const getSleepEfficiency = () => {
-    console.log('Function getSleepEfficiency started'); // For debugging
-    // [Total sleep time/(total sleep time + time to fall asleep + time you're waking up)] * 100
-    const totalTimes = {
-      totalSleepMinutes: hoursToMinutes(sleepHours) + parseInt(sleepMinutes, 10),
-      totalFallAsleepMinutes: hoursToMinutes(fallAsleepHours) + parseInt(fallAsleepMinutes, 10), // sleep latency
-      totalTimeAwakeMinutes: hoursToMinutes(timeAwakeHours) + parseInt(timeAwakeMinutes, 10),
-      numberOfTimesAwake: parseInt(timesWakeUp, 10),
-    };
-
-    const sleepEfficiency = (totalTimes.totalSleepMinutes / (totalTimes.totalSleepMinutes + totalTimes.totalFallAsleepMinutes + totalTimes.totalSleepMinutes)) * 100;
-    if (!isNaN(sleepEfficiency)) {
-      console.log('Your sleep efficiency is:', sleepEfficiency.toFixed(2));
-    } else {
-      console.log('One of the inputs is not a valid number.');
-    }
-    return Math.round(sleepEfficiency);
-  };
-
-  // Healthy Eating [> 4 drinks (caffeine and/OR sugary)is red; 0 –1 (caffein and/or sugary) is green, 1-2 is yellow.
-  // We will have their worst score be the nutrition goal they need to focus on
-  const getDiet = () => {
-    let diet = 0;
-    console.log('Function getDiet started'); // For debugging
-    const parsedSugaryBeverages = parseFloat(sugaryBeverages);
-    const parsedCaffeinatedBeverages = parseFloat(caffeinatedBeverages);
-    const totalDrinks = parsedSugaryBeverages + parsedCaffeinatedBeverages;
-    if (totalDrinks > 4) {
-      console.log('Red.');
-      diet = 5;
-    } else if (totalDrinks >= 2 && totalDrinks <= 3) {
-      console.log('Yellow.');
-      diet = 3;
-    } else {
-      console.log('Green.');
-      diet = 1;
-    }
-    return diet;
-  }
-
-  // Physical Activity (0-50 is red; 50-100 is yellow, 100 and above is green)
-  const getPhysicalActivity = () => {
-    console.log('Function getPhysicalActivity started'); // For debugging
-    const totalPAMinutes = Math.round(hoursToMinutes(hours) + parseInt(minutes, 10));
-    let physical_activity = 0;
-    if (totalPAMinutes >= 0 && totalPAMinutes <= 50) {
-      console.log('Red.');
-      physical_activity = 5;
-    } else if (totalPAMinutes >= 51 && totalPAMinutes <= 100) {
-      console.log('Yellow.');
-      physical_activity = 3;
-    } else {
-      console.log('Green.');
-      physical_activity = 1;
-    }
-    return physical_activity;
-  }
-
-  const getStress = () => {
-    console.log('Function getStress started'); // For debugging
-    const stressScore = getMappedValue(stressLevel.text);
-    let stressResult = 0;
-    if (stressScore >= 0 && stressScore <= 1) {
-      stressResult = 1;
-    } else if (stressScore >= 2 && stressScore <= 3) {
-      stressResult = 3;
-    } else {
-      stressResult = 5;
-    }
-    return stressResult;
-  }
+  const [weightUnit, setWeightUnit] = useState<string>('kgs'); 
 
   const calculateResults = async () => {
-    const insomniaSeverityIndex = getInsomniaSeverityIndex();
-    const sleepApneaRisk = getSleepApneaRisk();
-    const sleepEfficiency = getSleepEfficiency();
-    const bmi = calculateBMI();
-    const diet = getDiet();
-    const physicalActivity = getPhysicalActivity();
-    const stress = getStress();
-    const heightInMeters = calculateHeight();
+    // Validate and convert height
+    const heightInMeters = assessmentHelpers.calculateHeight(height, heightUnit);
+    if (!heightInMeters) {
+      return alert('Please provide a valid height.');
+    }
+  
+    // Validate and convert weight
     const weightInKg = weightUnit === 'lbs' ? parseFloat(weight) * 0.453592 : parseFloat(weight);
-
+    if (isNaN(weightInKg)) {
+      return alert('Please provide a valid weight.');
+    }
+  
+    // Calculate BMI
+    const bmi = assessmentHelpers.calculateBMI(weight, weightUnit, heightInMeters);
+    if (typeof bmi === 'undefined') {
+      return alert('Please provide valid weight and height to calculate BMI.');
+    }
+  
+    // Calculate other results
+    const insomniaSeverityIndex = assessmentHelpers.getInsomniaSeverityIndex({
+      difficultyFallingAsleep: difficultyFallingAsleep.text,
+      difficultyStayingAsleep: difficultyStayingAsleep.text,
+      problemsWakingUpEarly: problemsWakingUpEarly.text,
+      sleepSatisfaction: sleepSatisfaction.text,
+      interferingWithSleep: interferingWithSleep.text,
+      noticeableSleep: noticeableSleep.text,
+      worriedAboutSleep: worriedAboutSleep.text,
+    });
+  
+    const sleepApneaRisk = assessmentHelpers.getSleepApneaRisk(
+      snoreLoudly.value,
+      feelTired.value,
+      stopBreathing.value,
+      bmi
+    );
+  
+    // TODO: Double check this is correct when I have more brain power
+    const sleepEfficiency = assessmentHelpers.getSleepEfficiency(
+      parseInt(sleepHours, 10) * 60,
+      parseInt(sleepMinutes, 10),
+      parseInt(timeAwakeMinutes, 10)
+    );
+  
+    const diet = assessmentHelpers.getDiet(caffeinatedBeverages, sugaryBeverages);
+    const physicalActivity = assessmentHelpers.getPhysicalActivity(hours, minutes);
+    console.log(physicalActivity);
+    const stress = assessmentHelpers.getStress(stressLevel.value);
+  
+    // Prepare results object
     const results = {
       isDeployed,
       isOnDuty,
@@ -295,7 +107,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
       stress,
       heightInMeters,
       weightInKg,
-      completedAssessment: true
+      completedAssessment: true,
     };
   
     try {
@@ -305,32 +117,14 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
         const userDocRef = doc(FIRESTORE_DB, 'users', userId);
         const resultsDocRef = doc(collection(userDocRef, 'results'), `scores_${userId}`);
         await setDoc(resultsDocRef, results, { merge: true });
-        console.log('Results stored successfully!');
         navigation.navigate('ResultsScreen');
       } else {
-        console.log('No user logged in');
+        console.error('No user logged in');
       }
     } catch (error) {
       console.error('Error storing results:', error);
     }
   };
-
-  useEffect(() => {
-    const unsubscribe = FIREBASE_AUTH.onAuthStateChanged(user => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/firebase.User
-        const uid = user.uid;
-        // ...
-      } else {
-        // User is signed out
-        // ...
-      }
-    });
-  
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []);
 
   // This function will now expect an object with text and value
   const renderOptions = (
@@ -341,7 +135,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
   ) => {
     // When an option is selected, find its corresponding numeric value and update state
     const handlePress = (option: OptionType) => {
-      const numericValue = severityMapping[option];
+      const numericValue = assessmentHelpers.severityMapping[option];
       setSelectedOption({ text: option, value: numericValue });
     };
 
@@ -353,7 +147,7 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
             <OptionButton
               key={option}
               label={option}
-              onPress={() => handlePress(option)}
+              onPress={() => handlePress(option as OptionType)}
               isSelected={selectedOption.text === option}
             />
           ))}
@@ -381,7 +175,6 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
               { label: 'no', value: 'yes' },
             ]}
             style={styles.switchSelector}
-            buttonStyle={styles.switchButton}
           />
         </View>
 
@@ -400,7 +193,6 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
               { label: 'no', value: 'yes' },
             ]}
             style={styles.switchSelector}
-            buttonStyle={styles.switchButton}
           />
         </View>
 
@@ -587,7 +379,6 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
               { label: 'in', value: 'in' },
             ]}
             style={styles.switchSelector}
-            buttonStyle={styles.switchButton}
             />
           </View>
         </View>
@@ -616,7 +407,6 @@ const SleepAssessmentScreen: React.FC = ({ navigation }) => {
               { label: 'lbs', value: 'lbs' },
             ]}
             style={styles.switchSelector}
-            buttonStyle={styles.switchButton} // custom style for the switch button
           />
         </View>
       </View>

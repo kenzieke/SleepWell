@@ -1,11 +1,11 @@
-import { Results, CategoryDetails } from "../stores/resultsStore";
+import { Results, CategoryDetails } from "../stores/ResultsStore";
 
-const scaleImage = require('../assets/scale.png');
-const scale1Image = require('../assets/0_marker.png');
-const scale2Image = require('../assets/20_marker.png');
-const scale3Image = require('../assets/50_marker.png');
-const scale4Image = require('../assets/80_marker.png');
-const scale5Image = require('../assets/100_marker.png');
+import scaleImage from '../assets/scale.png';
+import scale1Image from '../assets/0_marker.png';
+import scale2Image from '../assets/20_marker.png';
+import scale3Image from '../assets/50_marker.png';
+import scale4Image from '../assets/80_marker.png';
+import scale5Image from '../assets/100_marker.png';
 
 const getInsomniaSeverityDescription = (score: number) => {
   let description = "The ISI score is a widely recognized and clinically validated screening tool used by clinicians to evaluate insomnia. Here's what the score means: ";
@@ -160,8 +160,8 @@ export const getCategoryDetails = (results: Results): Record<string, CategoryDet
     description: `Your sleep efficiency is the percent of time that you spent asleep while in bed. The higher your sleep efficiency, the better.\n\nMost sleep specialists consider a sleep efficiency of 85% and higher to be healthy.\n\nOur program is designed to help firefighters improve their sleep efficiency. This means falling asleep faster and improving sleep quality and duration.`,
   },
   'Body Mass Index': {
-    image: results.bmi && results.bmi < 18
-            ? scale5Image
+    image: results.bmi === undefined || results.bmi < 18
+            ? scale1Image
             : results.bmi && results.bmi <= 25
             ? scale2Image
             : results.bmi && results.bmi <= 30

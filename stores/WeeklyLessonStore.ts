@@ -1,7 +1,7 @@
 import create from 'zustand';
 import { doc, getDoc } from 'firebase/firestore';
 import { FIRESTORE_DB } from '../FirebaseConfig';
-import { calculateBmiProgress, calculateHealthMetrics, updateProgressBasedOnWeek } from '../utils/calculations';
+import { calculateBmiProgress, calculateHealthMetrics, updateProgressBasedOnWeek } from '../utils/weeklyLessonsHelpers';
 
 interface ProgressDataItem {
   label: string;

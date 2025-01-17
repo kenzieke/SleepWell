@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Modal, Image, StyleSheet } from 'react-native';
-import { CategoryDetails, useResultsStore } from '../../stores/resultsStore';
-import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
-import { RootStackParamList } from '../../types/navigationTypes';
-import { useNavigation } from '@react-navigation/native';
+import { CategoryDetails, useResultsStore } from '../../stores/ResultsStore';
+// import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
+// import { RootStackParamList } from '../../types/navigationTypes';
+// import { useNavigation } from '@react-navigation/native';
 
-type WeeklyLessonsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ResultsScreen'>;
+// type WeeklyLessonsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ResultsScreen'>;
 
 const ResultsScreen = () => {
-  const navigation = useNavigation<WeeklyLessonsScreenNavigationProp>();
+  // const navigation = useNavigation<WeeklyLessonsScreenNavigationProp>();
   const {
     results,
     isModalVisible,

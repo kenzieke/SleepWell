@@ -2,9 +2,9 @@ import { doc, getDoc } from 'firebase/firestore';
 import create from 'zustand';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { ImageSourcePropType } from 'react-native';
-import { getCategoryDetails } from '../utils/scores';
+import { getCategoryDetails } from '../utils/resultsHelpers';
 
-const scaleImage = require('../assets/scale.png');
+import scaleImage from '../assets/scale.png';
 
 interface Results {
     insomniaSeverityIndex?: number;
