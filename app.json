@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "RestQ",
+    "newArchEnabled": true,
     "slug": "RestQ",
     "version": "1.0.0",
     "orientation": "portrait",
