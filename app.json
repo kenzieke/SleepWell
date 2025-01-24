@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "RestQ",
+    "name": "Sleep Well",
     "newArchEnabled": true,
     "slug": "RestQ",
     "version": "1.0.0",
@@ -18,14 +18,24 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kenzieke.RestQ"
+      "bundleIdentifier": "com.advisoryteam.sleepwell",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "We need access to your camera to take photos.",
+        "NSLocationWhenInUseUsageDescription": "We need access to your location to provide location-based features."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.kenzieke.RestQ"
+      "package": "com.advisoryteam.sleepwell",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
