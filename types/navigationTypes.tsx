@@ -13,22 +13,19 @@ export type RootStackParamList = {
   ListMain: undefined;
   WeeklyLessonsScreen: undefined;
   SleepAssessmentScreen: undefined;
-  SleepTrackerScreen: undefined,
+  SleepTrackerScreen: undefined;
+  AudioPlayerScreen: { moduleTitle: string; moduleSubtitle: string };
 };
 
 // Existing RootStackNavigationProp
 export type RootStackNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-// Define the props for LessonTrackingScreen
 export type LessonTrackingScreenProps = NativeStackScreenProps<RootStackParamList, 'LessonTrackingScreen'>;
 
-// Define the props for WeeklyLessonsScreen
 export type WeeklyLessonsScreenProps = NativeStackScreenProps<RootStackParamList, 'WeeklyLessonsScreen'>;
 
-// Define the props for ResultsScreen
 export type ResultsScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'ResultsScreen'>;
 
-// Define the props for SignUpScreen
 export type SignUpScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
 export type SleepAssessmentScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'SleepAssessmentScreen'>;
@@ -36,3 +33,5 @@ export type SleepAssessmentScreenNavigationProp = NativeStackScreenProps<RootSta
 export type LoginScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export type SleepTrackerScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'SleepTrackerScreen'>;
+
+export type AudioPlayerScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'AudioPlayerScreen'>;

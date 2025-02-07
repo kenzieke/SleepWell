@@ -9,6 +9,7 @@ import LessonTrackingScreen from '../app/screens/LessonTrackingScreen';
 import SleepAssessmentScreen from '../app/screens/SleepAssessmentScreen';
 import ResultsScreen from '../app/screens/ResultsScreen';
 import LessonDetailScreen from '../app/screens/LessonDetailScreen';
+import AudioPlayerScreen from '../app/screens/AudioPlayerScreen'; // ✅ Add Import Here
 import BottomTabNavigator from '../components/BottomTabNavigator';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
@@ -65,18 +66,15 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               component={SleepAssessmentScreen}
               options={{
                 headerShown: true,
-                headerBackTitleVisible: false,
-                headerBackAccessibilityLabel: undefined,
                 title: 'Sleep Assessment',
                 headerTitleAlign: 'center',
-               }}
+              }}
             />
             <Stack.Screen
               name="ResultsScreen"
               component={ResultsScreen}
               options={({ navigation }) => ({
                 headerShown: true,
-                headerBackTitleVisible: false,
                 title: 'Sleep Assessment Results',
                 headerRight: () => (
                   <Button onPress={() => navigation.navigate('Main')} title="Next" color="#52796F" />
@@ -125,6 +123,17 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               name="LessonDetailScreen"
               component={LessonDetailScreen}
               options={{ title: 'Module Detail' }}
+            />
+
+            {/* ✅ Add Audio Player Screen Here */}
+            <Stack.Screen
+              name="AudioPlayerScreen"
+              component={AudioPlayerScreen}
+              options={{
+                headerShown: true,
+                title: 'Audio Player',
+                headerTitleAlign: 'center',
+              }}
             />
           </>
         )}
