@@ -1,13 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
+import { Asset } from 'expo-asset';
 
 interface AudioPlayerProps {
   moduleTitle: string;
   moduleSubtitle: string;
-  audioSource: any; // Local audio file
+  audioSource: any;
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, audioSource }) => {
@@ -17,6 +19,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
   const [duration, setDuration] = useState(1);
 
   useEffect(() => {
+    console.log('AudioPlayer mounted');
+    console.log('audioSource:', audioSource);
     return () => {
       if (sound) {
         sound.unloadAsync();
@@ -24,17 +28,31 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
     };
   }, [sound]);
 
+
   const loadAndPlayAudio = async () => {
     try {
       if (!sound) {
-        const { sound: newSound } = await Audio.Sound.createAsync(audioSource, { shouldPlay: true });
+        console.log('Attempting to load audio:', audioSource);
+
+        // Convert module ID to asset and ensure it's downloaded
+        const asset = Asset.fromModule(audioSource);
+        await asset.downloadAsync();
+        console.log('Asset loaded:', asset.localUri || asset.uri);
+
+        const { sound: newSound } = await Audio.Sound.createAsync(
+          { uri: asset.localUri || asset.uri }
+        );
+        console.log('Audio file loaded:', newSound);
         setSound(newSound);
+
+        await newSound.playAsync();
         setIsPlaying(true);
 
         newSound.setOnPlaybackStatusUpdate((status) => {
           if (status.isLoaded) {
             setPosition(status.positionMillis);
             setDuration(status.durationMillis || 1);
+            console.log('Playback status updated:', status);
           }
         });
       } else {

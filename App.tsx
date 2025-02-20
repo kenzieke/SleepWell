@@ -9,7 +9,6 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      console.log('user', user);
       setUser(user); // This updates the `user` state on authentication state change
     });
     
