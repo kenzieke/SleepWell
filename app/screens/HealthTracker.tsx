@@ -152,7 +152,7 @@ const HealthTrackerScreen: React.FC = () => {
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         <View style={styles.questionContainer}>
-          <DateComponent date={date} setDate={(newDate: string) => setInput('date', newDate)} />
+          <DateComponent date={date} setDate={(newDate: Date) => setInput('date', newDate)} />
         </View>
 
         <View style={styles.questionContainer}>
