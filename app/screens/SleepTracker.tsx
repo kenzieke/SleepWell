@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector'; // Import the switch selector
 import { DateComponent } from '../../components/DateComponent';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
@@ -74,7 +74,11 @@ const SleepTrackerScreen: React.FC = () => {
     );
   }
 
-  const isValidIntegerOrEmpty = (input) => {
+  interface IsValidIntegerOrEmpty {
+    (input: string): boolean;
+  }
+
+  const isValidIntegerOrEmpty: IsValidIntegerOrEmpty = (input) => {
     return input.trim() === '' || /^\d+$/.test(input.trim());
   };
 
@@ -242,8 +246,13 @@ const SleepTrackerScreen: React.FC = () => {
   
     const formattedDate = date.toISOString().split('T')[0];
   
-    const validateAndPrepareData = (value, field) => {
+    interface ValidateAndPrepareData {
+      (value: string, field: string): string | undefined;
+    }
+
+    const validateAndPrepareData: ValidateAndPrepareData = (value, field) => {
       if (!isValidIntegerOrEmpty(value)) {
+        alert(`${field} must be a valid integer or empty.`);
       } else {
         return value;
       }
@@ -269,7 +278,7 @@ const SleepTrackerScreen: React.FC = () => {
       sleepRating
     };
 
-    const healthData = {
+    const healthData: HealthData = {
       date: formattedDate,
       caffeine,
       vegetables,
@@ -289,10 +298,28 @@ const SleepTrackerScreen: React.FC = () => {
     const healthDataRef = doc(collection(userDocRef, 'healthData'), formattedDate);
     const sleepDataRef = doc(collection(userDocRef, 'sleepData'), formattedDate);
   
-    const addFieldIfValid = (fieldValue, fieldName) => {
+    interface HealthData {
+      date: string;
+      caffeine: string;
+      vegetables: string;
+      sugaryDrinks: string;
+      fastFood: string;
+      minPA: string;
+      rateDiet: OptionType;
+      stressLevel: OptionType;
+      goals: string;
+      weight: {
+      value: string;
+      unit: string;
+      };
+    }
+
+
+    const addFieldIfValid = (fieldValue: string, fieldName: keyof HealthData) => {
       if (isValidIntegerOrEmpty(fieldValue)) {
-        healthData[fieldName] = fieldValue;
+        (healthData as unknown as Record<string, string | OptionType | { value: string; unit: string }>)[fieldName] = fieldValue;
       } else {
+        alert(`${fieldName} must be a valid integer or empty.`);
       }
     };
   
@@ -345,10 +372,14 @@ const SleepTrackerScreen: React.FC = () => {
   };
 
   // Utility function to handle empty string or zero for display purposes
-  const displayEmptyOrValue = (value) => value === '0' ? '' : value;
+  const displayEmptyOrValue = (value: string): string => value === '0' ? '' : value;
 
   // Utility function to handle empty inputs and default them to '0'
-  const handleInputChange = (setter) => (value) => {
+  interface HandleInputChange {
+    (setter: React.Dispatch<React.SetStateAction<string>>): (value: string) => void;
+  }
+
+  const handleInputChange: HandleInputChange = (setter) => (value) => {
     setter(value === '' ? '0' : value);
   };
 
@@ -374,7 +405,6 @@ const SleepTrackerScreen: React.FC = () => {
                   { label: 'yes', value: 'no' },
                   ]}
                   style={styles.switchSelector}
-                  buttonStyle={styles.switchButton}
               />
           </View>
 
@@ -393,7 +423,6 @@ const SleepTrackerScreen: React.FC = () => {
                   { label: 'yes', value: 'no' },
                   ]}
                   style={styles.switchSelector}
-                  buttonStyle={styles.switchButton}
               />
           </View>
 
@@ -506,7 +535,6 @@ const SleepTrackerScreen: React.FC = () => {
             { label: 'yes', value: 'no' },
             ]}
             style={styles.switchSelector}
-            buttonStyle={styles.switchButton}
           />
       </View>
 
@@ -525,7 +553,6 @@ const SleepTrackerScreen: React.FC = () => {
             { label: 'yes', value: 'no' },
             ]}
             style={styles.switchSelector}
-            buttonStyle={styles.switchButton}
           />
       </View>
 
@@ -604,7 +631,6 @@ const SleepTrackerScreen: React.FC = () => {
                 { label: 'lbs', value: 'lbs' },
               ]}
               style={styles.switchSelector}
-              buttonStyle={styles.switchButton}
             />
           </View>
       </View>

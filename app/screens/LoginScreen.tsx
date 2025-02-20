@@ -4,6 +4,7 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
@@ -97,15 +98,19 @@ const LoginScreen: React.FC = () => {
           value={password}
         />
       </View>
+
       <TouchableOpacity onPress={onPressForgotPassword}>
         <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={onPressLogin} style={styles.loginBtn}>
-        <Text style={styles.loginText}>Login</Text>
+
+      <TouchableOpacity onPress={onPressLogin} style={styles.loginBtn} disabled={loading}>
+        {loading ? <ActivityIndicator color="#52796F" /> : <Text style={styles.loginText}>Login</Text>}
       </TouchableOpacity>
+
       <TouchableOpacity onPress={onPressSignUp} style={styles.signUpContainer}>
         <Text style={styles.signUpText}>Sign Up</Text>
       </TouchableOpacity>
+      
     </View>
   );
 };

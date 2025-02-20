@@ -27,7 +27,13 @@ function SleepTrackerStack() {
   );
 }
 
-function WeeklyLessonsStack({ navigation }) {
+import { StackNavigationProp } from '@react-navigation/stack';
+
+type WeeklyLessonsStackProps = {
+  navigation: StackNavigationProp<ScreenType, 'WeeklyLessonsScreen'>;
+};
+
+function WeeklyLessonsStack({ navigation }: WeeklyLessonsStackProps) {
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -82,7 +88,7 @@ const BottomTabNavigator: React.FC = () => {
               iconName = focused ? 'library' : 'library-outline';
               break;
           }
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={size} color={color} />;
         },
         tabBarShowLabel: true, // Ensure labels are shown under icons
         tabBarActiveTintColor: '#52796F',

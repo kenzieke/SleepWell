@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, Modal, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, Image } from 'react-native';
 import ProgressCircle from '../../components/ProgressCircle';
 import { FIREBASE_AUTH } from '../../FirebaseConfig';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -91,7 +92,7 @@ const WeeklyLessonsScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.greenHeader}>
         <Image source={require('../../assets/Pillow.jpg')} style={styles.imageStyle} resizeMode="contain" />
       </View>
@@ -127,7 +128,7 @@ const WeeklyLessonsScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -138,11 +139,11 @@ const styles = StyleSheet.create({
   },
   greenHeader: {
     backgroundColor: '#52796F',
-    paddingTop: 30,
-    paddingBottom: 30,
+    paddingTop: 10,
+    paddingBottom: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 300,
+    height: 275,
   },
   imageStyle: {
     width: '100%',

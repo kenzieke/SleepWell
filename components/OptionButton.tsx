@@ -1,3 +1,4 @@
+import React from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 export type OptionType = 'None' | 'Mild' | 'Moderate' | 'Severe' | 'Very Severe' |

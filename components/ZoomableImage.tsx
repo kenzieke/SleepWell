@@ -1,13 +1,23 @@
 import React from 'react';
-import { Modal, View } from 'react-native';
+import { Modal } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 
-const ZoomableImage = ({ imageUrl }) => {
+import PropTypes from 'prop-types';
+
+interface ZoomableImageProps {
+  imageUrl: string;
+}
+
+const ZoomableImage: React.FC<ZoomableImageProps> = ({ imageUrl }) => {
   return (
-    <Modal visible={true} transparent={true}>
+    <Modal>
       <ImageViewer imageUrls={[{ url: imageUrl }]} />
     </Modal>
   );
+};
+
+ZoomableImage.propTypes = {
+  imageUrl: PropTypes.string.isRequired,
 };
 
 export default ZoomableImage;

@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Image } from 'react-native';
 
-const FullWidthPicture = ({ uri }) => {
+interface FullWidthPictureProps {
+  uri: string;
+}
+
+const FullWidthPicture: React.FC<FullWidthPictureProps> = ({ uri }) => {
   const [ratio, setRatio] = useState(1);
 
   useEffect(() => {

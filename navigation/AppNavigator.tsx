@@ -70,6 +70,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 headerTitleAlign: 'center',
               }}
             />
+
             <Stack.Screen
               name="ResultsScreen"
               component={ResultsScreen}
@@ -84,6 +85,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 ),
               })}
             />
+
             <Stack.Screen
               name="ListMain"
               component={ListScreen}
@@ -107,6 +109,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 ),
               })}
             />
+
             <Stack.Screen
               name="LessonTrackingScreen"
               component={LessonTrackingScreen}
@@ -119,21 +122,24 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 ),
               })}
             />
+            
             <Stack.Screen
               name="LessonDetailScreen"
               component={LessonDetailScreen}
               options={{ title: 'Module Detail' }}
             />
 
-            {/* ✅ Add Audio Player Screen Here */}
             <Stack.Screen
               name="AudioPlayerScreen"
               component={AudioPlayerScreen}
-              options={{
+              options={({ navigation }) => ({
                 headerShown: true,
                 title: 'Audio Player',
                 headerTitleAlign: 'center',
-              }}
+                headerLeft: () => (
+                  <Button onPress={() => navigation.navigate('Main')} title="Back" color="#52796F" />
+                ),
+              })}
             />
           </>
         )}

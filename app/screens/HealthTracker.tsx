@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 import { DateComponent } from '../../components/DateComponent';
 import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
@@ -140,6 +140,14 @@ const HealthTrackerScreen: React.FC = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#52796F" />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
@@ -203,6 +211,12 @@ const HealthTrackerScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
   scrollView: {
     flex: 1,
     backgroundColor: '#fff',

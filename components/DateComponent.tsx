@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
-export const DateComponent = ({ date, setDate }) => {
+interface DateComponentProps {
+  date: Date;
+  setDate: (date: Date) => void;
+}
+
+export const DateComponent: React.FC<DateComponentProps> = ({ date, setDate }) => {
   const [show, setShow] = useState(false);
-  
-  const onChange = (event, selectedDate) => {
+
+  const onChange = (event: DateTimePickerEvent, selectedDate: Date | undefined) => {
     const currentDate = selectedDate || date; // selectedDate can be null if the picker is dismissed
     setShow(false);
     if (currentDate) {
       setDate(currentDate); // Update the date only if it's not null
     }
-  };  
+  };
 
   const showDatepicker = () => {
     setShow(true);

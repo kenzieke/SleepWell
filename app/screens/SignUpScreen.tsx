@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
@@ -74,8 +74,8 @@ const SignUpScreen: React.FC = () => {
           onChangeText={(text) => setPassword(text)}
           value={password}
         />
-      <TouchableOpacity style={styles.signUpBtn} onPress={onPressSignUp}>
-        <Text style={styles.signUpText}>Sign Up</Text>
+      <TouchableOpacity style={styles.signUpBtn} onPress={onPressSignUp} disabled={loading}>
+        {loading ? <ActivityIndicator color="#52796F" /> : <Text style={styles.signUpText}>Sign Up</Text>}
       </TouchableOpacity>
     </View>
   );
