@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
 import FullWidthPicture from "../../components/FullWidthPicture";
-import { doc, setDoc } from "firebase/firestore";
-import { FIRESTORE_DB } from "../../FirebaseConfig";
 import { ScrollView } from 'react-native-gesture-handler';
 import { useLessonStore } from '../../stores/LessonStore';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigationTypes'; // Adjust the path based on your file structure
+import { markLessonComplete } from '../../utils/lessonHelpers'; // Import the utility function
 
 // Define the props for the LessonDetailScreen
 type LessonDetailProps = NativeStackScreenProps<RootStackParamList, 'LessonDetailScreen'>;
@@ -20,19 +19,11 @@ const LessonDetailScreen: React.FC<LessonDetailProps> = ({ route, navigation }) 
     setUserId(); // Ensure setUserId fetches and sets the user ID properly
   }, [lesson, setLesson, setUserId]);
 
-  const markLessonComplete = async () => {
+  const handleMarkLessonComplete = () => {
     if (userId) {
-      const lessonTrackingRef = doc(FIRESTORE_DB, 'users', userId, 'lessonTracking', 'progress');
-      const updatedProgress = { [lesson.id]: true };
-      try {
-        await setDoc(lessonTrackingRef, updatedProgress, { merge: true });
-        console.log(`Marking ${lesson.title} as complete`);
-        navigation.goBack();
-      } catch (error) {
-        console.error("Error marking lesson complete:", error);
-      }
+      markLessonComplete(userId, lesson.id.toString(), lesson.title, navigation);
     } else {
-      console.error("User ID is undefined.");
+      console.error('User ID is undefined');
     }
   };
 
@@ -48,7 +39,7 @@ const LessonDetailScreen: React.FC<LessonDetailProps> = ({ route, navigation }) 
         <FullWidthPicture uri={Image.resolveAssetSource(lesson.image).uri} />
       </ScrollView>
 
-      <TouchableOpacity onPress={markLessonComplete} style={styles.doneBtn}>
+      <TouchableOpacity onPress={handleMarkLessonComplete} style={styles.doneBtn}>
         <Text style={styles.doneText}>Done</Text>
       </TouchableOpacity>
     </View>
@@ -80,7 +71,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 10,
-    marginBottom: 10,
+    marginBottom: 30,
   },
 });
 
