@@ -14,6 +14,7 @@ type ScreenType = {
   WeeklyGoals: undefined;
   ResourceLibraryScreen: undefined;
   WeeklyLessonsScreen: undefined;
+  ListMain: undefined;
 };
 
 const Tab = createBottomTabNavigator<ScreenType>();
