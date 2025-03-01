@@ -1,16 +1,25 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import React, { useState } from 'react';
-import { Image, StyleSheet, View, Dimensions, TouchableOpacity, Modal, Text } from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  Modal,
+  Text,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
-// Constants
+// Get screen dimensions
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
+
+// Original image dimensions
 const originalWidth = 1126;
 const originalHeight = 1882;
-
-// Aspect Ratio Calculations
-const aspectRatio = originalHeight / originalWidth;
-const calculatedHeight = screenWidth * aspectRatio;
+const aspectRatio = originalWidth / originalHeight;
 
 // Goal Content Map
 const goalContentMap: { [key: string]: string } = {
@@ -22,66 +31,76 @@ const goalContentMap: { [key: string]: string } = {
   physicalActivity: 'Regular physical activity improves sleep quality. Avoid vigorous activities right before bed.',
 };
 
-// Touchable Areas
+// Touchable Areas (percentage-based for better scaling)
 const touchableAreas = [
-  { id: 'sleepDuration', top: -5, left: 21, width: 44, height: 8 },
-  { id: 'sleepQuality', top: 9, left: 43, width: 36, height: 10 },
-  { id: 'bodyComposition', top: 28, left: 53, width: 45, height: 9 },
-  { id: 'nutrition', top: 44, left: 53, width: 34, height: 15 },
-  { id: 'stress', top: 65, left: 45, width: 43, height: 10 },
-  { id: 'physicalActivity', top: 80, left: 23, width: 75, height: 11 },
+  { id: 'sleepDuration', top: 0, left: 0, width: 1, height: 0.15 },
+  { id: 'sleepQuality', top: 0.15, left: 0, width: 1, height: 0.16 },
+  { id: 'bodyComposition', top: 0.31, left: 0, width: 1, height: 0.19 },
+  { id: 'nutrition', top: 0.5, left: 0, width: 1, height: 0.193 },
+  { id: 'stress', top: 0.69, left: 0, width: 1, height: 0.16 },
+  { id: 'physicalActivity', top: 0.85, left: 0, width: 1, height: 0.19 },
 ];
 
 // Main Component
 const WeeklyGoals: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
+  const availableHeight = screenHeight - insets.top - insets.bottom;
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState('');
 
-  // Calculations
-  const topBarHeight = -60; // Adjust according to your design
-  const bottomBarHeight = 148; // Adjust according to your design
-  const imageTopOffset = insets.top + topBarHeight;
-  const adjustedHeight = screenHeight - imageTopOffset - insets.bottom - bottomBarHeight;
-  const adjustedWidth = adjustedHeight / aspectRatio;
+  // Ensure full coverage: Fit by height or width
+  let adjustedWidth = screenWidth;
+  let adjustedHeight = screenWidth / aspectRatio;
 
-  // Open modal with specific goal
+  // Ensure the image is fully visible above the tab bar
+  if (adjustedHeight > availableHeight - tabBarHeight) {
+    adjustedHeight = availableHeight - tabBarHeight
+    adjustedWidth = adjustedHeight * aspectRatio;
+  }
+
+  // Properly align image
+  const imageLeftOffset = (screenWidth - adjustedWidth) / 2;
+
+  // Open modal
   const openModal = (goalId: string) => {
     setSelectedGoal(goalId);
     setModalVisible(true);
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+    <View style={styles.container}>
       <Image
         source={require('../../assets/wheel_without_header.png')}
         style={[
           styles.image,
           {
-            top: imageTopOffset,
-            height: adjustedHeight,
             width: adjustedWidth,
+            height: adjustedHeight,
+            left: imageLeftOffset,
           },
         ]}
-        resizeMode="contain"
+        resizeMode="cover"
       />
-      
+
+      {/* Dynamically positioned touchable areas */}
       {touchableAreas.map((area) => (
         <TouchableOpacity
           key={area.id}
           style={[
             styles.touchableArea,
             {
-              top: imageTopOffset + (calculatedHeight * area.top) / 100,
-              left: (screenWidth * area.left) / 100,
-              width: (screenWidth * area.width) / 100,
-              height: (calculatedHeight * area.height) / 100,
+              top: adjustedHeight * area.top,
+              left: imageLeftOffset + adjustedWidth * area.left,
+              width: adjustedWidth * area.width,
+              height: adjustedHeight * area.height,
             },
           ]}
           onPress={() => openModal(area.id)}
         />
       ))}
 
+      {/* Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -111,21 +130,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
+    backgroundColor: '#fff',
   },
   image: {
     position: 'absolute',
-    left: 0,
-    right: 0,
   },
   touchableArea: {
     position: 'absolute',
-    backgroundColor: 'rgba(0,0,0,0)', // Transparent to make touchable areas invisible
+    backgroundColor: 'rgba(0, 0, 0, 0)', // Invisible touch areas
   },
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Adds overlay for modal
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   modalView: {
     margin: 20,
