@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
@@ -9,11 +9,13 @@ import LessonTrackingScreen from '../app/screens/LessonTrackingScreen';
 import SleepAssessmentScreen from '../app/screens/SleepAssessmentScreen';
 import ResultsScreen from '../app/screens/ResultsScreen';
 import LessonDetailScreen from '../app/screens/LessonDetailScreen';
-import AudioPlayerScreen from '../app/screens/AudioPlayerScreen'; // ✅ Add Import Here
+import AudioPlayerScreen from '../app/screens/AudioPlayerScreen';
 import BottomTabNavigator from '../components/BottomTabNavigator';
-import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
-import { RootStackParamList } from '../types/navigationTypes';  // Define the stack params in types
+import WeeklyModuleModal from '../components/WeeklyModuleModal';
+import { FIREBASE_AUTH } from '../FirebaseConfig';
+import { RootStackParamList } from '../types/navigationTypes';
+import { useLessonTrackingStore } from '../stores/LessonTrackingStore';
+import { useLessonStore } from '../stores/LessonStore';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -23,35 +25,53 @@ interface AppNavigatorProps {
 
 const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
   const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  // Function to check user document in Firebase
-  const checkUserDocument = async () => {
+  // Access Zustand store values
+  const { userProgress, currentWeek, fetchUserProgress, lessons } = useLessonTrackingStore();
+  const { setLesson } = useLessonStore();
+
+  useEffect(() => {
     if (user) {
-      const userDocRef = doc(FIRESTORE_DB, 'users', user.uid, 'results', `scores_${user.uid}`);
-      const docSnap = await getDoc(userDocRef);
+      fetchUserProgress(); // Fetch user progress when user logs in
+    }
+  }, [user]);
 
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        const routeName = userData?.completedAssessment ? 'Main' : 'SleepAssessmentScreen';
-        navigationRef.current?.reset({
-          index: 0,
-          routes: [{ name: routeName }],
-        });
+  // Check if the user needs to complete this week's module
+  useEffect(() => {
+    if (currentWeek !== null && userProgress) {
+      const isCompleted = userProgress[currentWeek] ?? true; // Default to true if undefined
+      console.log(`Current week: ${currentWeek}, Completed: ${isCompleted}`);
+  
+      if (!isCompleted) {
+        setModalVisible(true);
       } else {
-        console.log('No user document!');
-        navigationRef.current?.navigate('SleepAssessmentScreen');
+        setModalVisible(false);
       }
-    } else {
-      navigationRef.current?.navigate('Login');
+    }
+  }, [currentWeek, userProgress]);  
+
+  const handleDoNow = () => {
+    setModalVisible(false);
+    const lesson = lessons.find((l) => l.id === currentWeek);
+    if (lesson) {
+      setLesson(lesson); // Store lesson in Zustand for navigation
+      navigationRef.current?.navigate('LessonDetailScreen', { lesson });
     }
   };
 
-  useEffect(() => {
-    checkUserDocument();
-  }, [user]);
+  const handleLater = () => {
+    setModalVisible(false);
+  };
 
   return (
     <NavigationContainer ref={navigationRef}>
+      <WeeklyModuleModal
+        visible={modalVisible}
+        moduleName={lessons.find((l) => l.id === currentWeek)?.title || 'Module'}
+        onDoNow={handleDoNow}
+        onLater={handleLater}
+      />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {/* Auth Screens */}
         <Stack.Screen name="Login" component={LoginScreen} />
@@ -122,7 +142,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 ),
               })}
             />
-            
+
             <Stack.Screen
               name="LessonDetailScreen"
               component={LessonDetailScreen}
