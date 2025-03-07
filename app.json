@@ -19,9 +19,13 @@
       "supportsTablet": true,
       "newArchEnabled": true,
       "bundleIdentifier": "com.kenzieke.restq",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "infoPlist": {
+        "CFBundleDisplayName": "Sleep Well"
+      }
     },
     "android": {
+      "label": "Sleep Well",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
