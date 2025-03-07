@@ -32,27 +32,27 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
   const loadAndPlayAudio = async () => {
     try {
       if (!sound) {
-        console.log('Attempting to load audio:', audioSource);
-
+        console.log('🔍 Attempting to load audio:', audioSource);
+  
         // Convert module ID to asset and ensure it's downloaded
         const asset = Asset.fromModule(audioSource);
         await asset.downloadAsync();
-        console.log('Asset loaded:', asset.localUri || asset.uri);
-
+        console.log('📂 Asset loaded:', asset.localUri || asset.uri);
+  
         const { sound: newSound } = await Audio.Sound.createAsync(
           { uri: asset.localUri || asset.uri }
         );
-        console.log('Audio file loaded:', newSound);
+        console.log('🎵 Audio file loaded:', newSound);
         setSound(newSound);
-
+  
         await newSound.playAsync();
         setIsPlaying(true);
-
+  
         newSound.setOnPlaybackStatusUpdate((status) => {
           if (status.isLoaded) {
             setPosition(status.positionMillis);
             setDuration(status.durationMillis || 1);
-            console.log('Playback status updated:', status);
+            console.log('⏳ Playback status updated:', status);
           }
         });
       } else {
@@ -65,9 +65,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
         }
       }
     } catch (error) {
-      console.error('Error playing audio:', error);
+      console.error('❌ Error playing audio:', error);
     }
-  };
+  };  
 
   const seekAudio = async (value: number) => {
     if (sound) {
@@ -109,15 +109,15 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
 
       {/* Playback Controls */}
       <View style={styles.controls}>
-        <TouchableOpacity onPress={skipBackward}>
+        <TouchableOpacity onPress={skipBackward} testID="backward-button">
           <Ionicons name="play-back" size={32} color="#52796F" />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={loadAndPlayAudio}>
+        <TouchableOpacity onPress={loadAndPlayAudio} testID="play-button">
           <Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={64} color="#52796F" />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={skipForward}>
+        <TouchableOpacity onPress={skipForward} testID="forward-button">
           <Ionicons name="play-forward" size={32} color="#52796F" />
         </TouchableOpacity>
       </View>

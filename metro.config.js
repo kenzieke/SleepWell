@@ -1,6 +1,8 @@
-const { getDefaultConfig } = require('@expo/metro-config');
+import { getDefaultConfig } from '@expo/metro-config';
 
 const defaultConfig = getDefaultConfig(__dirname);
-defaultConfig.resolver.assetExts.push('cjs');
 
-module.exports = defaultConfig;
+// Ensure that assetExts includes necessary file types
+defaultConfig.resolver.assetExts = [...defaultConfig.resolver.assetExts, 'cjs', 'svg'];
+
+export default defaultConfig;
