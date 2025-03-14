@@ -2,7 +2,7 @@
   "expo": {
     "name": "Sleep Well",
     "slug": "RestQ",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,7 +19,7 @@
       "supportsTablet": true,
       "newArchEnabled": true,
       "bundleIdentifier": "com.kenzieke.restq",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "infoPlist": {
         "CFBundleDisplayName": "Sleep Well"
       }
