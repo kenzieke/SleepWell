@@ -25,7 +25,6 @@
       }
     },
     "android": {
-      "label": "Sleep Well",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -39,7 +38,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-updates"
+      "expo-updates",
+      "expo-font"
     ],
     "extra": {
       "router": {
