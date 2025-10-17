@@ -72,7 +72,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
         onDoNow={handleDoNow}
         onLater={handleLater}
       />
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
         {/* Auth Screens */}
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
@@ -97,11 +97,14 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               options={({ navigation }) => ({
                 headerShown: true,
                 title: 'Sleep Assessment Results',
+                headerBackTitleVisible: false,
                 headerRight: () => (
-                  <Button onPress={() => navigation.navigate('Main')} title="Next" color="#52796F" />
+                  // Replace to Main to avoid leaving ResultsScreen on the stack
+                  <Button onPress={() => navigation.replace('Main')} title="Next" color="#52796F" />
                 ),
                 headerLeft: () => (
-                  <Button onPress={() => navigation.navigate('SleepAssessmentScreen')} title="Back" color="#52796F" />
+                  // Pop back instead of navigating to avoid stacking duplicates
+                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
                 ),
               })}
             />
@@ -121,7 +124,12 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                   <Button
                     onPress={() => {
                       FIREBASE_AUTH.signOut()
-                        .then(() => navigation.navigate('Login'))
+                        .then(() =>
+                          navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Login' }],
+                          })
+                        )
                         .catch((error) => console.error('Logout error:', error));
                     }}
                     title="Logout"
