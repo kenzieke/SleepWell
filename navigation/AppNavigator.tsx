@@ -114,7 +114,8 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 headerShown: true,
                 headerTitleAlign: 'center',
                 headerLeft: () => (
-                  <Button onPress={() => navigation.navigate('Main')} title="Back" color="#52796F" />
+                  // Pop back to the previous screen instead of navigating to 'Main' again
+                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
                 ),
                 headerRight: () => (
                   <Button
@@ -138,7 +139,8 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 headerShown: true,
                 headerTitleAlign: 'center',
                 headerLeft: () => (
-                  <Button onPress={() => navigation.navigate('Main')} title="Back" color="#52796F" />
+                  // Use goBack to avoid stacking 'Main' repeatedly
+                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
                 ),
               })}
             />
@@ -157,7 +159,8 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 title: 'Audio Player',
                 headerTitleAlign: 'center',
                 headerLeft: () => (
-                  <Button onPress={() => navigation.navigate('Main')} title="Back" color="#52796F" />
+                  // Pop back to the previous screen instead of navigating to 'Main'
+                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
                 ),
               })}
             />
