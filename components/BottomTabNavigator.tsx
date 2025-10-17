@@ -42,8 +42,21 @@ function WeeklyLessonsStack({ navigation }: WeeklyLessonsStackProps) {
         component={WeeklyLessonsScreen}
         options={{
           title: 'Improve My Sleep',
+          // Ensure no back button appears on this root tab screen
+          headerLeft: () => null,
           headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate('ListMain')} style={{ marginRight: 10 }}>
+            <TouchableOpacity
+              onPress={() => {
+                // Prefer navigating on the root stack so we don't add on top of this nested stack
+                const parentNav = (navigation as any).getParent?.();
+                if (parentNav) {
+                  parentNav.navigate('ListMain');
+                } else {
+                  navigation.navigate('ListMain');
+                }
+              }}
+              style={{ marginRight: 10 }}
+            >
               <Ionicons name="call" size={24} color="#52796F" />
             </TouchableOpacity>
           ),
