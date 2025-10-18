@@ -8,35 +8,36 @@ node_modules
 # Note: Keep lockfiles committed (do NOT ignore): yarn.lock / package-lock.json / pnpm-lock.yaml
 
 # Expo/Metro caches
-.expo
-.expo-shared
-.metro-cache
-.cache
-web-build
+/.expo
+/.expo-shared
+/.metro-cache
+/.cache
+/web-build
 
 # App build outputs
-dist
-build
-out
-coverage
+/dist
+/dist/**
+/build
+/out
+/coverage
 
 # iOS build artifacts and dependencies generated on the builder
-ios/build
-ios/DerivedData
-ios/Pods
-ios/*.xcworkspace/
-ios/**/*.xcuserdatad/
-ios/**/*.xcuserdata/
-ios/**/*.xcuserstate
-ios/**/*.moved-aside
+/ios/build
+/ios/DerivedData
+/ios/Pods
+/ios/*.xcworkspace/
+/ios/**/*.xcuserdatad/
+/ios/**/*.xcuserdata/
+/ios/**/*.xcuserstate
+/ios/**/*.moved-aside
 
 # Android build artifacts and caches generated on the builder
-android/build
-android/app/build
-android/.gradle
-android/.cxx
-android/.externalNativeBuild
-android/local.properties
+/android/build
+/android/app/build
+/android/.gradle
+/android/.cxx
+/android/.externalNativeBuild
+/android/local.properties
 
 # Keystores (never upload secrets; EAS uses credentials you configure)
 *.keystore
@@ -78,8 +79,8 @@ yarn-error.log*
 # Tests (remove if you don't have tests; add back if you introduce them)
 
 # Project documentation and media not required for the build
-docs/
-docs/**
+/docs
+/docs/**
 screenshots/
 *.md
 *.MD

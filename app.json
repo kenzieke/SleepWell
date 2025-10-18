@@ -18,10 +18,11 @@
     "ios": {
       "supportsTablet": true,
       "newArchEnabled": true,
-      "bundleIdentifier": "com.kenzieke.restq",
+      "bundleIdentifier": "com.sleepwell.restq",
       "buildNumber": "2",
       "infoPlist": {
-        "CFBundleDisplayName": "Sleep Well"
+        "CFBundleDisplayName": "Sleep Well",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -29,7 +30,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.kenzieke.restq",
+      "package": "com.sleepwell.restq",
       "permissions": [],
       "versionCode": 1
     },
