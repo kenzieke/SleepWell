@@ -1,0 +1,108 @@
+################################################################################
+# EAS Build Ignore File
+# Exclude files not needed for cloud builds to reduce archive size and upload time
+################################################################################
+
+# Package manager artifacts (EAS installs deps on the builder)
+node_modules
+# Note: Keep lockfiles committed (do NOT ignore): yarn.lock / package-lock.json / pnpm-lock.yaml
+
+# Expo/Metro caches
+/.expo
+/.expo-shared
+/.metro-cache
+/.cache
+/web-build
+
+# App build outputs
+/dist
+/dist/**
+/build
+/out
+/coverage
+
+# iOS build artifacts and dependencies generated on the builder
+/ios/build
+/ios/DerivedData
+/ios/Pods
+/ios/*.xcworkspace/
+/ios/**/*.xcuserdatad/
+/ios/**/*.xcuserdata/
+/ios/**/*.xcuserstate
+/ios/**/*.moved-aside
+
+# Android build artifacts and caches generated on the builder
+/android/build
+/android/app/build
+/android/.gradle
+/android/.cxx
+/android/.externalNativeBuild
+/android/local.properties
+
+# Keystores (never upload secrets; EAS uses credentials you configure)
+*.keystore
+*.jks
+android/app/debug.keystore
+*.p8
+*.p12
+*.mobileprovision
+
+# Logs and temp files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Local env files (use EAS Secrets instead)
+.env
+.env.local
+.env.*.local
+.env.*
+
+# OS/IDE noise
+.DS_Store
+.vscode/
+.idea/
+*.iml
+*.orig
+
+# VCS data
+.git/
+.gitattributes
+.gitmodules
+.gitignore
+
+# Tests (remove if you don't have tests; add back if you introduce them)
+
+# Project documentation and media not required for the build
+/docs
+/docs/**
+screenshots/
+*.md
+*.MD
+*.markdown
+
+# Archives and large binaries not used at build time
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.ipa
+*.apk
+*.aab
+
+# Fastlane and Ruby tooling (if present)
+fastlane/
+Gemfile
+Gemfile.lock
+
+# Monorepo folders (not present here). Add back if you adopt a monorepo in the future.
+
+# Note: Do NOT ignore lockfiles (package-lock.json, yarn.lock, pnpm-lock.yaml)
+# They ensure reproducible installs on EAS.
