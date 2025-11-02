@@ -1,17 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Pressable,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigationTypes';
+import type { Lesson } from '../../stores/LessonTrackingStore';
 
-type LessonTrackingScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'LessonTrackingScreen'>;
+type LessonTrackingScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'LessonTrackingScreen'
+>;
 
 const LessonTrackingScreen: React.FC = () => {
   const navigation = useNavigation<LessonTrackingScreenNavigationProp>();
-  const { lessons, userProgress, allLessonsCompleted, fetchUserProgress, updateLessonProgress } = useLessonTrackingStore();
+  const {
+    lessons,
+    userProgress,
+    allLessonsCompleted,
+    currentWeek,
+    fetchUserProgress,
+    updateLessonProgress,
+  } = useLessonTrackingStore();
+
   const [expandedLesson, setExpandedLesson] = useState<number | null>(null);
+  const [lockedModalVisible, setLockedModalVisible] = useState(false);
+  const [lockedMessage, setLockedMessage] = useState('');
 
   useEffect(() => {
     fetchUserProgress();
@@ -26,61 +48,121 @@ const LessonTrackingScreen: React.FC = () => {
     await updateLessonProgress(lessonId, !completed);
   };
 
-  return (
-    <ScrollView style={styles.container}>
-      {allLessonsCompleted && <Text style={styles.completedText}>All modules completed!</Text>}
-      
-      {lessons.map((lesson) => (
-        <View key={lesson.id} style={styles.lessonItem}>
-          {/* Collapsible Header */}
-          <TouchableOpacity style={styles.lessonHeader} onPress={() => handleToggleExpand(lesson.id)}>
-            <Text style={styles.lessonTitle}>{lesson.title}</Text>
-            <View style={styles.iconWrapper}>
-              {userProgress[lesson.id] ? (
-                <TouchableOpacity onPress={() => handleUncheckLesson(lesson.id)}>
-                  <Ionicons name="checkmark-circle" size={22} color="#52796F" />
-                </TouchableOpacity>
-              ) : (
-                <Ionicons name="ellipse-outline" size={22} color="#52796F" />
-              )}
-              <Ionicons name={expandedLesson === lesson.id ? "chevron-up" : "chevron-down"} size={22} color="#52796F" />
-            </View>
-          </TouchableOpacity>
+  const handleLockedAccess = (requiredWeek: number) => {
+    setLockedMessage(`Wait until Week ${requiredWeek} to unlock this module.`);
+    setLockedModalVisible(true);
+  };
 
-          {/* Expanded Content */}
-          {expandedLesson === lesson.id && (
-            <View style={styles.lessonOptions}>
-              <TouchableOpacity onPress={() => navigation.navigate('LessonDetailScreen', { lesson })} style={styles.optionItem}>
-                <Ionicons name="book-outline" size={20} color="#52796F" />
-                <Text style={styles.optionText}>Read Summary (1/2 page)</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                onPress={() => navigation.navigate('AudioPlayerScreen', { 
-                  moduleTitle: `Module ${lesson.id}`, 
-                  moduleSubtitle: lesson.title.replace(/^Module #\d+: /, '') // Remove "Module #X: "
-                })}
-                style={styles.optionItem}
+  const handleNavigate = (lesson: Lesson, target: 'summary' | 'audio') => {
+    if (!currentWeek) return;
+    if (lesson.id > currentWeek) {
+      handleLockedAccess(lesson.id);
+      return;
+    }
+
+    if (target === 'summary') {
+      navigation.navigate('LessonDetailScreen', { lesson });
+    } else if (target === 'audio') {
+      navigation.navigate('AudioPlayerScreen', {
+        moduleTitle: `Module ${lesson.id}`,
+        moduleSubtitle: lesson.title.replace(/^Module #\d+: /, ''),
+      });
+    }
+  };
+
+
+  return (
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
+        {allLessonsCompleted && (
+          <Text style={styles.completedText}>All modules completed!</Text>
+        )}
+
+        {lessons.map((lesson) => (
+          <View key={lesson.id} style={styles.lessonItem}>
+            {/* Collapsible Header */}
+            <TouchableOpacity
+              style={styles.lessonHeader}
+              onPress={() => handleToggleExpand(lesson.id)}
+            >
+              <Text
+                style={[
+                  styles.lessonTitle,
+                  lesson.id > (currentWeek ?? 0) && styles.lockedLesson,
+                ]}
               >
-                <Ionicons name="headset-outline" size={20} color="#52796F" />
-                <Text style={styles.optionText}>Listen to Podcast (3 min)</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+                {lesson.title}
+              </Text>
+
+              <View style={styles.iconWrapper}>
+                {userProgress[lesson.id] ? (
+                  <TouchableOpacity onPress={() => handleUncheckLesson(lesson.id)}>
+                    <Ionicons name="checkmark-circle" size={22} color="#52796F" />
+                  </TouchableOpacity>
+                ) : (
+                  <Ionicons name="ellipse-outline" size={22} color="#52796F" />
+                )}
+                <Ionicons
+                  name={
+                    expandedLesson === lesson.id ? 'chevron-up' : 'chevron-down'
+                  }
+                  size={22}
+                  color="#52796F"
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Expanded Content */}
+            {expandedLesson === lesson.id && (
+              <View style={styles.lessonOptions}>
+                <TouchableOpacity
+                  onPress={() => handleNavigate(lesson, 'summary')}
+                  style={styles.optionItem}
+                >
+                  <Ionicons name="book-outline" size={20} color="#52796F" />
+                  <Text style={styles.optionText}>Read Summary (1/2 page)</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => handleNavigate(lesson, 'audio')}
+                  style={styles.optionItem}
+                >
+                  <Ionicons name="headset-outline" size={20} color="#52796F" />
+                  <Text style={styles.optionText}>Listen to Podcast (3 min)</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* 🔒 Locked Module Modal */}
+      <Modal
+        visible={lockedModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLockedModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Ionicons name="lock-closed-outline" size={40} color="#52796F" />
+            <Text style={styles.modalText}>{lockedMessage}</Text>
+            <Pressable
+              onPress={() => setLockedModalVisible(false)}
+              style={styles.modalButton}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </Pressable>
+          </View>
         </View>
-      ))}
-    </ScrollView>
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  lessonItem: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  lessonItem: { borderBottomWidth: 1, borderBottomColor: '#ddd' },
   lessonHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -88,36 +170,52 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
   },
-  lessonTitle: {
-    fontSize: 18,
-    fontWeight: '500',
-    flex: 1,
-  },
-  iconWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
+  lessonTitle: { fontSize: 18, fontWeight: '500', flex: 1 },
+  lockedLesson: { color: '#B0B0B0' },
+  iconWrapper: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   lessonOptions: {
     backgroundColor: '#F5F5F5',
     paddingVertical: 10,
     paddingHorizontal: 30,
   },
-  optionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  optionText: {
-    fontSize: 16,
-    marginLeft: 10,
-  },
+  optionItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
+  optionText: { fontSize: 16, marginLeft: 10 },
   completedText: {
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
     marginVertical: 20,
   },
+  // 🔒 Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalBox: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderWidth: 2,
+    borderColor: '#52796F',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 50,
+    elevation: 5,
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    width: '80%',
+  },
+  modalText: { fontSize: 18, textAlign: 'center', marginVertical: 10 },
+  modalButton: {
+    backgroundColor: '#52796F',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  modalButtonText: { color: '#fff', fontWeight: 'bold' },
 });
 
 export default LessonTrackingScreen;

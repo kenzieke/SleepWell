@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import create from 'zustand';
-import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../FirebaseConfig';
 
 export interface Lesson {
@@ -84,7 +84,7 @@ export const useLessonTrackingStore = create<LessonTrackingState>((set, get) => 
     const updatedProgress = { ...currentProgress, [lessonId]: completed };
 
     try {
-      await updateDoc(lessonTrackingRef, { [lessonId]: completed });
+      await setDoc(lessonTrackingRef, { [lessonId]: completed }, { merge: true });
       
       // ✅ Immediately update local state for real-time UI feedback
       const allCompleted = Object.keys(updatedProgress).length === 12 && Object.values(updatedProgress).every(status => status);
