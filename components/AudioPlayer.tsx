@@ -4,6 +4,7 @@ import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-au
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { Asset } from 'expo-asset';
+import { useLessonTrackingStore } from '../stores/LessonTrackingStore';
 
 interface AudioPlayerProps {
   moduleTitle: string;
@@ -13,8 +14,9 @@ interface AudioPlayerProps {
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, audioSource }) => {
   const [uri, setUri] = useState<string | null>(null);
+  const { lessons, updateLessonProgress } = useLessonTrackingStore();
 
-  // Configure playback mode
+  /** Configure playback mode (runs once on mount) */
   useEffect(() => {
     setAudioModeAsync({
       playsInSilentMode: true,
@@ -23,7 +25,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
     }).catch((e) => console.warn('Audio mode config failed', e));
   }, []);
 
-  // Resolve require() → URI
+  /** Convert require() → local URI */
   useEffect(() => {
     (async () => {
       if (typeof audioSource === 'number') {
@@ -38,10 +40,21 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
     })();
   }, [audioSource]);
 
-  // Create player with given URI
+  /** Create the player hook for this URI */
   const player = useAudioPlayer(uri, { updateInterval: 500, downloadFirst: true });
   const status = useAudioPlayerStatus(player);
 
+  /** Automatically mark lesson complete once audio finishes */
+  useEffect(() => {
+    if (status?.didJustFinish) {
+      const currentLesson = lessons.find((l) => l.title.includes(moduleSubtitle));
+      if (currentLesson && !currentLesson.completed) {
+        updateLessonProgress(currentLesson.id, true);
+      }
+    }
+  }, [status?.didJustFinish, lessons, moduleSubtitle, updateLessonProgress]);
+
+  /** Playback controls */
   const togglePlayPause = () => {
     if (!status) return;
     if (status.playing) {
