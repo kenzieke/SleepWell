@@ -22,42 +22,77 @@ const audioFiles: Record<string, number> = {
   'Cognitive Strategies': require('../../assets/audio/module12.wav'),
 };
 
-// Log the audio files to verify paths
-Object.keys(audioFiles).forEach((key) => {
-  console.log(`Audio file for ${key}:`, audioFiles[key]);
-});
+const normalizeKey = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 
-// ✅ Correct typing for route props
+const normalizedAudioFiles: Record<string, number> = Object.fromEntries(
+  Object.entries(audioFiles).map(([k, v]) => [normalizeKey(k), v])
+);
+
+const audioByNumber: Record<number, number> = {
+  1: require('../../assets/audio/module1.mp3'),
+  2: require('../../assets/audio/module2.wav'),
+  3: require('../../assets/audio/module3.wav'),
+  4: require('../../assets/audio/module4.wav'),
+  5: require('../../assets/audio/module5.wav'),
+  6: require('../../assets/audio/module6.wav'),
+  7: require('../../assets/audio/module7.wav'),
+  8: require('../../assets/audio/module8.wav'),
+  9: require('../../assets/audio/module9.wav'),
+  10: require('../../assets/audio/module10.wav'),
+  11: require('../../assets/audio/module11.wav'),
+  12: require('../../assets/audio/module12.wav'),
+};
+
+const getModuleNumber = (a?: string, b?: string): number | null => {
+  const s = `${a ?? ''} ${b ?? ''}`;
+  const m = s.match(/module\s*(\d{1,2})/i);
+  const n = m ? parseInt(m[1], 10) : NaN;
+  return Number.isFinite(n) && audioByNumber[n] ? n : null;
+};
+
 type AudioPlayerScreenRouteProp = RouteProp<RootStackParamList, 'AudioPlayerScreen'>;
 
 const AudioPlayerScreen: React.FC = () => {
-  // ✅ Correct navigation typing for the current screen
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'AudioPlayerScreen'>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList, 'AudioPlayerScreen'>>();
   const route = useRoute<AudioPlayerScreenRouteProp>();
   const { moduleTitle, moduleSubtitle } = route.params;
-
   const { lessons, updateLessonProgress } = useLessonTrackingStore();
 
   const handleMarkLessonComplete = () => {
     const currentLesson = lessons.find((lesson) => lesson.title.includes(moduleSubtitle));
-
     if (currentLesson) {
-      updateLessonProgress(currentLesson.id, true); // ✅ Update store and Firestore
-      navigation.goBack(); // ✅ Navigate back after completion
+      updateLessonProgress(currentLesson.id, true);
+      navigation.goBack();
     } else {
       console.error('Lesson not found for the provided subtitle.');
     }
   };
 
+  const num = getModuleNumber(moduleTitle, moduleSubtitle);
+
+  const resolvedAudioSource =
+    audioFiles[moduleSubtitle] ??
+    audioFiles[moduleTitle] ??
+    normalizedAudioFiles[normalizeKey(moduleSubtitle)] ??
+    normalizedAudioFiles[normalizeKey(moduleTitle)] ??
+    (num ? audioByNumber[num] : undefined);
+
   return (
     <View style={styles.container}>
       <AudioPlayer
+        key={String(resolvedAudioSource)}
         moduleTitle={moduleTitle}
         moduleSubtitle={moduleSubtitle}
-        audioSource={audioFiles[moduleSubtitle]}
+        audioSource={resolvedAudioSource as number}
       />
 
-      {/* ✅ Button wrapper for centering */}
       <View style={styles.buttonWrapper}>
         <TouchableOpacity onPress={handleMarkLessonComplete} style={styles.doneBtn}>
           <Text style={styles.doneText}>Done</Text>
@@ -67,22 +102,10 @@ const AudioPlayerScreen: React.FC = () => {
   );
 };
 
-// ✅ Updated styles
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  buttonWrapper: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  doneText: {
-    fontWeight: 'bold',
-    color: '#fff',
-    fontSize: 16,
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  buttonWrapper: { width: '100%', alignItems: 'center', justifyContent: 'center' },
+  doneText: { fontWeight: 'bold', color: '#fff', fontSize: 16 },
   doneBtn: {
     width: '80%',
     backgroundColor: '#52796F',

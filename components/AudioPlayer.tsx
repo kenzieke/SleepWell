@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Audio } from 'expo-av';
+import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-audio';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { Asset } from 'expo-asset';
@@ -9,85 +8,63 @@ import { Asset } from 'expo-asset';
 interface AudioPlayerProps {
   moduleTitle: string;
   moduleSubtitle: string;
-  audioSource: any;
+  audioSource: number | string;
 }
 
 const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, audioSource }) => {
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [position, setPosition] = useState(0);
-  const [duration, setDuration] = useState(1);
+  const [uri, setUri] = useState<string | null>(null);
 
+  // Configure playback mode
   useEffect(() => {
-    console.log('AudioPlayer mounted');
-    console.log('audioSource:', audioSource);
-    return () => {
-      if (sound) {
-        sound.unloadAsync();
-      }
-    };
-  }, [sound]);
+    setAudioModeAsync({
+      playsInSilentMode: true,
+      shouldPlayInBackground: false,
+      interruptionMode: 'duckOthers',
+    }).catch((e) => console.warn('Audio mode config failed', e));
+  }, []);
 
-
-  const loadAndPlayAudio = async () => {
-    try {
-      if (!sound) {
-        console.log('Attempting to load audio:', audioSource);
-
-        // Convert module ID to asset and ensure it's downloaded
+  // Resolve require() → URI
+  useEffect(() => {
+    (async () => {
+      if (typeof audioSource === 'number') {
         const asset = Asset.fromModule(audioSource);
         await asset.downloadAsync();
-        console.log('Asset loaded:', asset.localUri || asset.uri);
-
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: asset.localUri || asset.uri }
-        );
-        console.log('Audio file loaded:', newSound);
-        setSound(newSound);
-
-        await newSound.playAsync();
-        setIsPlaying(true);
-
-        newSound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded) {
-            setPosition(status.positionMillis);
-            setDuration(status.durationMillis || 1);
-            console.log('Playback status updated:', status);
-          }
-        });
+        setUri(asset.localUri ?? asset.uri);
+      } else if (typeof audioSource === 'string') {
+        setUri(audioSource);
       } else {
-        if (isPlaying) {
-          await sound.pauseAsync();
-          setIsPlaying(false);
-        } else {
-          await sound.playAsync();
-          setIsPlaying(true);
-        }
+        setUri(null);
       }
-    } catch (error) {
-      console.error('Error playing audio:', error);
+    })();
+  }, [audioSource]);
+
+  // Create player with given URI
+  const player = useAudioPlayer(uri, { updateInterval: 500, downloadFirst: true });
+  const status = useAudioPlayerStatus(player);
+
+  const togglePlayPause = () => {
+    if (!status) return;
+    if (status.playing) {
+      player.pause();
+    } else {
+      if (status.didJustFinish) player.seekTo(0);
+      player.play();
     }
   };
 
-  const seekAudio = async (value: number) => {
-    if (sound) {
-      await sound.setPositionAsync(value);
-    }
+  const skipForward = () => {
+    if (!status?.duration) return;
+    const newTime = Math.min(status.currentTime + 10, status.duration);
+    player.seekTo(newTime);
   };
 
-  const skipForward = async () => {
-    if (sound) {
-      const newPosition = Math.min(position + 10000, duration);
-      await sound.setPositionAsync(newPosition);
-    }
+  const skipBackward = () => {
+    if (!status) return;
+    const newTime = Math.max(status.currentTime - 10, 0);
+    player.seekTo(newTime);
   };
 
-  const skipBackward = async () => {
-    if (sound) {
-      const newPosition = Math.max(position - 10000, 0);
-      await sound.setPositionAsync(newPosition);
-    }
-  };
+  const onSeekComplete = (value: number) => player.seekTo(value);
 
   return (
     <View style={styles.container}>
@@ -95,48 +72,43 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
       <View style={styles.imagePlaceholder} />
       <Text style={styles.subtitle}>{moduleSubtitle}</Text>
 
-      {/* Progress Bar */}
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={duration}
-        value={position}
-        onSlidingComplete={seekAudio}
+        maximumValue={status?.duration ?? 1}
+        value={status?.currentTime ?? 0}
+        onSlidingComplete={onSeekComplete}
         minimumTrackTintColor="#52796F"
         maximumTrackTintColor="#E5E5E5"
         thumbTintColor="#52796F"
       />
 
-      {/* Playback Controls */}
       <View style={styles.controls}>
-        <TouchableOpacity onPress={skipBackward}>
-          <Ionicons name="play-back" size={32} color="#52796F" />
+        <TouchableOpacity onPress={skipBackward} disabled={!uri}>
+          <Ionicons name="play-back" size={32} color={uri ? '#52796F' : '#B0B0B0'} />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={loadAndPlayAudio}>
-          <Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={64} color="#52796F" />
+        <TouchableOpacity onPress={togglePlayPause} disabled={!uri}>
+          <Ionicons
+            name={status?.playing ? 'pause-circle' : 'play-circle'}
+            size={64}
+            color={uri ? '#52796F' : '#B0B0B0'}
+          />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={skipForward}>
-          <Ionicons name="play-forward" size={32} color="#52796F" />
+        <TouchableOpacity onPress={skipForward} disabled={!uri}>
+          <Ionicons name="play-forward" size={32} color={uri ? '#52796F' : '#B0B0B0'} />
         </TouchableOpacity>
       </View>
+
+      {!uri && <Text style={styles.noSource}>No audio source provided.</Text>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
+  container: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
   imagePlaceholder: {
     width: 200,
     height: 200,
@@ -144,21 +116,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 20,
-  },
-  slider: {
-    width: '80%',
-    marginBottom: 20,
-  },
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '60%',
-  },
+  subtitle: { fontSize: 18, fontWeight: '600', marginBottom: 20 },
+  slider: { width: '80%', marginBottom: 20 },
+  controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '60%' },
+  noSource: { marginTop: 8, color: '#888' },
 });
 
 export default AudioPlayer;
