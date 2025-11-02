@@ -593,6 +593,10 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
+        <Text style={styles.sectionHeaderText}>This next section is to be completed at the end of your day:</Text>
+      </View>
+
+      <View style={styles.questionContainer}>
         {renderOptions({
           question: 'Rate your stress level today:',
           value: stressLevel,
@@ -862,6 +866,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     textAlign: 'center',
+  },
+    sectionHeaderText: {
+    // Styles for the text inside the button
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#52796F',
   },
 });
 

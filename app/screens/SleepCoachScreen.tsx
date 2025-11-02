@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 type CoachItem = {
   id: string;
   name: string;
-  email: string;
+  phoneNumber: string;
   iconName: keyof typeof Ionicons.glyphMap;
 };
 
@@ -14,22 +14,10 @@ type CoachItem = {
 const coaches: CoachItem[] = [
   {
     id: '1',
-    name: 'Angelos Sikalidis',
-    email: 'asikalid@calpoly.edu',
+    name: 'Cristina Macedo',
+    phoneNumber: '805-756-5089',
     iconName: 'person',
-  },
-  {
-    id: '2',
-    name: 'Suzanne Phelan',
-    email: 'sphelan@calpoly.edu',
-    iconName: 'person',
-  },
-  {
-    id: '3',
-    name: 'Liel Grosskopf',
-    email: 'lgrossko@calpoly.edu',
-    iconName: 'person',
-  },
+  }
 ];
 
 const List: React.FC = () => {
@@ -39,7 +27,7 @@ const List: React.FC = () => {
       <Ionicons name={item.iconName} size={24} color="#000" style={styles.icon} />
       <View style={styles.textContainer}>
         <Text style={styles.coachName}>{item.name}</Text>
-        <Text style={styles.contactInfo}>{`Email: ${item.email}`}</Text>
+        <Text style={styles.contactInfo}>{`Phone Number: ${item.phoneNumber}`}</Text>
       </View>
     </View>
   );
