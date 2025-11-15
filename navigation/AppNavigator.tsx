@@ -94,14 +94,20 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
             <Stack.Screen
               name="ResultsScreen"
               component={ResultsScreen}
-              options={({ navigation }) => ({
+              options={({ navigation, route }) => ({
                 headerShown: true,
                 title: 'Sleep Assessment Results',
                 headerBackTitleVisible: false,
-                headerRight: () => (
-                  // Replace to Main to avoid leaving ResultsScreen on the stack
-                  <Button onPress={() => navigation.replace('Main')} title="Next" color="#52796F" />
-                ),
+                headerRight: () => {
+                  // Only show "Next" button if not coming from tracker
+                  const fromTracker = route.params?.fromTracker;
+                  if (fromTracker) {
+                    return null;
+                  }
+                  return (
+                    <Button onPress={() => navigation.replace('Main')} title="Next" color="#52796F" />
+                  );
+                },
                 headerLeft: () => (
                   // Pop back instead of navigating to avoid stacking duplicates
                   <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />

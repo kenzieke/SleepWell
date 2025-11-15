@@ -20,18 +20,42 @@ type ScreenType = {
 const Tab = createBottomTabNavigator<ScreenType>();
 const Stack = createStackNavigator();
 
-function SleepTrackerStack() {
+function SleepTrackerStack({ navigation }: SleepTrackerStackProps) {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="SleepTrackerMain" component={SleepTrackerScreen} options={{ title: 'Sleep Tracker' }} />
+      <Stack.Screen
+        name="SleepTrackerMain"
+        component={SleepTrackerScreen}
+        options={{
+          title: 'Sleep Tracker',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => {
+                const parentNav = (navigation as any).getParent?.();
+                if (parentNav) {
+                  parentNav.navigate('ResultsScreen', { fromTracker: true });
+                }
+              }}
+              style={{ marginRight: 10 }}
+            >
+              <Ionicons name="stats-chart" size={24} color="#52796F" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack.Navigator>
   );
 }
 
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../types/navigationTypes';
 
 type WeeklyLessonsStackProps = {
   navigation: StackNavigationProp<ScreenType, 'WeeklyLessonsScreen'>;
+};
+
+type SleepTrackerStackProps = {
+  navigation: StackNavigationProp<any>;
 };
 
 function WeeklyLessonsStack({ navigation }: WeeklyLessonsStackProps) {

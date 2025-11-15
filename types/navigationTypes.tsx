@@ -5,7 +5,7 @@ import { Lesson } from '../stores/LessonTrackingStore';
 // Modify the existing RootStackParamList to include your new screens
 export type RootStackParamList = {
   Main: undefined;
-  ResultsScreen: undefined;
+  ResultsScreen: { fromTracker?: boolean } | undefined;
   SignUp: undefined;
   Login: undefined;
   LessonTrackingScreen: undefined;
