@@ -13,6 +13,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';
+import ForgotPasswordModal from '../components/ForgotPasswordModal';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -21,6 +22,7 @@ const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotPasswordModalVisible, setForgotPasswordModalVisible] = useState(false);
   const auth = FIREBASE_AUTH;
 
   // Check if user is already logged in
@@ -67,7 +69,7 @@ const LoginScreen: React.FC = () => {
   };
 
   const onPressForgotPassword = async () => {
-    // Handle forgot password operation
+    setForgotPasswordModalVisible(true);
   };
 
   const onPressSignUp = async () => {
@@ -110,7 +112,12 @@ const LoginScreen: React.FC = () => {
       <TouchableOpacity onPress={onPressSignUp} style={styles.signUpContainer}>
         <Text style={styles.signUpText}>Sign Up</Text>
       </TouchableOpacity>
-      
+
+      <ForgotPasswordModal
+        visible={forgotPasswordModalVisible}
+        onClose={() => setForgotPasswordModalVisible(false)}
+      />
+
     </View>
   );
 };
