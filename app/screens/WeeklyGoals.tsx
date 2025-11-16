@@ -4,17 +4,13 @@ import {
   Image,
   StyleSheet,
   View,
-  Dimensions,
+  useWindowDimensions,
   TouchableOpacity,
   Modal,
   Text,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-
-// Get screen dimensions
-const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
 
 // Original image dimensions
 const originalWidth = 1126;
@@ -43,6 +39,7 @@ const touchableAreas = [
 
 // Main Component
 const WeeklyGoals: React.FC = () => {
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const availableHeight = screenHeight - insets.top - insets.bottom;
@@ -130,7 +127,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    backgroundColor: '#fff',
+    backgroundColor: '#B3D584',
   },
   image: {
     position: 'absolute',
