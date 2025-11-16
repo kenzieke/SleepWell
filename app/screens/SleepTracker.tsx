@@ -7,6 +7,8 @@ import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';
+import { useBannerStore } from '../../stores/BannerStore';
+import SaveBanner from '../../components/SaveBanner';
 
 type SleepTrackerScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SleepTrackerScreen'>;
 
@@ -41,6 +43,7 @@ const OptionButton: React.FC<{
 
 const SleepTrackerScreen: React.FC = () => {
   const navigation = useNavigation<SleepTrackerScreenNavigationProp>();
+  const { showBanner, message, visible, hideBanner } = useBannerStore();
   // Generic function to render option buttons for a question
   interface RenderOptionsProps<T extends string | OptionType> {
     question?: string;
@@ -134,6 +137,7 @@ const SleepTrackerScreen: React.FC = () => {
   };
 
   const [isLoading, setIsLoading] = useState(false);
+  const [originalData, setOriginalData] = useState<any>(null);
 
   const [caffeine, setCaffeine] = useState<string>('');
   const [vegetables, setVegetables] = useState<string>('');
@@ -173,17 +177,22 @@ const SleepTrackerScreen: React.FC = () => {
         console.log('Setting daily weight:', data.weight?.value);
         setDailyWeight(data.weight?.value);
         console.log('Setting weight unit:', data.weight?.unit || 'kgs');
-        setWeightUnit(data.weight?.unit || 'kgs');      
+        setWeightUnit(data.weight?.unit || 'kgs');
         setRateDiet(data.rateDiet || 'null');
         setStressLevel(data.stressLevel || 'null');
-        console.log('Calling setIsLoading(false) after data exists'); // Debug: Check when setIsLoading is called
         setIsLoading(false);
+
+        // Store original health data for comparison
+        setOriginalData((prev: any) => ({
+          ...prev,
+          healthData: data,
+        }));
       } else {
         if (!isLoading) {
           clearForm();
         }
-        console.log('Calling setIsLoading(false) when no data'); // Debug: Check when setIsLoading is called
         setIsLoading(false);
+        setOriginalData((prev: any) => ({ ...prev, healthData: null }));
       }
     });
   
@@ -224,10 +233,17 @@ const SleepTrackerScreen: React.FC = () => {
         setFallAsleepMinutes(data.fallAsleepMinutes || '0');
         // setSliderValue(data.sliderValue || 5);
         setIsLoading(false);
+
+        // Store original sleep data for comparison
+        setOriginalData((prev: any) => ({
+          ...prev,
+          sleepData: data,
+        }));
       } else {
         if (!isLoading) {
           clearForm();
         }
+        setOriginalData((prev: any) => ({ ...prev, sleepData: null }));
       }
     });
   
@@ -360,14 +376,28 @@ const SleepTrackerScreen: React.FC = () => {
     }
 
     try {
-      await setDoc(sleepDataRef, sleepData);
-      await setDoc(healthDataRef, healthData);
-      console.log('Health data saved successfully.');
-      console.log('Sleep data saved successfully.');
-      navigation.navigate('WeeklyLessonsScreen');
+      // Check if data has changed by comparing with original
+      const hasChanges =
+        JSON.stringify(sleepData) !== JSON.stringify(originalData?.sleepData) ||
+        JSON.stringify(healthData) !== JSON.stringify(originalData?.healthData);
+
+      console.log('Has changes:', hasChanges);
+      console.log('Original data exists:', !!originalData);
+
+      if (!hasChanges && originalData) {
+        // No changes detected
+        showBanner('No changes detected to save.');
+      } else {
+        // Save the data
+        await setDoc(sleepDataRef, sleepData);
+        await setDoc(healthDataRef, healthData);
+
+        // Update original data after successful save
+        setOriginalData({ sleepData, healthData });
+        showBanner('Results saved!');
+      }
     } catch (error) {
-      console.error('Error saving sleep data:', error);
-      console.error('Error saving health data:', error);
+      alert('Failed to save data. Please try again.');
     }
   };
 
@@ -384,8 +414,14 @@ const SleepTrackerScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
+    <View style={{ flex: 1 }}>
+      <SaveBanner
+        visible={visible}
+        message={message}
+        onHide={hideBanner}
+      />
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.container}>
         <View style={styles.questionContainer}>
           <DateComponent date={date} setDate={setDate} />
         </View>
@@ -716,11 +752,12 @@ const SleepTrackerScreen: React.FC = () => {
           />
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={saveData}>
-        <Text style={styles.buttonText}>Save</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={saveData}>
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
     </View>
-  </ScrollView>
   );
 };
 

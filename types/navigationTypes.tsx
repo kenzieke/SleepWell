@@ -4,14 +4,14 @@ import { Lesson } from '../stores/LessonTrackingStore';
 
 // Modify the existing RootStackParamList to include your new screens
 export type RootStackParamList = {
-  Main: undefined;
+  Main: { bannerMessage?: string } | undefined;
   ResultsScreen: { fromTracker?: boolean } | undefined;
   SignUp: undefined;
   Login: undefined;
   LessonTrackingScreen: undefined;
   LessonDetailScreen: { lesson: Lesson };
   ListMain: undefined;
-  WeeklyLessonsScreen: undefined;
+  WeeklyLessonsScreen: { bannerMessage?: string } | undefined;
   SleepAssessmentScreen: undefined;
   SleepTrackerScreen: undefined;
   AudioPlayerScreen: { moduleTitle: string; moduleSubtitle: string };

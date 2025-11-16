@@ -88,6 +88,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 headerShown: true,
                 title: 'Sleep Assessment',
                 headerTitleAlign: 'center',
+                headerLeft: () => null, // Disable back button during initial assessment
               }}
             />
 
@@ -99,7 +100,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 title: 'Sleep Assessment Results',
                 headerBackTitleVisible: false,
                 headerRight: () => {
-                  // Only show "Next" button if not coming from tracker
+                  // Only show "Next" button if not coming from tracker (initial assessment flow)
                   const fromTracker = route.params?.fromTracker;
                   if (fromTracker) {
                     return null;
@@ -108,10 +109,15 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                     <Button onPress={() => navigation.replace('Main')} title="Next" color="#52796F" />
                   );
                 },
-                headerLeft: () => (
-                  // Pop back instead of navigating to avoid stacking duplicates
-                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
-                ),
+                headerLeft: () => {
+                  // Only show "Back" button if coming from tracker
+                  // During initial assessment, prevent going back to assessment/signup
+                  const fromTracker = route.params?.fromTracker;
+                  if (fromTracker) {
+                    return <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />;
+                  }
+                  return null;
+                },
               })}
             />
 
