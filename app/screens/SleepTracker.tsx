@@ -413,6 +413,24 @@ const SleepTrackerScreen: React.FC = () => {
     setter(value === '' ? '0' : value);
   };
 
+  // Utility function to handle minute inputs and cap them at 59
+  interface HandleMinuteInputChange {
+    (setter: React.Dispatch<React.SetStateAction<string>>): (value: string) => void;
+  }
+
+  const handleMinuteInputChange: HandleMinuteInputChange = (setter) => (value) => {
+    if (value === '') {
+      setter('0');
+    } else {
+      const numValue = parseInt(value, 10);
+      if (numValue > 59) {
+        setter('59');
+      } else {
+        setter(value);
+      }
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <SaveBanner
@@ -486,7 +504,7 @@ const SleepTrackerScreen: React.FC = () => {
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={handleInputChange(setInBedMinutes)}  // Handle the input change
+            onChangeText={handleMinuteInputChange(setInBedMinutes)}  // Cap at 59 minutes
             value={displayEmptyOrValue(inBedMinutes)}  // Display empty if '0'
             keyboardType="numeric"
             maxLength={2} // Limit to 59 minutes
@@ -510,7 +528,7 @@ const SleepTrackerScreen: React.FC = () => {
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={handleInputChange(setTimeAsleepMinutes)}
+            onChangeText={handleMinuteInputChange(setTimeAsleepMinutes)}
             value={displayEmptyOrValue(timeAsleepMinutes)}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 59 minutes
@@ -534,7 +552,7 @@ const SleepTrackerScreen: React.FC = () => {
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={handleInputChange(setFallAsleepMinutes)}
+            onChangeText={handleMinuteInputChange(setFallAsleepMinutes)}
             value={displayEmptyOrValue(fallAsleepMinutes)}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 59 minutes
@@ -607,7 +625,7 @@ const SleepTrackerScreen: React.FC = () => {
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={handleInputChange(setNapTimeMinutes)}
+            onChangeText={handleMinuteInputChange(setNapTimeMinutes)}
             value={displayEmptyOrValue(napTimeMinutes)}
             keyboardType="numeric"
             maxLength={2} // Assuming we want to limit to 59 minutes
@@ -656,6 +674,7 @@ const SleepTrackerScreen: React.FC = () => {
                 value={dailyWeight}
                 keyboardType="numeric"
                 placeholder="Enter here"
+                maxLength={3}
             />
             <SwitchSelector
               key={weightUnit} // add this line
@@ -685,6 +704,7 @@ const SleepTrackerScreen: React.FC = () => {
               value={caffeine}
               keyboardType="numeric"
               placeholder="# of drinks"
+              maxLength={2}
           />
       </View>
 
@@ -698,6 +718,7 @@ const SleepTrackerScreen: React.FC = () => {
               value={vegetables}
               keyboardType="numeric"
               placeholder="# of vegetable servings"
+              maxLength={2}
           />
       </View>
 
@@ -711,6 +732,7 @@ const SleepTrackerScreen: React.FC = () => {
               value={sugaryDrinks}
               keyboardType="numeric"
               placeholder="# of sugary drinks"
+              maxLength={2}
           />
       </View>
 
@@ -724,6 +746,7 @@ const SleepTrackerScreen: React.FC = () => {
               value={fastFood}
               keyboardType="numeric"
               placeholder="# of fast food items"
+              maxLength={2}
           />
       </View>
 
@@ -737,6 +760,7 @@ const SleepTrackerScreen: React.FC = () => {
               value={minPA}
               keyboardType="numeric"
               placeholder="Minutes of physical activity"
+              maxLength={3}
           />
       </View>
 

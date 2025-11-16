@@ -263,6 +263,7 @@ const SleepAssessmentScreen = () => {
           value={timesWakeUp}
           keyboardType="numeric"
           placeholder="# of times"
+          maxLength={1}
         />
 
         <Text style={styles.questionText}>
