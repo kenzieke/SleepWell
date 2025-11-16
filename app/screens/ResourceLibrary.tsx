@@ -23,7 +23,7 @@ const resources: ResourceItem[] = [
     iconName: 'flame',
     links: [
       { name: 'White Noise', url: 'https://youtu.be/nMfPqeZjc2c?si=hMfu_wdrrcAo36TK' },
-      { name: 'Music - Weightless 10 hours', url: 'https://youtu.be/UfcAVejslrU?si=NCuKn4EYiaVleCaQ' },
+      { name: 'Music - Weightless 10 hours', url: 'https://www.youtube.com/watch?v=qYnA9wWFHLI&list=RDqYnA9wWFHLI&start_radio=1' },
       { name: 'Music - Relaxing 3 hours', url: 'https://youtu.be/1ZYbU82GVz4?si=ct-rUdft7VXCYofm' }
     ],
   },
