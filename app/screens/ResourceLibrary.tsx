@@ -87,7 +87,10 @@ const resources: ResourceItem[] = [
       { name: 'Healthy Weight Loss', url: 'https://www.heart.org/en/healthy-living/healthy-eating/losing-weight' },
       { name: 'Healthy Food Substitutions', url: 'https://www.youtube.com/watch?v=4D8KEU3HVyw' },
       { name: 'Protein Mistakes to Avoid', url: 'https://www.heart.org/en/healthy-living/healthy-eating/eat-smart/nutrition-basics/4-protein-mistakes-to-avoid' },
-      { name: 'Meal Plan - Weight Based', url: 'https://cpslo-my.sharepoint.com/personal/sphelan_calpoly_edu/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fsphelan%5Fcalpoly%5Fedu%2FDocuments%2FGRANTS%2FFirefighters%2FFIREFIGHTERS%5FShared%20Folder%2FResource%20Library&view=0' },
+      { name: 'Meal Plan - 1200 Calorie', url: 'https://drive.google.com/file/d/1X2lEruZ7NdA_vksGKBpu8z3VLCgCINgu/view' },
+      { name: 'Meal Plan - 1500 Calorie', url: 'https://drive.google.com/file/d/1uQwMK1GK0IwxHZ-8cl8ojOnPuB6CD8G1/view' },
+      { name: 'Meal Plan - 1800 Calorie', url: 'https://drive.google.com/file/d/1mN6oCiLf2QXS9DhpNta2GRtj2zaJ0hxU/view' },
+      { name: 'Meal Plan - 2000 Calorie', url: 'https://drive.google.com/file/d/1n6dtwMe51qevGQBc9IXVMiD51M6Obssm/view' },
       ],
   },
   {
