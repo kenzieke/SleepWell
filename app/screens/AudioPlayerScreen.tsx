@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigationTypes';
 import AudioPlayer from '../components/AudioPlayer';
 import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
+import { findLessonBySubtitle } from '../../utils/lessonHelpers';
 
 const audioFiles: Record<string, number> = {
   'Sleep Efficiency': require('../../assets/audio/module1.mp3'),
@@ -66,7 +67,7 @@ const AudioPlayerScreen: React.FC = () => {
   const { lessons, updateLessonProgress } = useLessonTrackingStore();
 
   const handleMarkLessonComplete = () => {
-    const currentLesson = lessons.find((lesson) => lesson.title.includes(moduleSubtitle));
+    const currentLesson = findLessonBySubtitle(lessons, moduleSubtitle);
     if (currentLesson) {
       updateLessonProgress(currentLesson.id, true);
       navigation.goBack();

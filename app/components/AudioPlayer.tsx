@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { Asset } from 'expo-asset';
 import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
+import { findLessonBySubtitle } from '../../utils/lessonHelpers';
 
 interface AudioPlayerProps {
   moduleTitle: string;
@@ -47,7 +48,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
   /** Automatically mark lesson complete once audio finishes */
   useEffect(() => {
     if (status?.didJustFinish) {
-      const currentLesson = lessons.find((l) => l.title.includes(moduleSubtitle));
+      const currentLesson = findLessonBySubtitle(lessons, moduleSubtitle);
       if (currentLesson && !currentLesson.completed) {
         updateLessonProgress(currentLesson.id, true);
       }
