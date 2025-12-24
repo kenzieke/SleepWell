@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
-import { DateComponent } from '../../components/DateComponent';
+import { DateComponent } from '../components/DateComponent';
 import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { useHealthTrackerStore } from '../../stores/HealthTrackerStore';

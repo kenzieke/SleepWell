@@ -4,7 +4,7 @@ import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-au
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { Asset } from 'expo-asset';
-import { useLessonTrackingStore } from '../stores/LessonTrackingStore';
+import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
 
 interface AudioPlayerProps {
   moduleTitle: string;

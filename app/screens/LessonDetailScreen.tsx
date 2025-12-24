@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Text, Image } from 'react-native';
-import FullWidthPicture from "../../components/FullWidthPicture";
+import FullWidthPicture from "../components/FullWidthPicture";
 import { ScrollView } from 'react-native-gesture-handler';
 import { useLessonStore } from '../../stores/LessonStore';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';

@@ -4,7 +4,7 @@ import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigationTypes';
-import AudioPlayer from '../../components/AudioPlayer';
+import AudioPlayer from '../components/AudioPlayer';
 import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
 
 const audioFiles: Record<string, number> = {

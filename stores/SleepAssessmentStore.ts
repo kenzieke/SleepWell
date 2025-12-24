@@ -1,5 +1,5 @@
 import create from 'zustand';
-import { OptionType } from '../components/OptionButton';
+import { OptionType } from '../app/components/OptionButton';
 
 interface SleepAssessmentState {
   isDeployed: boolean;

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector'; // Import the switch selector
-import { DateComponent } from '../../components/DateComponent';
+import { DateComponent } from '../components/DateComponent';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';
 import { useBannerStore } from '../../stores/BannerStore';
-import SaveBanner from '../../components/SaveBanner';
+import SaveBanner from '../components/SaveBanner';
 
 type SleepTrackerScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SleepTrackerScreen'>;
 
