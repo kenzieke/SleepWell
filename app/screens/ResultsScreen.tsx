@@ -1,14 +1,9 @@
 import React, { useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Modal, Image, StyleSheet } from 'react-native';
 import { CategoryDetails, useResultsStore } from '../../stores/ResultsStore';
-// import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
-// import { RootStackParamList } from '../../types/navigationTypes';
-// import { useNavigation } from '@react-navigation/native';
-
-// type WeeklyLessonsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ResultsScreen'>;
+import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 
 const ResultsScreen = () => {
-  // const navigation = useNavigation<WeeklyLessonsScreenNavigationProp>();
   const {
     results,
     isModalVisible,
@@ -85,48 +80,48 @@ const ResultsScreen = () => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: 10,
-    paddingHorizontal: 20,
+    backgroundColor: colors.background,
+    paddingTop: spacing.md,
+    paddingHorizontal: spacing.xl,
   },
   instructionText: {
-    fontSize: 16,
-    marginBottom: 20,
+    fontSize: fontSizes.md,
+    marginBottom: spacing.xl,
     textAlign: 'center',
-    color: '#52796F',
-    fontWeight: 'bold',
+    color: colors.primary,
+    fontWeight: fontWeights.bold,
   },
   categoryContainer: {
-    marginBottom: 10,
+    marginBottom: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   categoryText: {
-    fontSize: 18,
-    fontWeight: '500',
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.medium,
     marginBottom: 5,
     textAlign: 'center',
   },
   scaleImage: {
     width: '100%',
     height: 40,
-    marginBottom: 20,
+    marginBottom: spacing.xl,
   },
   button: {
-    backgroundColor: '#52796F',
+    backgroundColor: colors.primary,
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 25,
-    marginTop: 24,
+    paddingHorizontal: spacing.xxl,
+    borderRadius: borderRadius.xxl,
+    marginTop: spacing.xxl,
   },
   buttonText: {
-    fontWeight: 'bold',
-    color: 'white',
-    fontSize: 16,
+    fontWeight: fontWeights.bold,
+    color: colors.textWhite,
+    fontSize: fontSizes.md,
     textAlign: 'center',
   },
   centeredView: {
@@ -134,15 +129,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
-    // backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dim the background
   },
   modalContent: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
+    margin: spacing.xl,
+    backgroundColor: colors.background,
+    borderRadius: borderRadius.xl,
     padding: 35,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.textPrimary,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -154,25 +148,25 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 18,
+    fontWeight: fontWeights.bold,
+    fontSize: fontSizes.lg,
   },
   modalHeaderText: {
-    fontWeight: 'bold',
-    fontSize: 18,
+    fontWeight: fontWeights.bold,
+    fontSize: fontSizes.lg,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   modalScoreText: {
-    fontWeight: 'bold',
+    fontWeight: fontWeights.bold,
     fontSize: 22,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: spacing.sm,
   },
   modalDescriptionText: {
     textAlign: 'center',
-    fontSize: 16,
-    marginBottom: 16,
+    fontSize: fontSizes.md,
+    marginBottom: spacing.lg,
   },
 });
 

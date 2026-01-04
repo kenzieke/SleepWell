@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigationTypes';
 import type { Lesson } from '../../stores/LessonTrackingStore';
+import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 
 type LessonTrackingScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -72,7 +73,7 @@ const LessonTrackingScreen: React.FC = () => {
 
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.wrapper}>
       <ScrollView style={styles.container}>
         {allLessonsCompleted && (
           <Text style={styles.completedText}>All modules completed!</Text>
@@ -97,17 +98,17 @@ const LessonTrackingScreen: React.FC = () => {
               <View style={styles.iconWrapper}>
                 {userProgress[lesson.id] ? (
                   <TouchableOpacity onPress={() => handleUncheckLesson(lesson.id)}>
-                    <Ionicons name="checkmark-circle" size={22} color="#52796F" />
+                    <Ionicons name="checkmark-circle" size={22} color={colors.primary} />
                   </TouchableOpacity>
                 ) : (
-                  <Ionicons name="ellipse-outline" size={22} color="#52796F" />
+                  <Ionicons name="ellipse-outline" size={22} color={colors.primary} />
                 )}
                 <Ionicons
                   name={
                     expandedLesson === lesson.id ? 'chevron-up' : 'chevron-down'
                   }
                   size={22}
-                  color="#52796F"
+                  color={colors.primary}
                 />
               </View>
             </TouchableOpacity>
@@ -119,7 +120,7 @@ const LessonTrackingScreen: React.FC = () => {
                   onPress={() => handleNavigate(lesson, 'summary')}
                   style={styles.optionItem}
                 >
-                  <Ionicons name="book-outline" size={20} color="#52796F" />
+                  <Ionicons name="book-outline" size={20} color={colors.primary} />
                   <Text style={styles.optionText}>Read Summary (1/2 page)</Text>
                 </TouchableOpacity>
 
@@ -127,7 +128,7 @@ const LessonTrackingScreen: React.FC = () => {
                   onPress={() => handleNavigate(lesson, 'audio')}
                   style={styles.optionItem}
                 >
-                  <Ionicons name="headset-outline" size={20} color="#52796F" />
+                  <Ionicons name="headset-outline" size={20} color={colors.primary} />
                   <Text style={styles.optionText}>Listen to Podcast (3 min)</Text>
                 </TouchableOpacity>
               </View>
@@ -136,7 +137,7 @@ const LessonTrackingScreen: React.FC = () => {
         ))}
       </ScrollView>
 
-      {/* 🔒 Locked Module Modal */}
+      {/* Locked Module Modal */}
       <Modal
         visible={lockedModalVisible}
         transparent
@@ -145,7 +146,7 @@ const LessonTrackingScreen: React.FC = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
-            <Ionicons name="lock-closed-outline" size={40} color="#52796F" />
+            <Ionicons name="lock-closed-outline" size={40} color={colors.primary} />
             <Text style={styles.modalText}>{lockedMessage}</Text>
             <Pressable
               onPress={() => setLockedModalVisible(false)}
@@ -161,61 +162,94 @@ const LessonTrackingScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  lessonItem: { borderBottomWidth: 1, borderBottomColor: '#ddd' },
+  wrapper: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  lessonItem: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
   lessonHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 15,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.xl,
   },
-  lessonTitle: { fontSize: 18, fontWeight: '500', flex: 1 },
-  lockedLesson: { color: '#B0B0B0' },
-  iconWrapper: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  lessonTitle: {
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.medium,
+    flex: 1,
+  },
+  lockedLesson: {
+    color: colors.textMuted,
+  },
+  iconWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
   lessonOptions: {
-    backgroundColor: '#F5F5F5',
-    paddingVertical: 10,
-    paddingHorizontal: 30,
+    backgroundColor: colors.backgroundSecondary,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xxxl,
   },
-  optionItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
-  optionText: { fontSize: 16, marginLeft: 10 },
+  optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+  },
+  optionText: {
+    fontSize: fontSizes.md,
+    marginLeft: spacing.md,
+  },
   completedText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.bold,
     textAlign: 'center',
-    marginVertical: 20,
+    marginVertical: spacing.xl,
   },
-  // 🔒 Modal styles
+  // Modal styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: colors.overlay,
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalBox: {
-    margin: 20,
-    backgroundColor: 'white',
+    margin: spacing.xl,
+    backgroundColor: colors.background,
     borderWidth: 2,
-    borderColor: '#52796F',
+    borderColor: colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 50,
     elevation: 5,
-    borderRadius: 20,
+    borderRadius: borderRadius.xl,
     padding: 35,
     alignItems: 'center',
     width: '80%',
   },
-  modalText: { fontSize: 18, textAlign: 'center', marginVertical: 10 },
-  modalButton: {
-    backgroundColor: '#52796F',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    marginTop: 10,
+  modalText: {
+    fontSize: fontSizes.lg,
+    textAlign: 'center',
+    marginVertical: spacing.md,
   },
-  modalButtonText: { color: '#fff', fontWeight: 'bold' },
+  modalButton: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    marginTop: spacing.md,
+  },
+  modalButtonText: {
+    color: colors.textWhite,
+    fontWeight: fontWeights.bold,
+  },
 });
 
 export default LessonTrackingScreen;

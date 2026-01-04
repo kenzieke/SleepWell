@@ -4,8 +4,9 @@ import FullWidthPicture from "../components/FullWidthPicture";
 import { ScrollView } from 'react-native-gesture-handler';
 import { useLessonStore } from '../../stores/LessonStore';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../types/navigationTypes'; // Adjust the path based on your file structure
-import { markLessonComplete } from '../../utils/lessonHelpers'; // Import the utility function
+import { RootStackParamList } from '../../types/navigationTypes';
+import { markLessonComplete } from '../../utils/lessonHelpers';
+import { colors, fontSizes, fontWeights, spacing, borderRadius, buttonHeight } from '../styles';
 
 // Define the props for the LessonDetailScreen
 type LessonDetailProps = NativeStackScreenProps<RootStackParamList, 'LessonDetailScreen'>;
@@ -49,29 +50,29 @@ const LessonDetailScreen: React.FC<LessonDetailProps> = ({ route, navigation }) 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollViewStyle: {
     flex: 1,
     width: '100%',
-    paddingTop: 30,
+    paddingTop: spacing.xxxl,
   },
   doneText: {
-    fontWeight: 'bold',
-    color: '#fff',
-    fontSize: 16,
+    fontWeight: fontWeights.bold,
+    color: colors.textWhite,
+    fontSize: fontSizes.md,
   },
   doneBtn: {
     width: '80%',
-    backgroundColor: '#52796F',
-    borderRadius: 25,
-    height: 40,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.xxl,
+    height: buttonHeight.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
-    marginBottom: 30,
+    marginTop: spacing.md,
+    marginBottom: spacing.xxxl,
   },
 });
 

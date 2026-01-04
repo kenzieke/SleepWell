@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
+import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -84,7 +85,7 @@ const LoginScreen: React.FC = () => {
           style={styles.inputText}
           placeholder="Email"
           autoCapitalize="none"
-          placeholderTextColor="#BDBDBD"
+          placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setEmail(text)}
           value={email}
         />
@@ -95,7 +96,7 @@ const LoginScreen: React.FC = () => {
           secureTextEntry={true}
           placeholder="Password"
           autoCapitalize="none"
-          placeholderTextColor="#BDBDBD"
+          placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setPassword(text)}
           value={password}
         />
@@ -106,7 +107,7 @@ const LoginScreen: React.FC = () => {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={onPressLogin} style={styles.loginBtn} disabled={loading}>
-        {loading ? <ActivityIndicator color="#52796F" /> : <Text style={styles.loginText}>Login</Text>}
+        {loading ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.loginText}>Login</Text>}
       </TouchableOpacity>
 
       <TouchableOpacity onPress={onPressSignUp} style={styles.signUpContainer}>
@@ -125,34 +126,34 @@ const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontWeight: 'bold',
+    fontWeight: fontWeights.bold,
     fontSize: 50,
-    color: '#000',
+    color: colors.textPrimary,
     marginBottom: 40,
   },
   inputView: {
     width: '80%',
     backgroundColor: '#E8E8E8',
-    borderRadius: 25,
+    borderRadius: borderRadius.xxl,
     height: 50,
-    marginBottom: 20,
+    marginBottom: spacing.xl,
     justifyContent: 'center',
-    padding: 20,
+    padding: spacing.xl,
   },
   inputText: {
-    fontWeight: 'bold',
+    fontWeight: fontWeights.bold,
     height: 50,
     color: '#919191',
   },
   forgotPasswordText: {
-    fontWeight: 'bold',
-    color: '#52796F',
-    fontSize: 16,
+    fontWeight: fontWeights.bold,
+    color: colors.primary,
+    fontSize: fontSizes.md,
   },
   signUpContainer: {
     position: 'absolute',
@@ -160,26 +161,24 @@ const styles = StyleSheet.create({
     right: 40,
   },
   signUpText: {
-    fontWeight: 'bold',
-    color: '#52796F',
-    fontSize: 16,
+    fontWeight: fontWeights.bold,
+    color: colors.primary,
+    fontSize: fontSizes.md,
   },
   loginText: {
-    fontWeight: 'bold',
-    color: '#fff',
-    fontSize: 16,
+    fontWeight: fontWeights.bold,
+    color: colors.textWhite,
+    fontSize: fontSizes.md,
   },
   loginBtn: {
-    fontWeight: 'bold',
-    color: 'white',
     width: '80%',
-    backgroundColor: '#52796F',
-    borderRadius: 25,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.xxl,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 40,
-    marginBottom: 10,
+    marginBottom: spacing.md,
   },
 });
 

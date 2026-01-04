@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import SwitchSelector from 'react-native-switch-selector'; // Import the switch selector
+import SwitchSelector from 'react-native-switch-selector';
 import { DateComponent } from '../components/DateComponent';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
@@ -9,6 +9,7 @@ import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/n
 import { RootStackParamList } from '../../types/navigationTypes';
 import { useBannerStore } from '../../stores/BannerStore';
 import SaveBanner from '../components/SaveBanner';
+import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 
 type SleepTrackerScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SleepTrackerScreen'>;
 
@@ -32,9 +33,9 @@ const OptionButton: React.FC<{
         styles.optionText,
         isSelected && styles.optionTextSelected,
       ]}
-      numberOfLines={2} // Allow text to wrap to a new line
-      adjustsFontSizeToFit // Adjust the font size to ensure the text fits
-      minimumFontScale={0.5} // Minimum scale factor for text size
+      numberOfLines={2}
+      adjustsFontSizeToFit
+      minimumFontScale={0.5}
     >
       {label}
     </Text>
@@ -44,14 +45,14 @@ const OptionButton: React.FC<{
 const SleepTrackerScreen: React.FC = () => {
   const navigation = useNavigation<SleepTrackerScreenNavigationProp>();
   const { showBanner, message, visible, hideBanner } = useBannerStore();
-  // Generic function to render option buttons for a question
+
   interface RenderOptionsProps<T extends string | OptionType> {
     question?: string;
     value: T;
     setValue: React.Dispatch<React.SetStateAction<T>>;
     options: T[];
   }
-  
+
   function renderOptions<T extends string | OptionType>({
     question,
     value,
@@ -91,7 +92,6 @@ const SleepTrackerScreen: React.FC = () => {
   const [isAtHome, setIsAtHome] = useState(false);
   const [sleepRating, setSleepRating] = useState('');
 
-  // Sleep time related questions
   const [timesWokeUp, setTimesWokeUp] = useState<string>('');
   const [naps, setNaps] = useState(false);
   const [sleepMedications, setSleepMedications] = useState(false);
@@ -106,7 +106,6 @@ const SleepTrackerScreen: React.FC = () => {
   const [napTimeMinutes, setNapTimeMinutes] = useState<string>('0');
   const sleepOptions = ['Very Poor', 'Poor', 'Okay', 'Good', 'Outstanding'];
 
-  // Function to clear form fields
   const clearForm = () => {
     setIsDeployed(false);
     setIsOnDuty(false);
@@ -147,25 +146,25 @@ const SleepTrackerScreen: React.FC = () => {
   const [goals, setGoals] = useState<string>('');
   const [dailyWeight, setDailyWeight] = useState('');
   const [weightUnit, setWeightUnit] = useState<string>('kgs');
-  const [stressLevel, setStressLevel] = useState<OptionType>('null'); // default value
-  const [rateDiet, setRateDiet] = useState<OptionType>('null'); // default value
+  const [stressLevel, setStressLevel] = useState<OptionType>('null');
+  const [rateDiet, setRateDiet] = useState<OptionType>('null');
   const stressOptions: OptionType[] = ['None', 'Mild', 'Moderate', 'Severe', 'Very Severe'];
   const dietOptions: OptionType[] = ['Very Poor', 'Poor', 'Okay', 'Good', 'Outstanding'];
 
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
     if (!userId) return;
-  
-    console.log('Before subscription: isLoading=', isLoading); // Debug: Check state before subscription
-  
+
+    console.log('Before subscription: isLoading=', isLoading);
+
     const formattedDate = date.toISOString().split('T')[0];
     const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'healthData'), formattedDate);
-  
-    console.log('Calling setIsLoading(true)'); // Debug: Check when setIsLoading is called
+
+    console.log('Calling setIsLoading(true)');
     setIsLoading(true);
-  
+
     const unsubscribe = onSnapshot(healthDataRef, (docSnap) => {
-      console.log('Snapshot received: isLoading=', isLoading); // Debug: State when snapshot is received
+      console.log('Snapshot received: isLoading=', isLoading);
       if (docSnap.exists()) {
         const data = docSnap.data();
         setCaffeine(data.caffeine);
@@ -182,7 +181,6 @@ const SleepTrackerScreen: React.FC = () => {
         setStressLevel(data.stressLevel || 'null');
         setIsLoading(false);
 
-        // Store original health data for comparison
         setOriginalData((prev: any) => ({
           ...prev,
           healthData: data,
@@ -195,23 +193,23 @@ const SleepTrackerScreen: React.FC = () => {
         setOriginalData((prev: any) => ({ ...prev, healthData: null }));
       }
     });
-  
+
     return () => {
-      console.log('Unsubscribing'); // Debug: Check when unsubscribe happens
+      console.log('Unsubscribing');
       unsubscribe();
     };
-  }, [date]); // Dependencies array
+  }, [date]);
 
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
     if (!userId) return;
-  
+
     const formattedDate = date.toISOString().split('T')[0];
     const sleepDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'sleepData'), formattedDate);
 
     console.log(`Setting up snapshot listener for date: ${formattedDate}`);
     setIsLoading(true);
-  
+
     const unsubscribe = onSnapshot(sleepDataRef, (docSnap) => {
       console.log(`Snapshot received for date: ${formattedDate}, exists: ${docSnap.exists()}`);
       if (docSnap.exists()) {
@@ -231,10 +229,8 @@ const SleepTrackerScreen: React.FC = () => {
         setTimeAsleepMinutes(data.timeAsleepMinutes || '0');
         setFallAsleepHours(data.fallAsleepHours || '0');
         setFallAsleepMinutes(data.fallAsleepMinutes || '0');
-        // setSliderValue(data.sliderValue || 5);
         setIsLoading(false);
 
-        // Store original sleep data for comparison
         setOriginalData((prev: any) => ({
           ...prev,
           sleepData: data,
@@ -246,7 +242,7 @@ const SleepTrackerScreen: React.FC = () => {
         setOriginalData((prev: any) => ({ ...prev, sleepData: null }));
       }
     });
-  
+
     return () => {
       console.log(`Cleaning up snapshot listener for date: ${formattedDate}`);
       unsubscribe();
@@ -259,9 +255,9 @@ const SleepTrackerScreen: React.FC = () => {
       alert("You must be logged in to save your health data.");
       return;
     }
-  
+
     const formattedDate = date.toISOString().split('T')[0];
-  
+
     interface ValidateAndPrepareData {
       (value: string, field: string): string | undefined;
     }
@@ -273,7 +269,7 @@ const SleepTrackerScreen: React.FC = () => {
         return value;
       }
     };
-  
+
     const sleepData = {
       date: formattedDate,
       isDeployed,
@@ -301,19 +297,19 @@ const SleepTrackerScreen: React.FC = () => {
       sugaryDrinks,
       fastFood,
       minPA,
-      rateDiet,  // Store the original value directly
-      stressLevel,  // Store the original value directly
+      rateDiet,
+      stressLevel,
       goals,
       weight: {
         value: dailyWeight,
         unit: weightUnit
       },
     };
-  
+
     const userDocRef = doc(FIRESTORE_DB, 'users', userId);
     const healthDataRef = doc(collection(userDocRef, 'healthData'), formattedDate);
     const sleepDataRef = doc(collection(userDocRef, 'sleepData'), formattedDate);
-  
+
     interface HealthData {
       date: string;
       caffeine: string;
@@ -338,7 +334,7 @@ const SleepTrackerScreen: React.FC = () => {
         alert(`${fieldName} must be a valid integer or empty.`);
       }
     };
-  
+
     addFieldIfValid(caffeine, 'caffeine');
     addFieldIfValid(vegetables, 'vegetables');
     addFieldIfValid(sugaryDrinks, 'sugaryDrinks');
@@ -376,7 +372,6 @@ const SleepTrackerScreen: React.FC = () => {
     }
 
     try {
-      // Check if data has changed by comparing with original
       const hasChanges =
         JSON.stringify(sleepData) !== JSON.stringify(originalData?.sleepData) ||
         JSON.stringify(healthData) !== JSON.stringify(originalData?.healthData);
@@ -385,14 +380,11 @@ const SleepTrackerScreen: React.FC = () => {
       console.log('Original data exists:', !!originalData);
 
       if (!hasChanges && originalData) {
-        // No changes detected
         showBanner('No changes detected to save.');
       } else {
-        // Save the data
         await setDoc(sleepDataRef, sleepData);
         await setDoc(healthDataRef, healthData);
 
-        // Update original data after successful save
         setOriginalData({ sleepData, healthData });
         showBanner('Results saved!');
       }
@@ -401,10 +393,8 @@ const SleepTrackerScreen: React.FC = () => {
     }
   };
 
-  // Utility function to handle empty string or zero for display purposes
   const displayEmptyOrValue = (value: string): string => value === '0' ? '' : value;
 
-  // Utility function to handle empty inputs and default them to '0'
   interface HandleInputChange {
     (setter: React.Dispatch<React.SetStateAction<string>>): (value: string) => void;
   }
@@ -413,7 +403,6 @@ const SleepTrackerScreen: React.FC = () => {
     setter(value === '' ? '0' : value);
   };
 
-  // Utility function to handle minute inputs and cap them at 59
   interface HandleMinuteInputChange {
     (setter: React.Dispatch<React.SetStateAction<string>>): (value: string) => void;
   }
@@ -432,7 +421,7 @@ const SleepTrackerScreen: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.wrapper}>
       <SaveBanner
         visible={visible}
         message={message}
@@ -449,10 +438,10 @@ const SleepTrackerScreen: React.FC = () => {
               <SwitchSelector
                   initial={0}
                   onPress={value => setIsOnDuty(value)}
-                  textColor={'#BDBDBD'} // your active text color
-                  selectedColor={'#52796F'} // the color for the label text when it is selected
-                  buttonColor={'#BDBDBD'} // the color for the button when it is selected
-                  borderColor={'#BDBDBD'} // border color
+                  textColor={colors.borderMedium}
+                  selectedColor={colors.primary}
+                  buttonColor={colors.borderMedium}
+                  borderColor={colors.borderMedium}
                   hasPadding
                   options={[
                   { label: 'no', value: 'yes' },
@@ -467,10 +456,10 @@ const SleepTrackerScreen: React.FC = () => {
               <SwitchSelector
                   initial={0}
                   onPress={value => setIsDeployed(value)}
-                  textColor={'#BDBDBD'} // your active text color
-                  selectedColor={'#52796F'} // the color for the label text when it is selected
-                  buttonColor={'#BDBDBD'} // the color for the button when it is selected
-                  borderColor={'#BDBDBD'} // border color
+                  textColor={colors.borderMedium}
+                  selectedColor={colors.primary}
+                  buttonColor={colors.borderMedium}
+                  borderColor={colors.borderMedium}
                   hasPadding
                   options={[
                   { label: 'no', value: 'yes' },
@@ -496,18 +485,18 @@ const SleepTrackerScreen: React.FC = () => {
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
-            onChangeText={handleInputChange(setInBedHours)}  // Handle the input change
-            value={displayEmptyOrValue(inBedHours)}  // Display empty if '0'
+            onChangeText={handleInputChange(setInBedHours)}
+            value={displayEmptyOrValue(inBedHours)}
             keyboardType="numeric"
-            maxLength={2} // Limit to 99 hours
+            maxLength={2}
           />
           <Text style={styles.unitText}>hours</Text>
           <TextInput
             style={styles.timeInput}
-            onChangeText={handleMinuteInputChange(setInBedMinutes)}  // Cap at 59 minutes
-            value={displayEmptyOrValue(inBedMinutes)}  // Display empty if '0'
+            onChangeText={handleMinuteInputChange(setInBedMinutes)}
+            value={displayEmptyOrValue(inBedMinutes)}
             keyboardType="numeric"
-            maxLength={2} // Limit to 59 minutes
+            maxLength={2}
           />
           <Text style={styles.unitText}>min</Text>
         </View>
@@ -523,7 +512,7 @@ const SleepTrackerScreen: React.FC = () => {
             onChangeText={handleInputChange(setTimeAsleepHours)}
             value={displayEmptyOrValue(timeAsleepHours)}
             keyboardType="numeric"
-            maxLength={2} // Assuming we want to limit to 99 hours
+            maxLength={2}
           />
           <Text style={styles.unitText}>hours</Text>
           <TextInput
@@ -531,7 +520,7 @@ const SleepTrackerScreen: React.FC = () => {
             onChangeText={handleMinuteInputChange(setTimeAsleepMinutes)}
             value={displayEmptyOrValue(timeAsleepMinutes)}
             keyboardType="numeric"
-            maxLength={2} // Assuming we want to limit to 59 minutes
+            maxLength={2}
           />
           <Text style={styles.unitText}>min</Text>
         </View>
@@ -547,7 +536,7 @@ const SleepTrackerScreen: React.FC = () => {
             onChangeText={handleInputChange(setFallAsleepHours)}
             value={displayEmptyOrValue(fallAsleepHours)}
             keyboardType="numeric"
-            maxLength={2} // Assuming we want to limit to 99 hours
+            maxLength={2}
           />
           <Text style={styles.unitText}>hours</Text>
           <TextInput
@@ -555,7 +544,7 @@ const SleepTrackerScreen: React.FC = () => {
             onChangeText={handleMinuteInputChange(setFallAsleepMinutes)}
             value={displayEmptyOrValue(fallAsleepMinutes)}
             keyboardType="numeric"
-            maxLength={2} // Assuming we want to limit to 59 minutes
+            maxLength={2}
           />
           <Text style={styles.unitText}>min</Text>
         </View>
@@ -579,10 +568,10 @@ const SleepTrackerScreen: React.FC = () => {
         <SwitchSelector
             initial={0}
             onPress={value => setSleepMedications(value)}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={colors.borderMedium}
+            selectedColor={colors.primary}
+            buttonColor={colors.borderMedium}
+            borderColor={colors.borderMedium}
             hasPadding
             options={[
             { label: 'no', value: 'yes' },
@@ -597,10 +586,10 @@ const SleepTrackerScreen: React.FC = () => {
         <SwitchSelector
             initial={0}
             onPress={value => setNaps(value)}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={colors.borderMedium}
+            selectedColor={colors.primary}
+            buttonColor={colors.borderMedium}
+            borderColor={colors.borderMedium}
             hasPadding
             options={[
             { label: 'no', value: 'yes' },
@@ -620,7 +609,7 @@ const SleepTrackerScreen: React.FC = () => {
             onChangeText={handleInputChange(setNapTimeHours)}
             value={displayEmptyOrValue(napTimeHours)}
             keyboardType="numeric"
-            maxLength={2} // Assuming we want to limit to 99 hours
+            maxLength={2}
           />
           <Text style={styles.unitText}>hours</Text>
           <TextInput
@@ -628,7 +617,7 @@ const SleepTrackerScreen: React.FC = () => {
             onChangeText={handleMinuteInputChange(setNapTimeMinutes)}
             value={displayEmptyOrValue(napTimeMinutes)}
             keyboardType="numeric"
-            maxLength={2} // Assuming we want to limit to 59 minutes
+            maxLength={2}
           />
           <Text style={styles.unitText}>min</Text>
         </View>
@@ -677,13 +666,13 @@ const SleepTrackerScreen: React.FC = () => {
                 maxLength={3}
             />
             <SwitchSelector
-              key={weightUnit} // add this line
+              key={weightUnit}
               initial={weightUnit === 'lbs' ? 0 : 1}
               onPress={(value) => setWeightUnit(value)}
-              textColor={'#BDBDBD'}
-              selectedColor={'#52796F'}
-              buttonColor={'#BDBDBD'}
-              borderColor={'#BDBDBD'}
+              textColor={colors.borderMedium}
+              selectedColor={colors.primary}
+              buttonColor={colors.borderMedium}
+              borderColor={colors.borderMedium}
               hasPadding
               options={[
                 { label: 'kgs', value: 'kgs' },
@@ -786,66 +775,67 @@ const SleepTrackerScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   container: {
-    padding: 24,
-    paddingBottom: 50, // Add padding to the bottom to ensure the 'Next' button is not cut off
+    padding: spacing.xxl,
+    paddingBottom: spacing.huge,
   },
   title: {
-    // I would like this to be in line with the back arrow
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 24,
+    fontSize: fontSizes.display,
+    fontWeight: fontWeights.bold,
+    marginBottom: spacing.xxl,
     textAlign: 'center',
   },
   backButton: {
-    padding: 8, // Padding to make it easier to press
+    padding: spacing.sm,
     top: 0,
   },
   labelContainer: {
-    marginTop: 16,
+    marginTop: spacing.lg,
     position: 'absolute',
-    top: -25, // Adjust this to fit your design
+    top: -25,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#52796F',
+    backgroundColor: colors.primary,
     paddingVertical: 5,
-    paddingHorizontal: 10, // This will give space inside the label
-    borderRadius: 15, // This will round the corners
+    paddingHorizontal: spacing.md,
+    borderRadius: 15,
   },
   labelText: {
-    textAlign: 'center', // Center the text inside the label
-    color: 'white',
-    backgroundColor: '#52796F',
+    textAlign: 'center',
+    color: colors.textWhite,
+    backgroundColor: colors.primary,
     paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 10,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
   },
   contentView: {
-      padding: 20,
-      width: '100%',
-      justifyContent: 'center',
-      alignItems: 'stretch',
-    },
+    padding: spacing.xl,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'stretch',
+  },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 8,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.sm,
   },
   switchSelector: {
-    width: 80, // Adjust the width as needed
-    height: 30, // Adjust the height as needed
-    borderRadius: 15, // Half of the height to make it rounded
-    marginLeft: 150, // Add some space between the text input and the switch
+    width: 80,
+    height: 30,
+    borderRadius: 15,
+    marginLeft: 150,
   },
   switchButton: {
-    padding: 2, // Reduce padding to decrease the size of the button
-    // You may also want to adjust fontSize here if the text is too large after scaling
+    padding: 2,
   },
   inputRow: {
     flexDirection: 'row',
@@ -853,86 +843,85 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     borderWidth: 1,
-    borderColor: '#cccccc',
-    borderRadius: 10,
-    paddingVertical: 10,
+    borderColor: colors.borderLight,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.md,
     marginHorizontal: 4,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 40, // Set a fixed height for buttons
+    height: 40,
   },
   optionButtonSelected: {
-    backgroundColor: '#52796F',
-    borderColor: '#52796F',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   optionText: {
-    fontSize: 16,
-    color: '#000000',
+    fontSize: fontSizes.md,
+    color: colors.textPrimary,
     textAlign: 'center',
-    flexShrink: 1, // Allow text to shrink if needed
+    flexShrink: 1,
   },
   optionTextSelected: {
-    color: '#ffffff',
+    color: colors.textWhite,
   },
   questionContainer: {
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   questionText: {
-    fontSize: 16,
-    color: '#000000',
+    fontSize: fontSizes.md,
+    color: colors.textPrimary,
     textAlign: 'left',
-    flexShrink: 1, // Allow text to shrink if needed
-    marginBottom: 16,
+    flexShrink: 1,
+    marginBottom: spacing.lg,
   },
   healthInput: {
-    borderBottomWidth: 1, // Add underline
-    borderColor: '#BDBDBD', // Set underline color
-    paddingVertical: 5, // Adjust padding as needed
-    marginBottom: 20, // Space between the inputs
-    fontSize: 16,
+    borderBottomWidth: 1,
+    borderColor: colors.borderMedium,
+    paddingVertical: 5,
+    marginBottom: spacing.xl,
+    fontSize: fontSizes.md,
   },
   optionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   timeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   timeInput: {
     borderBottomWidth: 1,
-    borderColor: '#BDBDBD',
+    borderColor: colors.borderMedium,
     textAlign: 'center',
-    width: 60, // Fixed width for the inputs
-    fontSize: 16,
+    width: 60,
+    fontSize: fontSizes.md,
     paddingVertical: 5,
   },
   unitText: {
-    fontSize: 16,
-    width: 50, // Fixed width for the unit text
+    fontSize: fontSizes.md,
+    width: 50,
   },
   button: {
-    backgroundColor: '#52796F',
+    backgroundColor: colors.primary,
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 25,
-    marginTop: 24,
+    paddingHorizontal: spacing.xxl,
+    borderRadius: borderRadius.xxl,
+    marginTop: spacing.xxl,
   },
   buttonText: {
-    fontWeight: 'bold',
-    color: 'white',
-    fontSize: 16,
+    fontWeight: fontWeights.bold,
+    color: colors.textWhite,
+    fontSize: fontSizes.md,
     textAlign: 'center',
   },
-    sectionHeaderText: {
-    // Styles for the text inside the button
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#52796F',
+  sectionHeaderText: {
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.bold,
+    color: colors.primary,
   },
 });
 

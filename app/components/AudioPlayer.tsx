@@ -6,6 +6,7 @@ import Slider from '@react-native-community/slider';
 import { Asset } from 'expo-asset';
 import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
 import { findLessonBySubtitle } from '../../utils/lessonHelpers';
+import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 
 interface AudioPlayerProps {
   moduleTitle: string;
@@ -80,6 +81,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
 
   const onSeekComplete = (value: number) => player.seekTo(value);
 
+  const iconColor = uri ? colors.primary : colors.textMuted;
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{moduleTitle}</Text>
@@ -92,26 +95,26 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
         maximumValue={status?.duration ?? 1}
         value={status?.currentTime ?? 0}
         onSlidingComplete={onSeekComplete}
-        minimumTrackTintColor="#52796F"
-        maximumTrackTintColor="#E5E5E5"
-        thumbTintColor="#52796F"
+        minimumTrackTintColor={colors.primary}
+        maximumTrackTintColor={colors.backgroundTertiary}
+        thumbTintColor={colors.primary}
       />
 
       <View style={styles.controls}>
         <TouchableOpacity onPress={skipBackward} disabled={!uri}>
-          <Ionicons name="play-back" size={32} color={uri ? '#52796F' : '#B0B0B0'} />
+          <Ionicons name="play-back" size={32} color={iconColor} />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={togglePlayPause} disabled={!uri}>
           <Ionicons
             name={status?.playing ? 'pause-circle' : 'play-circle'}
             size={64}
-            color={uri ? '#52796F' : '#B0B0B0'}
+            color={iconColor}
           />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={skipForward} disabled={!uri}>
-          <Ionicons name="play-forward" size={32} color={uri ? '#52796F' : '#B0B0B0'} />
+          <Ionicons name="play-forward" size={32} color={iconColor} />
         </TouchableOpacity>
       </View>
 
@@ -121,19 +124,43 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+  title: {
+    fontSize: fontSizes.xxl,
+    fontWeight: fontWeights.bold,
+    marginBottom: spacing.md,
+  },
   imagePlaceholder: {
     width: 200,
     height: 200,
-    backgroundColor: '#52796F',
-    borderRadius: 15,
-    marginBottom: 10,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.md,
   },
-  subtitle: { fontSize: 18, fontWeight: '600', marginBottom: 20 },
-  slider: { width: '80%', marginBottom: 20 },
-  controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '60%' },
-  noSource: { marginTop: 8, color: '#888' },
+  subtitle: {
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.semibold,
+    marginBottom: spacing.xl,
+  },
+  slider: {
+    width: '80%',
+    marginBottom: spacing.xl,
+  },
+  controls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '60%',
+  },
+  noSource: {
+    marginTop: spacing.sm,
+    color: colors.textSecondary,
+  },
 });
 
 export default AudioPlayer;
