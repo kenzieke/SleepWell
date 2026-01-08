@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
-import OptionButton, { OptionType } from '../../components/OptionButton';
+import OptionButton, { OptionType } from '../components/OptionButton';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';

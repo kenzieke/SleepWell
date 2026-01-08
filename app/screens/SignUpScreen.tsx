@@ -6,6 +6,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';
 import { useNavigation } from '@react-navigation/native';
+import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 
 type SignUpScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignUp'>;
 
@@ -53,7 +54,7 @@ const SignUpScreen: React.FC = () => {
         <TextInput
           style={styles.inputView}
           placeholder="Name"
-          placeholderTextColor="#BDBDBD"
+          placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setName(text)}
           value={name}
         />
@@ -61,7 +62,7 @@ const SignUpScreen: React.FC = () => {
           style={styles.inputView}
           placeholder="Email"
           autoCapitalize="none"
-          placeholderTextColor="#BDBDBD"
+          placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setEmail(text)}
           value={email}
         />
@@ -69,13 +70,13 @@ const SignUpScreen: React.FC = () => {
           style={styles.inputView}
           placeholder="Password"
           autoCapitalize="none"
-          placeholderTextColor="#BDBDBD"
+          placeholderTextColor={colors.borderMedium}
           secureTextEntry={true}
           onChangeText={(text) => setPassword(text)}
           value={password}
         />
       <TouchableOpacity style={styles.signUpBtn} onPress={onPressSignUp} disabled={loading}>
-        {loading ? <ActivityIndicator color="#52796F" /> : <Text style={styles.signUpText}>Sign Up</Text>}
+        {loading ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.signUpText}>Sign Up</Text>}
       </TouchableOpacity>
     </View>
   );
@@ -84,43 +85,43 @@ const SignUpScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontWeight: 'bold',
+    fontWeight: fontWeights.bold,
     fontSize: 50,
-    color: '#000',
+    color: colors.textPrimary,
     marginBottom: 40,
   },
   inputView: {
     width: '80%',
     backgroundColor: '#E8E8E8',
-    borderRadius: 25,
+    borderRadius: borderRadius.xxl,
     height: 50,
-    marginBottom: 20,
+    marginBottom: spacing.xl,
     justifyContent: 'center',
-    padding: 20,
-    fontWeight: 'bold',
+    padding: spacing.xl,
+    fontWeight: fontWeights.bold,
     color: '#919191',
   },
   inputText: {
-    fontWeight: 'bold',
+    fontWeight: fontWeights.bold,
     height: 50,
     color: '#919191',
   },
   button: {
-    backgroundColor: '#52796F',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginTop: 20,
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.sm,
+    marginTop: spacing.xl,
   },
   signUpText: {
-    fontWeight: 'bold',
-    color: '#fff',
-    fontSize: 16,
+    fontWeight: fontWeights.bold,
+    color: colors.textWhite,
+    fontSize: fontSizes.md,
   },
   loginContainer: {
     position: 'absolute',
@@ -128,21 +129,19 @@ const styles = StyleSheet.create({
     right: 40,
   },
   loginText: {
-    fontWeight: 'bold',
-    color: '#52796F',
-    fontSize: 16,
+    fontWeight: fontWeights.bold,
+    color: colors.primary,
+    fontSize: fontSizes.md,
   },
   signUpBtn: {
-    fontWeight: 'bold',
-    color: 'white',
     width: '80%',
-    backgroundColor: '#52796F',
-    borderRadius: 25,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.xxl,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 40,
-    marginBottom: 10,
+    marginBottom: spacing.md,
   },
 });
 

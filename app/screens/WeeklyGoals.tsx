@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 
 // Original image dimensions
 const originalWidth = 1126;
@@ -134,21 +135,21 @@ const styles = StyleSheet.create({
   },
   touchableArea: {
     position: 'absolute',
-    backgroundColor: 'rgba(0, 0, 0, 0)', // Invisible touch areas
+    backgroundColor: colors.transparent,
   },
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backgroundColor: colors.overlay,
   },
   modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 30,
+    margin: spacing.xl,
+    backgroundColor: colors.background,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xxxl,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -157,19 +158,19 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: fontSizes.md,
   },
   button: {
-    borderRadius: 20,
-    padding: 10,
+    borderRadius: borderRadius.xl,
+    padding: spacing.md,
     elevation: 2,
   },
   buttonClose: {
-    backgroundColor: '#52796F',
+    backgroundColor: colors.primary,
   },
   textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: colors.textWhite,
+    fontWeight: fontWeights.bold,
     textAlign: 'center',
   },
 });

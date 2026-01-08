@@ -10,12 +10,13 @@ import SleepAssessmentScreen from '../app/screens/SleepAssessmentScreen';
 import ResultsScreen from '../app/screens/ResultsScreen';
 import LessonDetailScreen from '../app/screens/LessonDetailScreen';
 import AudioPlayerScreen from '../app/screens/AudioPlayerScreen';
-import BottomTabNavigator from '../components/BottomTabNavigator';
-import WeeklyModuleModal from '../components/WeeklyModuleModal';
+import BottomTabNavigator from '../app/components/BottomTabNavigator';
+import WeeklyModuleModal from '../app/components/WeeklyModuleModal';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
 import { RootStackParamList } from '../types/navigationTypes';
 import { useLessonTrackingStore } from '../stores/LessonTrackingStore';
 import { useLessonStore } from '../stores/LessonStore';
+import { findLessonByWeek } from '../utils/lessonHelpers';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -53,7 +54,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
 
   const handleDoNow = () => {
     setModalVisible(false);
-    const lesson = lessons.find((l) => l.id === currentWeek);
+    const lesson = findLessonByWeek(lessons, currentWeek);
     if (lesson) {
       setLesson(lesson); // Store lesson in Zustand for navigation
       navigationRef.current?.navigate('LessonDetailScreen', { lesson });
@@ -68,7 +69,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
     <NavigationContainer ref={navigationRef}>
       <WeeklyModuleModal
         visible={modalVisible}
-        moduleName={lessons.find((l) => l.id === currentWeek)?.title || 'Module'}
+        moduleName={findLessonByWeek(lessons, currentWeek)?.title || 'Module'}
         onDoNow={handleDoNow}
         onLater={handleLater}
       />
