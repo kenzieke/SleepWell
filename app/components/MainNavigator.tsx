@@ -1,11 +1,11 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BottomTabNavigator from './BottomTabNavigator';
-import LessonTrackingScreen from '../app/screens/LessonTrackingScreen';
-import ListMain from '../app/screens/SleepCoachScreen';
+import LessonTrackingScreen from '../screens/LessonTrackingScreen';
+import ListMain from '../screens/SleepCoachScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
-import { RootStackParamList } from '../types/navigationTypes';
+import { RootStackParamList } from '../../types/navigationTypes';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

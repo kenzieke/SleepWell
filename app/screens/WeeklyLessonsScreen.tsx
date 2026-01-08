@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, Image } from 'react-native';
-import ProgressCircle from '../../components/ProgressCircle';
+import ProgressCircle from '../components/ProgressCircle';
 import { FIREBASE_AUTH } from '../../FirebaseConfig';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigationTypes';
 import { useNavigation } from '@react-navigation/native';
 import { useWeeklyLessonsStore } from '../../stores/WeeklyLessonStore';
+import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 
 type WeeklyLessonsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'WeeklyLessonsScreen'>;
 
@@ -135,12 +136,12 @@ const WeeklyLessonsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   greenHeader: {
-    backgroundColor: '#52796F',
-    paddingTop: 10,
-    paddingBottom: 10,
+    backgroundColor: colors.primary,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
     height: 275,
@@ -150,31 +151,31 @@ const styles = StyleSheet.create({
     height: 200,
   },
   header: {
-    paddingTop: 10,
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#000',
+    paddingTop: spacing.md,
+    fontSize: fontSizes.xxxl,
+    fontWeight: fontWeights.bold,
+    color: colors.textPrimary,
     textAlign: 'center',
   },
   progressRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    marginVertical: 16,
+    paddingHorizontal: spacing.lg,
+    marginVertical: spacing.lg,
   },
   button: {
     backgroundColor: '#007BFF',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 24,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    fontSize: fontSizes.xxl,
+    color: colors.textWhite,
+    fontWeight: fontWeights.bold,
   },
   centeredView: {
     flex: 1,
@@ -183,31 +184,31 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   modalView: {
-    margin: 20,
-    backgroundColor: 'white',
+    margin: spacing.xl,
+    backgroundColor: colors.background,
     borderWidth: 2,
-    borderColor: '#52796F',
+    borderColor: colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 50,
     elevation: 5,
-    borderRadius: 20,
+    borderRadius: borderRadius.xl,
     padding: 35,
     alignItems: 'center',
   },
   modalText: {
     marginBottom: 15,
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.bold,
     textAlign: 'center',
   },
   closeButton: {
-    backgroundColor: '#52796F',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    color: 'white',
-    fontSize: 16,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    color: colors.textWhite,
+    fontSize: fontSizes.md,
     textAlign: 'center',
   },
 });

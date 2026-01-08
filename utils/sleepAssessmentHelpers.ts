@@ -1,4 +1,4 @@
-import { OptionType } from "../components/OptionButton";
+import { OptionType } from "../app/components/OptionButton";
 
 // Severity mapping
 export const severityMapping: { [key in OptionType]: number } = {

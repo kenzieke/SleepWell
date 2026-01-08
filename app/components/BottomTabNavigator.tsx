@@ -4,10 +4,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { TouchableOpacity } from 'react-native';
 
-import SleepTrackerScreen from '../app/screens/SleepTracker';
-import WeeklyGoals from '../app/screens/WeeklyGoals';
-import ResourceLibraryScreen from '../app/screens/ResourceLibrary';
-import WeeklyLessonsScreen from '../app/screens/WeeklyLessonsScreen';
+import SleepTrackerScreen from '../screens/SleepTracker';
+import WeeklyGoals from '../screens/WeeklyGoals';
+import ResourceLibraryScreen from '../screens/ResourceLibrary';
+import WeeklyLessonsScreen from '../screens/WeeklyLessonsScreen';
 
 type ScreenType = {
   SleepTrackerScreen: undefined;
@@ -48,7 +48,7 @@ function SleepTrackerStack({ navigation }: SleepTrackerStackProps) {
 }
 
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../types/navigationTypes';
+import { RootStackParamList } from '../../types/navigationTypes';
 
 type WeeklyLessonsStackProps = {
   navigation: StackNavigationProp<ScreenType, 'WeeklyLessonsScreen'>;

@@ -3,6 +3,30 @@ import { FIRESTORE_DB } from '../FirebaseConfig';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigationTypes';
 import { useLessonStore } from '../stores/LessonStore';
+import type { Lesson } from '../stores/LessonTrackingStore';
+
+/**
+ * Find a lesson by matching the subtitle within its title.
+ * Useful when you have the extracted subtitle (e.g., "Sleep Efficiency")
+ * and need to find the full lesson object.
+ */
+export const findLessonBySubtitle = (
+  lessons: Lesson[],
+  subtitle: string
+): Lesson | undefined => {
+  return lessons.find((lesson) => lesson.title.includes(subtitle));
+};
+
+/**
+ * Find a lesson by its week/id number.
+ */
+export const findLessonByWeek = (
+  lessons: Lesson[],
+  week: number | null
+): Lesson | undefined => {
+  if (week === null) return undefined;
+  return lessons.find((lesson) => lesson.id === week);
+};
 
 export const markLessonComplete = async (
   userId: string,

@@ -4,8 +4,10 @@ import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigationTypes';
-import AudioPlayer from '../../components/AudioPlayer';
+import AudioPlayer from '../components/AudioPlayer';
 import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
+import { findLessonBySubtitle } from '../../utils/lessonHelpers';
+import { colors, fontSizes, fontWeights, spacing, borderRadius, buttonHeight } from '../styles';
 
 const audioFiles: Record<string, number> = {
   'Sleep Efficiency': require('../../assets/audio/module1.mp3'),
@@ -66,7 +68,7 @@ const AudioPlayerScreen: React.FC = () => {
   const { lessons, updateLessonProgress } = useLessonTrackingStore();
 
   const handleMarkLessonComplete = () => {
-    const currentLesson = lessons.find((lesson) => lesson.title.includes(moduleSubtitle));
+    const currentLesson = findLessonBySubtitle(lessons, moduleSubtitle);
     if (currentLesson) {
       updateLessonProgress(currentLesson.id, true);
       navigation.goBack();
@@ -103,18 +105,29 @@ const AudioPlayerScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  buttonWrapper: { width: '100%', alignItems: 'center', justifyContent: 'center' },
-  doneText: { fontWeight: 'bold', color: '#fff', fontSize: 16 },
-  doneBtn: {
-    width: '80%',
-    backgroundColor: '#52796F',
-    borderRadius: 25,
-    height: 40,
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  buttonWrapper: {
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10,
-    marginBottom: 30,
+  },
+  doneText: {
+    fontWeight: fontWeights.bold,
+    color: colors.textWhite,
+    fontSize: fontSizes.md,
+  },
+  doneBtn: {
+    width: '80%',
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.xxl,
+    height: buttonHeight.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.md,
+    marginBottom: spacing.xxxl,
   },
 });
 
