@@ -980,18 +980,24 @@
 
         async function loadSleepData(uid) {
             try {
+                console.log('Loading sleep data for user:', uid);
                 const snapshot = await db.collection('users').doc(uid).collection('sleepData').orderBy(firebase.firestore.FieldPath.documentId(), 'desc').limit(30).get();
+                console.log('Sleep data loaded:', snapshot.docs.length, 'entries');
                 return snapshot.docs.map(doc => ({ date: doc.id, ...doc.data() }));
             } catch (error) {
+                console.error('Error loading sleep data for', uid, error);
                 return [];
             }
         }
 
         async function loadHealthData(uid) {
             try {
+                console.log('Loading health data for user:', uid);
                 const snapshot = await db.collection('users').doc(uid).collection('healthData').orderBy(firebase.firestore.FieldPath.documentId(), 'desc').limit(30).get();
+                console.log('Health data loaded:', snapshot.docs.length, 'entries');
                 return snapshot.docs.map(doc => ({ date: doc.id, ...doc.data() }));
             } catch (error) {
+                console.error('Error loading health data for', uid, error);
                 return [];
             }
         }
