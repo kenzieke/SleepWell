@@ -9,8 +9,10 @@ service cloud.firestore {
     }
 
     // Admins collection - anyone authenticated can read their own entry (to check if they're an admin)
+    // Admins can read all entries and write (add/remove other admins)
     match /admins/{email} {
       allow read: if request.auth != null && request.auth.token.email == email;
+      allow read, write: if isAdmin();
     }
 
     // Users can read/write their own data

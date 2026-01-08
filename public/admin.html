@@ -499,6 +499,167 @@
             font-style: italic;
         }
 
+        /* Admin Management */
+        .btn-manage-admins {
+            padding: 8px 16px;
+            background: #9b59b6;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn-manage-admins:hover {
+            background: #8e44ad;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            font-size: 1.3rem;
+            color: #2c3e50;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 0;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #2c3e50;
+        }
+        .modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .add-admin-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .add-admin-form input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .add-admin-form input:focus {
+            outline: none;
+            border-color: #9b59b6;
+        }
+        .btn-add-admin {
+            padding: 12px 20px;
+            background: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-add-admin:hover {
+            background: #8e44ad;
+        }
+        .btn-add-admin:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .admin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .admin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .admin-email-display {
+            font-size: 0.95rem;
+            color: #2c3e50;
+        }
+        .admin-item.current {
+            background: #e8f4f8;
+            border: 1px solid #3498db;
+        }
+        .admin-badge {
+            font-size: 0.75rem;
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        .btn-remove-admin {
+            padding: 6px 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .btn-remove-admin:hover {
+            background: #c0392b;
+        }
+        .btn-remove-admin:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .admin-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        .admin-message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .admin-message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header {
@@ -558,9 +719,34 @@
             <h1>Sleep Well Admin Dashboard</h1>
             <div class="header-actions">
                 <span class="user-email" id="adminEmail"></span>
+                <button class="btn-manage-admins" id="manageAdminsBtn">Manage Admins</button>
                 <button class="btn-logout" id="logoutBtn">Sign Out</button>
             </div>
         </header>
+
+    <!-- Admin Management Modal -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Admins</h2>
+                <button class="modal-close" id="closeAdminModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="adminMessage"></div>
+                <div class="add-admin-form">
+                    <input type="email" id="newAdminEmail" placeholder="Enter email address">
+                    <button class="btn-add-admin" id="addAdminBtn">Add Admin</button>
+                </div>
+                <h4 style="margin-bottom: 15px; color: #2c3e50;">Current Admins</h4>
+                <div class="admin-list" id="adminList">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading admins...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
         <div class="stats-bar" id="statsBar">
             <div class="stat-card">
@@ -1221,6 +1407,157 @@
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
+        }
+
+        // Admin Management Functions
+        const adminModal = document.getElementById('adminModal');
+        const manageAdminsBtn = document.getElementById('manageAdminsBtn');
+        const closeAdminModal = document.getElementById('closeAdminModal');
+        const addAdminBtn = document.getElementById('addAdminBtn');
+        const newAdminEmail = document.getElementById('newAdminEmail');
+        const adminListEl = document.getElementById('adminList');
+        const adminMessage = document.getElementById('adminMessage');
+
+        // Open admin modal
+        manageAdminsBtn.addEventListener('click', () => {
+            adminModal.classList.add('active');
+            loadAdminList();
+        });
+
+        // Close admin modal
+        closeAdminModal.addEventListener('click', () => {
+            adminModal.classList.remove('active');
+            adminMessage.innerHTML = '';
+        });
+
+        // Close modal when clicking outside
+        adminModal.addEventListener('click', (e) => {
+            if (e.target === adminModal) {
+                adminModal.classList.remove('active');
+                adminMessage.innerHTML = '';
+            }
+        });
+
+        // Add new admin
+        addAdminBtn.addEventListener('click', async () => {
+            const email = newAdminEmail.value.trim().toLowerCase();
+
+            if (!email) {
+                showAdminMessage('Please enter an email address.', 'error');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showAdminMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            addAdminBtn.disabled = true;
+            addAdminBtn.textContent = 'Adding...';
+
+            try {
+                // Check if admin already exists
+                const existingAdmin = await db.collection('admins').doc(email).get();
+                if (existingAdmin.exists) {
+                    showAdminMessage('This email is already an admin.', 'error');
+                    return;
+                }
+
+                // Add new admin
+                await db.collection('admins').doc(email).set({
+                    addedBy: currentUser.email,
+                    addedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showAdminMessage(`Successfully added ${email} as an admin.`, 'success');
+                newAdminEmail.value = '';
+                loadAdminList();
+            } catch (error) {
+                console.error('Error adding admin:', error);
+                showAdminMessage('Failed to add admin. Please try again.', 'error');
+            } finally {
+                addAdminBtn.disabled = false;
+                addAdminBtn.textContent = 'Add Admin';
+            }
+        });
+
+        // Handle Enter key in email input
+        newAdminEmail.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addAdminBtn.click();
+            }
+        });
+
+        // Load admin list
+        async function loadAdminList() {
+            adminListEl.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Loading admins...</p></div>';
+
+            try {
+                const adminsSnapshot = await db.collection('admins').get();
+                const admins = adminsSnapshot.docs.map(doc => ({
+                    email: doc.id,
+                    ...doc.data()
+                }));
+
+                if (admins.length === 0) {
+                    adminListEl.innerHTML = '<div class="no-data">No admins found</div>';
+                    return;
+                }
+
+                adminListEl.innerHTML = admins.map(admin => {
+                    const isCurrentUser = admin.email === currentUser.email;
+                    return `
+                        <div class="admin-item ${isCurrentUser ? 'current' : ''}">
+                            <div>
+                                <span class="admin-email-display">${escapeHtml(admin.email)}</span>
+                                ${isCurrentUser ? '<span class="admin-badge">You</span>' : ''}
+                            </div>
+                            <button class="btn-remove-admin"
+                                    onclick="removeAdmin('${escapeHtml(admin.email)}')"
+                                    ${isCurrentUser ? 'disabled title="Cannot remove yourself"' : ''}>
+                                Remove
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading admins:', error);
+                adminListEl.innerHTML = '<div class="no-data">Error loading admins</div>';
+            }
+        }
+
+        // Remove admin
+        async function removeAdmin(email) {
+            if (email === currentUser.email) {
+                showAdminMessage('You cannot remove yourself as an admin.', 'error');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to remove ${email} as an admin?`)) {
+                return;
+            }
+
+            try {
+                await db.collection('admins').doc(email).delete();
+                showAdminMessage(`Successfully removed ${email} as an admin.`, 'success');
+                loadAdminList();
+            } catch (error) {
+                console.error('Error removing admin:', error);
+                showAdminMessage('Failed to remove admin. Please try again.', 'error');
+            }
+        }
+
+        // Show admin message
+        function showAdminMessage(message, type) {
+            adminMessage.innerHTML = `<div class="admin-message ${type}">${escapeHtml(message)}</div>`;
+            setTimeout(() => {
+                adminMessage.innerHTML = '';
+            }, 5000);
+        }
+
+        // Validate email format
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
     </script>
 </body>
