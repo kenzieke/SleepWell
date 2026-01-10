@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Check if user's email exists in the admins collection
+    function isAdmin() {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+
+    // Admins collection - anyone authenticated can read their own entry (to check if they're an admin)
+    // Admins can read all entries and write (add/remove other admins)
+    match /admins/{email} {
+      allow read: if request.auth != null && request.auth.token.email == email;
+      allow read, write: if isAdmin();
+    }
+
+    // Users can read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Admins can read all user documents
+      allow read: if isAdmin();
+
+      // Sub-collections follow same rules
+      match /results/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read: if isAdmin();
+      }
+
+      match /sleepData/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read: if isAdmin();
+      }
+
+      match /healthData/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read: if isAdmin();
+      }
+
+      match /lessonTracking/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read: if isAdmin();
+      }
+    }
+
+    // Admins can list all users
+    match /users/{document=**} {
+      allow list: if isAdmin();
+    }
+  }
+}
