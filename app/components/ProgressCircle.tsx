@@ -54,7 +54,7 @@ const ProgressCircle: React.FC<ProgressCircleProps> = ({ percentage, label }) =>
         />
       </Svg>
       <View style={[styles.textLabel, { height: diameter, width: diameter }]}>
-        <Text style={styles.progressLabel}>{label}</Text>
+        <Text style={styles.progressLabel}>{label.replace(' ', '\n')}</Text>
       </View>
     </View>
   );
