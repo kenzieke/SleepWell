@@ -110,11 +110,8 @@ const WeeklyGoals: React.FC = () => {
             <Text style={styles.modalText}>
               {goalContentMap[selectedGoal] || 'Content not available'}
             </Text>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.textStyle}>Done</Text>
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButton}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -139,38 +136,38 @@ const styles = StyleSheet.create({
   },
   centeredView: {
     flex: 1,
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.overlay,
+    marginTop: 22,
   },
   modalView: {
     margin: spacing.xl,
     backgroundColor: colors.background,
-    borderRadius: borderRadius.xl,
-    padding: spacing.xxxl,
-    alignItems: 'center',
-    shadowColor: colors.textPrimary,
+    borderWidth: 2,
+    borderColor: colors.primaryDark,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOpacity: 1,
+    shadowRadius: 10,
     elevation: 5,
+    borderRadius: borderRadius.xxl,
+    padding: 35,
+    alignItems: 'center',
   },
   modalText: {
     marginBottom: 15,
-    textAlign: 'center',
     fontSize: fontSizes.md,
+    fontWeight: fontWeights.medium,
+    textAlign: 'center',
   },
-  button: {
-    borderRadius: borderRadius.xl,
-    padding: spacing.md,
-    elevation: 2,
-  },
-  buttonClose: {
-    backgroundColor: colors.primary,
-  },
-  textStyle: {
+  closeButton: {
+    backgroundColor: colors.primaryDark,
+    borderRadius: borderRadius.xxl,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
     color: colors.textWhite,
-    fontWeight: fontWeights.bold,
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.medium,
     textAlign: 'center',
   },
 });

@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   progressContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 8,
+    margin: 6,
     position: 'relative',
     width: diameter,
     height: diameter,
