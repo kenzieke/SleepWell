@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: colors.background,
     paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.huge,
+    paddingHorizontal: spacing.xxxl,
     borderRadius: 30,
     borderWidth: 2,
     shadowColor: colors.primaryDark,
