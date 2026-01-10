@@ -120,7 +120,7 @@ const BottomTabNavigator: React.FC = () => {
               iconName = focused ? 'trophy' : 'trophy-outline';
               break;
             case 'WeeklyLessonsScreen':
-              iconName = focused ? 'book' : 'book-outline';
+              iconName = focused ? 'home' : 'home-outline';
               break;
             case 'ResourceLibraryScreen':
               iconName = focused ? 'library' : 'library-outline';
