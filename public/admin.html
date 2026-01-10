@@ -661,6 +661,175 @@
             color: #721c24;
         }
 
+        /* Invite Codes */
+        .btn-invite-codes {
+            padding: 8px 16px;
+            background: #27ae60;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn-invite-codes:hover {
+            background: #219a52;
+        }
+        .generate-code-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .generate-code-form input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .generate-code-form input:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+        .btn-generate-code {
+            padding: 12px 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-generate-code:hover {
+            background: #219a52;
+        }
+        .btn-generate-code:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .invite-code-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .invite-code-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            gap: 10px;
+        }
+        .invite-code-item.used {
+            background: #e9ecef;
+            opacity: 0.7;
+        }
+        .invite-code-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            letter-spacing: 2px;
+        }
+        .invite-code-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .invite-code-status {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .invite-code-status.available {
+            background: #d4edda;
+            color: #155724;
+        }
+        .invite-code-status.used {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .btn-copy-code {
+            padding: 6px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .btn-copy-code:hover {
+            background: #2980b9;
+        }
+        .btn-delete-code {
+            padding: 6px 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .btn-delete-code:hover {
+            background: #c0392b;
+        }
+        .invite-code-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .code-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .code-stat {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        .code-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .code-stat-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .filter-tab {
+            padding: 8px 16px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .filter-tab:hover {
+            background: #dee2e6;
+        }
+        .filter-tab.active {
+            background: #27ae60;
+            color: white;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header {
@@ -720,6 +889,7 @@
             <h1>Sleep Well Admin Dashboard</h1>
             <div class="header-actions">
                 <span class="user-email" id="adminEmail"></span>
+                <button class="btn-invite-codes" id="inviteCodesBtn">Invite Codes</button>
                 <button class="btn-manage-admins" id="manageAdminsBtn">Manage Admins</button>
                 <button class="btn-logout" id="logoutBtn">Sign Out</button>
             </div>
@@ -743,6 +913,52 @@
                     <div class="loading">
                         <div class="loading-spinner"></div>
                         <p>Loading admins...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Codes Modal -->
+    <div class="modal-overlay" id="inviteCodesModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>Invite Codes</h2>
+                <button class="modal-close" id="closeInviteCodesModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="inviteCodeMessage"></div>
+
+                <div class="code-stats" id="codeStats">
+                    <div class="code-stat">
+                        <div class="code-stat-value" id="totalCodes">-</div>
+                        <div class="code-stat-label">Total Codes</div>
+                    </div>
+                    <div class="code-stat">
+                        <div class="code-stat-value" id="availableCodes">-</div>
+                        <div class="code-stat-label">Available</div>
+                    </div>
+                    <div class="code-stat">
+                        <div class="code-stat-value" id="usedCodes">-</div>
+                        <div class="code-stat-label">Used</div>
+                    </div>
+                </div>
+
+                <div class="generate-code-form">
+                    <input type="text" id="codeNote" placeholder="Note (optional, e.g., 'For John Smith')">
+                    <button class="btn-generate-code" id="generateCodeBtn">Generate Code</button>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="available">Available</button>
+                    <button class="filter-tab" data-filter="used">Used</button>
+                </div>
+
+                <div class="invite-code-list" id="inviteCodeList">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading invite codes...</p>
                     </div>
                 </div>
             </div>
@@ -1565,6 +1781,217 @@
         // Validate email format
         function isValidEmail(email) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // ==================== INVITE CODES FUNCTIONALITY ====================
+
+        const inviteCodesModal = document.getElementById('inviteCodesModal');
+        const inviteCodesBtn = document.getElementById('inviteCodesBtn');
+        const closeInviteCodesModal = document.getElementById('closeInviteCodesModal');
+        const generateCodeBtn = document.getElementById('generateCodeBtn');
+        const codeNoteInput = document.getElementById('codeNote');
+        const inviteCodeListEl = document.getElementById('inviteCodeList');
+        const inviteCodeMessage = document.getElementById('inviteCodeMessage');
+
+        let allInviteCodes = [];
+        let currentFilter = 'all';
+
+        // Open invite codes modal
+        inviteCodesBtn.addEventListener('click', () => {
+            inviteCodesModal.classList.add('active');
+            loadInviteCodes();
+        });
+
+        // Close invite codes modal
+        closeInviteCodesModal.addEventListener('click', () => {
+            inviteCodesModal.classList.remove('active');
+            inviteCodeMessage.innerHTML = '';
+        });
+
+        // Close modal when clicking outside
+        inviteCodesModal.addEventListener('click', (e) => {
+            if (e.target === inviteCodesModal) {
+                inviteCodesModal.classList.remove('active');
+                inviteCodeMessage.innerHTML = '';
+            }
+        });
+
+        // Filter tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderInviteCodes();
+            });
+        });
+
+        // Generate new invite code
+        generateCodeBtn.addEventListener('click', async () => {
+            generateCodeBtn.disabled = true;
+            generateCodeBtn.textContent = 'Generating...';
+
+            try {
+                const code = generateRandomCode();
+                const note = codeNoteInput.value.trim();
+
+                // Check if code already exists (very unlikely but safe)
+                const existingCode = await db.collection('inviteCodes').doc(code).get();
+                if (existingCode.exists) {
+                    showInviteCodeMessage('Code collision, please try again.', 'error');
+                    return;
+                }
+
+                // Create the invite code document
+                await db.collection('inviteCodes').doc(code).set({
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdBy: currentUser.email,
+                    note: note || null,
+                    usedBy: null,
+                    usedAt: null,
+                    active: true
+                });
+
+                showInviteCodeMessage(`Code "${code}" created successfully!`, 'success');
+                codeNoteInput.value = '';
+                loadInviteCodes();
+
+                // Auto-copy to clipboard
+                copyToClipboard(code);
+            } catch (error) {
+                console.error('Error generating code:', error);
+                showInviteCodeMessage('Failed to generate code. Please try again.', 'error');
+            } finally {
+                generateCodeBtn.disabled = false;
+                generateCodeBtn.textContent = 'Generate Code';
+            }
+        });
+
+        // Generate a random 6-character alphanumeric code
+        function generateRandomCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Excluded confusing chars: 0, O, 1, I
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // Load invite codes from Firestore
+        async function loadInviteCodes() {
+            inviteCodeListEl.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Loading invite codes...</p></div>';
+
+            try {
+                const codesSnapshot = await db.collection('inviteCodes')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                allInviteCodes = codesSnapshot.docs.map(doc => ({
+                    code: doc.id,
+                    ...doc.data()
+                }));
+
+                updateCodeStats();
+                renderInviteCodes();
+            } catch (error) {
+                console.error('Error loading invite codes:', error);
+                inviteCodeListEl.innerHTML = '<div class="no-data">Error loading codes. Please check your permissions.</div>';
+            }
+        }
+
+        // Update stats display
+        function updateCodeStats() {
+            const total = allInviteCodes.length;
+            const available = allInviteCodes.filter(c => c.active && !c.usedBy).length;
+            const used = allInviteCodes.filter(c => c.usedBy).length;
+
+            document.getElementById('totalCodes').textContent = total;
+            document.getElementById('availableCodes').textContent = available;
+            document.getElementById('usedCodes').textContent = used;
+        }
+
+        // Render invite codes based on current filter
+        function renderInviteCodes() {
+            let filteredCodes = allInviteCodes;
+
+            if (currentFilter === 'available') {
+                filteredCodes = allInviteCodes.filter(c => c.active && !c.usedBy);
+            } else if (currentFilter === 'used') {
+                filteredCodes = allInviteCodes.filter(c => c.usedBy);
+            }
+
+            if (filteredCodes.length === 0) {
+                inviteCodeListEl.innerHTML = '<div class="no-data">No invite codes found</div>';
+                return;
+            }
+
+            inviteCodeListEl.innerHTML = filteredCodes.map(code => {
+                const isUsed = !!code.usedBy;
+                const createdDate = code.createdAt ? formatDate(code.createdAt.toDate()) : 'Unknown';
+                const usedDate = code.usedAt ? formatDate(code.usedAt.toDate()) : null;
+
+                return `
+                    <div class="invite-code-item ${isUsed ? 'used' : ''}">
+                        <div>
+                            <div class="invite-code-display">${escapeHtml(code.code)}</div>
+                            <div class="invite-code-meta">
+                                Created ${createdDate}${code.note ? ` - ${escapeHtml(code.note)}` : ''}
+                                ${isUsed ? `<br>Used by ${escapeHtml(code.usedBy)} on ${usedDate}` : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="invite-code-status ${isUsed ? 'used' : 'available'}">
+                                ${isUsed ? 'Used' : 'Available'}
+                            </span>
+                            <div class="invite-code-actions">
+                                ${!isUsed ? `<button class="btn-copy-code" onclick="copyToClipboard('${code.code}')">Copy</button>` : ''}
+                                <button class="btn-delete-code" onclick="deleteInviteCode('${code.code}')">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Copy code to clipboard
+        async function copyToClipboard(code) {
+            try {
+                await navigator.clipboard.writeText(code);
+                showInviteCodeMessage(`Code "${code}" copied to clipboard!`, 'success');
+            } catch (error) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showInviteCodeMessage(`Code "${code}" copied to clipboard!`, 'success');
+            }
+        }
+
+        // Delete invite code
+        async function deleteInviteCode(code) {
+            if (!confirm(`Are you sure you want to delete invite code "${code}"?`)) {
+                return;
+            }
+
+            try {
+                await db.collection('inviteCodes').doc(code).delete();
+                showInviteCodeMessage(`Code "${code}" deleted successfully.`, 'success');
+                loadInviteCodes();
+            } catch (error) {
+                console.error('Error deleting code:', error);
+                showInviteCodeMessage('Failed to delete code. Please try again.', 'error');
+            }
+        }
+
+        // Show invite code message
+        function showInviteCodeMessage(message, type) {
+            inviteCodeMessage.innerHTML = `<div class="admin-message ${type}">${escapeHtml(message)}</div>`;
+            setTimeout(() => {
+                inviteCodeMessage.innerHTML = '';
+            }, 5000);
         }
     </script>
 </body>

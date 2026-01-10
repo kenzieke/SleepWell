@@ -15,6 +15,23 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // Invite codes collection
+    // Anyone can read a specific code (to validate during signup)
+    // Only admins can create, update, or delete codes
+    // Users can update a code only to mark it as used (during signup)
+    match /inviteCodes/{code} {
+      // Anyone authenticated can read a code to validate it
+      allow read: if true;
+      // Admins have full access
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() ||
+        // Allow users to mark a code as used during signup
+        (request.auth != null &&
+         resource.data.usedBy == null &&
+         request.resource.data.usedBy == request.auth.token.email &&
+         request.resource.data.usedAt != null);
+    }
+
     // Users can read/write their own data
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
