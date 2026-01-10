@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
+import { colors } from '../styles';
 
 type Link = {
   name: string;
@@ -11,16 +12,19 @@ type Link = {
 type ResourceItem = {
   id: string;
   title: string;
-  iconName: keyof typeof Ionicons.glyphMap;
+  iconName: keyof typeof Ionicons.glyphMap | keyof typeof MaterialCommunityIcons.glyphMap;
+  iconType: 'ionicon' | 'material';
+  iconColor: string;
   links: Link[];
 };
 
-// Data; replace the flames with icons from Lexanna
 const resources: ResourceItem[] = [
   {
     id: '1',
     title: 'Relaxing Sounds',
-    iconName: 'flame',
+    iconName: 'musical-notes',
+    iconType: 'ionicon',
+    iconColor: colors.tealDeep,
     links: [
       { name: 'White Noise', url: 'https://youtu.be/nMfPqeZjc2c?si=hMfu_wdrrcAo36TK' },
       { name: 'Music - Weightless 10 hours', url: 'https://www.youtube.com/watch?v=qYnA9wWFHLI&list=RDqYnA9wWFHLI&start_radio=1' },
@@ -30,7 +34,9 @@ const resources: ResourceItem[] = [
   {
     id: '2',
     title: 'Stress Tools: Guided Meditation, PMR, Deep Breathing',
-    iconName: 'flame',
+    iconName: 'body',
+    iconType: 'ionicon',
+    iconColor: colors.tealDark,
     links: [
       { name: 'Meditation Before Sleep (5 min)', url: 'https://youtu.be/2K4T9HmEhWE?si=M94unrpZ7xaTvuoK' },
       { name: 'Deep Breathing (5 min)', url: 'https://youtu.be/Z8emmFOuhxE?si=XP09rNxIEvwWHKjy' },
@@ -40,7 +46,9 @@ const resources: ResourceItem[] = [
   {
     id: '3',
     title: 'Mental Health',
-    iconName: 'flame',
+    iconName: 'brain',
+    iconType: 'material',
+    iconColor: colors.teal,
     links: [
       { name: 'Set Aside Worry Time', url: 'https://www.youtube.com/watch?v=OUNR0wh-0o4&t=29s' }
     ],
@@ -48,7 +56,9 @@ const resources: ResourceItem[] = [
   {
     id: '4',
     title: 'Special Topics',
-    iconName: 'flame',
+    iconName: 'lightbulb-outline',
+    iconType: 'material',
+    iconColor: colors.tealSoft,
     links: [
       { name: 'Military Method for Falling Asleep', url: 'https://youtu.be/FWGuy4oOQgQ?si=tXD_Gy35nApgRb55' },
       { name: 'Managing Nightmares', url: 'https://youtu.be/8SwEQEoyqXg?si=Pnhue6TU53smW8lG' },
@@ -60,29 +70,35 @@ const resources: ResourceItem[] = [
   {
     id: '5',
     title: 'Motivation',
-    iconName: 'flame',
+    iconName: 'key',
+    iconType: 'ionicon',
+    iconColor: colors.aquaLight,
     links: [
       { name: 'Remind Yourself of Key Sleep Strategies (2 min)', url: 'https://www.dhs.gov/medialibrary/assets/videos/9196' },
       { name: 'Recovering From Lapses', url: 'https://www.youtube.com/watch?v=Jh7PxmsbhhQ&t=5s' },
       { name: 'Sleep & Heart Health', url: 'https://www.heart.org/en/health-topics/sleep-disorders' },
       { name: 'Ways to Sleep Better (7 min)', url: 'https://www.youtube.com/watch?v=uckGbixdXgs&t=4s' },
-      ],
+    ],
   },
   {
     id: '6',
     title: 'Healthy Nutrition',
-    iconName: 'flame',
+    iconName: 'nutrition',
+    iconType: 'ionicon',
+    iconColor: colors.aquaPale,
     links: [
       { name: 'Healthy Eating for Firefighters (7 min)', url: 'https://www.youtube.com/watch?v=jfWbkCmF4yY' },
       { name: 'How to Log Food on MyFitnessPal', url: 'https://www.youtube.com/watch?v=I9cdBAcuhXU' },
       { name: 'Healthy Eating for Firefighters (50 min course)', url: 'https://www.youtube.com/watch?v=vposs0dsYsI&list=PLid8i4Cga6mAXUJi1TNjqGX4TusXEngvU&t=1s' },
       { name: 'MyPlate (2 min)', url: 'https://www.youtube.com/watch?v=j7CcaUZrUoE' },
-      ],
+    ],
   },
   {
     id: '7',
     title: 'Healthy Weight',
-    iconName: 'flame',
+    iconName: 'scale',
+    iconType: 'ionicon',
+    iconColor: colors.tealDeep,
     links: [
       { name: 'Healthy Weight Loss', url: 'https://www.heart.org/en/healthy-living/healthy-eating/losing-weight' },
       { name: 'Healthy Food Substitutions', url: 'https://www.youtube.com/watch?v=4D8KEU3HVyw' },
@@ -91,12 +107,14 @@ const resources: ResourceItem[] = [
       { name: 'Meal Plan - 1500 Calorie', url: 'https://drive.google.com/file/d/1uQwMK1GK0IwxHZ-8cl8ojOnPuB6CD8G1/view' },
       { name: 'Meal Plan - 1800 Calorie', url: 'https://drive.google.com/file/d/1mN6oCiLf2QXS9DhpNta2GRtj2zaJ0hxU/view' },
       { name: 'Meal Plan - 2000 Calorie', url: 'https://drive.google.com/file/d/1n6dtwMe51qevGQBc9IXVMiD51M6Obssm/view' },
-      ],
+    ],
   },
   {
     id: '8',
     title: 'Building Muscle',
-    iconName: 'flame',
+    iconName: 'fitness',
+    iconType: 'ionicon',
+    iconColor: colors.tealDark,
     links: [
       { name: 'Exercises for Firefighters', url: 'https://www.youtube.com/watch?v=B6yIQnYigWU' },
       { name: 'Upper Body Strength', url: 'https://www.youtube.com/watch?v=DIFXrfSu0gM' }
@@ -108,7 +126,11 @@ const ResourceLibraryScreen: React.FC = () => {
   // Function to render each item
   const renderItem = ({ item }: { item: ResourceItem }) => (
     <View style={styles.itemContainer}>
-      <Ionicons name={item.iconName} size={24} color="#000" style={styles.icon} />
+      {item.iconType === 'material' ? (
+        <MaterialCommunityIcons name={item.iconName as keyof typeof MaterialCommunityIcons.glyphMap} size={24} color={item.iconColor} style={styles.icon} />
+      ) : (
+        <Ionicons name={item.iconName as keyof typeof Ionicons.glyphMap} size={24} color={item.iconColor} style={styles.icon} />
+      )}
       <View style={styles.textContainer}>
         <Text style={styles.sectionTitle}>{item.title}</Text>
         {item.links.map((link, index) => (

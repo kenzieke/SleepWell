@@ -35,6 +35,14 @@ export const colors = {
 
   // Transparent
   transparent: 'transparent',
+
+  // Teal palette
+  tealDeep: '#05323b',
+  tealDark: '#0f5968',
+  teal: '#1d7883',
+  tealSoft: '#2f939b',
+  aquaLight: '#50a9b5',
+  aquaPale: '#78cbd0',
 } as const;
 
 export type ColorKey = keyof typeof colors;
