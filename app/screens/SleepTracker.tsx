@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 import { DateComponent } from '../components/DateComponent';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
@@ -422,7 +422,10 @@ const SleepTrackerScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.wrapper}>
+    <KeyboardAvoidingView
+      style={styles.wrapper}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <FirstTimeModal
         storageKey="@hasSeenSleepTracker"
         message="Track your sleep and health information here daily."
@@ -775,7 +778,7 @@ const SleepTrackerScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
     </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

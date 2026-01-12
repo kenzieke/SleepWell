@@ -1,6 +1,6 @@
 import { doc, setDoc, collection } from 'firebase/firestore';
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import OptionButton, { OptionType } from '../components/OptionButton';
@@ -117,7 +117,7 @@ const SleepAssessmentScreen = () => {
         const userDocRef = doc(FIRESTORE_DB, 'users', userId);
         const resultsDocRef = doc(collection(userDocRef, 'results'), `scores_${userId}`);
         await setDoc(resultsDocRef, results, { merge: true });
-        navigation.navigate('ResultsScreen');
+        navigation.replace('ResultsScreen');
       } else {
         console.error('No user logged in');
       }
@@ -157,8 +157,12 @@ const SleepAssessmentScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.keyboardAvoid}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.container}>
         
         <View style={styles.switchContainer}>
           <Text style={styles.questionText}>Are you currently deployed?</Text>
@@ -415,12 +419,16 @@ const SleepAssessmentScreen = () => {
       <TouchableOpacity style={styles.button} onPress={calculateResults}>
         <Text style={styles.buttonText}>Finish</Text>
       </TouchableOpacity>
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  keyboardAvoid: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
     backgroundColor: '#fff',

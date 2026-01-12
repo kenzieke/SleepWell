@@ -90,6 +90,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 title: 'Sleep Assessment',
                 headerTitleAlign: 'center',
                 headerLeft: () => null, // Disable back button during initial assessment
+                headerLeftContainerStyle: { width: 0 }, // Remove left space to center title properly
               }}
             />
 

@@ -111,7 +111,7 @@ const WeeklyLessonsScreen: React.FC = () => {
         />
         <Text style={styles.title}>Sleep Well{"\n"}Firefighters</Text>
         <Text style={styles.subtitle}>A Wildland Urban Interface Institute{'\n'}Research Study at Cal Poly</Text>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LessonTrackingScreen')}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.replace('LessonTrackingScreen')}>
           <Text style={styles.buttonText}>Open Modules</Text>
         </TouchableOpacity>
       </View>
