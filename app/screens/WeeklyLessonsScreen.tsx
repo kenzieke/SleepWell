@@ -23,6 +23,8 @@ interface ProgressDataItem {
 
 const WeeklyLessonsScreen: React.FC = () => {
   const navigation = useNavigation<WeeklyLessonsScreenNavigationProp>();
+  // Get the root navigator to navigate to screens outside the tab navigator
+  const rootNavigation = navigation.getParent()?.getParent();
   const { progressData, fetchData } = useWeeklyLessonsStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProgressDataItem | null>(null);
@@ -111,7 +113,7 @@ const WeeklyLessonsScreen: React.FC = () => {
         />
         <Text style={styles.title}>Sleep Well{"\n"}Firefighters</Text>
         <Text style={styles.subtitle}>A Wildland Urban Interface Institute{'\n'}Research Study at Cal Poly</Text>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.replace('LessonTrackingScreen')}>
+        <TouchableOpacity style={styles.button} onPress={() => rootNavigation?.navigate('LessonTrackingScreen')}>
           <Text style={styles.buttonText}>Open Modules</Text>
         </TouchableOpacity>
       </View>
