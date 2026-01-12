@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
+import FirstTimeModal from '../components/FirstTimeModal';
 
 // Original image dimensions
 const originalWidth = 1126;
@@ -68,6 +69,10 @@ const WeeklyGoals: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <FirstTimeModal
+        storageKey="@hasSeenWeeklyGoals"
+        message="Tap any of the descriptions to get more information about what each goal entails."
+      />
       <Image
         source={require('../../assets/wheel_without_header.png')}
         style={[

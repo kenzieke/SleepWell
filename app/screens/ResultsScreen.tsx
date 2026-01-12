@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Modal, Image, StyleSheet } from 'react-native';
 import { CategoryDetails, useResultsStore } from '../../stores/ResultsStore';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
+import FirstTimeModal from '../components/FirstTimeModal';
 
 const ResultsScreen = () => {
   const {
@@ -44,6 +45,10 @@ const ResultsScreen = () => {
 
   return (
     <ScrollView style={styles.scrollView}>
+      <FirstTimeModal
+        storageKey="@hasSeenResultsScreen"
+        message="Here are your baseline results from your very first sleep assessment. Click on any of them to see your scores explained."
+      />
       <View style={styles.container}>
         <Text style={styles.instructionText}>
           Click on any of the following categories to see more about your results.
@@ -112,37 +117,38 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   button: {
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: spacing.xxl,
+    backgroundColor: colors.primaryDark,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
     borderRadius: borderRadius.xxl,
     marginTop: spacing.xxl,
   },
   buttonText: {
-    fontWeight: fontWeights.bold,
+    fontWeight: fontWeights.medium,
     color: colors.textWhite,
     fontSize: fontSizes.md,
     textAlign: 'center',
   },
   centeredView: {
     flex: 1,
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 22,
   },
   modalContent: {
     margin: spacing.xl,
     backgroundColor: colors.background,
-    borderRadius: borderRadius.xl,
+    borderWidth: 2,
+    borderColor: colors.primaryDark,
+    borderRadius: borderRadius.xxl,
     padding: 35,
     alignItems: 'center',
-    shadowColor: colors.textPrimary,
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOpacity: 1,
+    shadowRadius: 10,
     elevation: 5,
   },
   modalText: {

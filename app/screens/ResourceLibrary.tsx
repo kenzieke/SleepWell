@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { colors } from '../styles';
+import FirstTimeModal from '../components/FirstTimeModal';
 
 type Link = {
   name: string;
@@ -144,6 +145,10 @@ const ResourceLibraryScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <FirstTimeModal
+        storageKey="@hasSeenResourceLibrary"
+        message="This is a list of links and resources you can access to better help you with your sleep and wellness goals."
+      />
       <FlatList
         data={resources}
         renderItem={renderItem}

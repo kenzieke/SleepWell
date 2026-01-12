@@ -10,6 +10,7 @@ import { RootStackParamList } from '../../types/navigationTypes';
 import { useBannerStore } from '../../stores/BannerStore';
 import SaveBanner from '../components/SaveBanner';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
+import FirstTimeModal from '../components/FirstTimeModal';
 
 type SleepTrackerScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SleepTrackerScreen'>;
 
@@ -422,6 +423,10 @@ const SleepTrackerScreen: React.FC = () => {
 
   return (
     <View style={styles.wrapper}>
+      <FirstTimeModal
+        storageKey="@hasSeenSleepTracker"
+        message="Track your sleep and health information here daily."
+      />
       <SaveBanner
         visible={visible}
         message={message}

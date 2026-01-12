@@ -15,6 +15,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigationTypes';
 import type { Lesson } from '../../stores/LessonTrackingStore';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
+import FirstTimeModal from '../components/FirstTimeModal';
 
 type LessonTrackingScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -74,6 +75,10 @@ const LessonTrackingScreen: React.FC = () => {
 
   return (
     <View style={styles.wrapper}>
+      <FirstTimeModal
+        storageKey="@hasSeenModulesScreen"
+        message="Here you'll have weekly access to your learning modules in both text and audio format."
+      />
       <ScrollView style={styles.container}>
         {allLessonsCompleted && (
           <Text style={styles.completedText}>All modules completed!</Text>
@@ -224,12 +229,12 @@ const styles = StyleSheet.create({
     margin: spacing.xl,
     backgroundColor: colors.background,
     borderWidth: 2,
-    borderColor: colors.primary,
+    borderColor: colors.primaryDark,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 50,
+    shadowOpacity: 1,
+    shadowRadius: 10,
     elevation: 5,
-    borderRadius: borderRadius.xl,
+    borderRadius: borderRadius.xxl,
     padding: 35,
     alignItems: 'center',
     width: '80%',
@@ -240,15 +245,16 @@ const styles = StyleSheet.create({
     marginVertical: spacing.md,
   },
   modalButton: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
+    backgroundColor: colors.primaryDark,
+    borderRadius: borderRadius.xxl,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
     marginTop: spacing.md,
   },
   modalButtonText: {
     color: colors.textWhite,
-    fontWeight: fontWeights.bold,
+    fontWeight: fontWeights.medium,
+    fontSize: fontSizes.md,
   },
 });
 
