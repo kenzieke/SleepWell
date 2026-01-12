@@ -10,9 +10,9 @@ import SleepAssessmentScreen from '../app/screens/SleepAssessmentScreen';
 import ResultsScreen from '../app/screens/ResultsScreen';
 import LessonDetailScreen from '../app/screens/LessonDetailScreen';
 import AudioPlayerScreen from '../app/screens/AudioPlayerScreen';
+import SettingsScreen from '../app/screens/SettingsScreen';
 import BottomTabNavigator from '../app/components/BottomTabNavigator';
 import WeeklyModuleModal from '../app/components/WeeklyModuleModal';
-import { FIREBASE_AUTH } from '../FirebaseConfig';
 import { RootStackParamList } from '../types/navigationTypes';
 import { useLessonTrackingStore } from '../stores/LessonTrackingStore';
 import { useLessonStore } from '../stores/LessonStore';
@@ -126,28 +126,11 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               name="ListMain"
               component={ListScreen}
               options={({ navigation }) => ({
-                title: 'Sleep Coaches',
+                title: 'Sleep Coach',
                 headerShown: true,
                 headerTitleAlign: 'center',
                 headerLeft: () => (
-                  // Pop back to the previous screen instead of navigating to 'Main' again
                   <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
-                ),
-                headerRight: () => (
-                  <Button
-                    onPress={() => {
-                      FIREBASE_AUTH.signOut()
-                        .then(() =>
-                          navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Login' }],
-                          })
-                        )
-                        .catch((error) => console.error('Logout error:', error));
-                    }}
-                    title="Logout"
-                    color="#52796F"
-                  />
                 ),
               })}
             />
@@ -181,6 +164,19 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                 headerTitleAlign: 'center',
                 headerLeft: () => (
                   // Pop back to the previous screen instead of navigating to 'Main'
+                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
+                ),
+              })}
+            />
+
+            <Stack.Screen
+              name="SettingsScreen"
+              component={SettingsScreen}
+              options={({ navigation }) => ({
+                headerShown: true,
+                title: 'Settings',
+                headerTitleAlign: 'center',
+                headerLeft: () => (
                   <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
                 ),
               })}
