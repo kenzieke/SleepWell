@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Well Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f0f2f5;
+        }
+
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-box h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: none;
+        }
+        .dashboard.active {
+            display: block;
+        }
+        .login-screen.hidden {
+            display: none;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-email {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .btn-logout {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 25px 30px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 30px;
+        }
+
+        /* Search and Filters */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .btn-refresh {
+            padding: 12px 24px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn-refresh:hover {
+            background: #219a52;
+        }
+
+        /* User List */
+        .user-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .user-card {
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .user-card:last-child {
+            border-bottom: none;
+        }
+        .user-card:hover {
+            background: #f8f9fa;
+        }
+        .user-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .user-details h3 {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+        .user-details p {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        .user-meta {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .meta-item {
+            text-align: center;
+        }
+        .meta-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .meta-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        .expand-icon {
+            font-size: 1.2rem;
+            color: #6c757d;
+            transition: transform 0.3s;
+        }
+        .user-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        /* User Details Panel */
+        .user-details-panel {
+            display: none;
+            padding: 0 25px 25px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+        .user-card.expanded .user-details-panel {
+            display: block;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            padding-top: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #6c757d;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            color: #3498db;
+        }
+        .tab.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Data Grid */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .data-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .data-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .data-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .data-value.good {
+            color: #27ae60;
+        }
+        .data-value.warning {
+            color: #f39c12;
+        }
+        .data-value.bad {
+            color: #e74c3c;
+        }
+
+        /* Module Progress */
+        .module-list {
+            display: grid;
+            gap: 10px;
+        }
+        .module-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .module-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .module-status.completed {
+            background: #27ae60;
+            color: white;
+        }
+        .module-status.pending {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+        .module-name {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        .module-week {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        /* Tracker Table */
+        .tracker-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .tracker-table th,
+        .tracker-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .tracker-table th {
+            background: #f8f9fa;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        .tracker-table tr:last-child td {
+            border-bottom: none;
+        }
+        .tracker-table tr:hover td {
+            background: #f8f9fa;
+        }
+
+        /* Login Activity */
+        .login-list {
+            display: grid;
+            gap: 10px;
+        }
+        .login-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .login-dot {
+            width: 10px;
+            height: 10px;
+            background: #27ae60;
+            border-radius: 50%;
+        }
+        .login-date {
+            font-weight: 500;
+        }
+        .login-entries {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e9ecef;
+            border-top-color: #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        /* No Data */
+        .no-data {
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Admin Management */
+        .btn-manage-admins {
+            padding: 8px 16px;
+            background: #9b59b6;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn-manage-admins:hover {
+            background: #8e44ad;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            font-size: 1.3rem;
+            color: #2c3e50;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 0;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #2c3e50;
+        }
+        .modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .add-admin-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .add-admin-form input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .add-admin-form input:focus {
+            outline: none;
+            border-color: #9b59b6;
+        }
+        .btn-add-admin {
+            padding: 12px 20px;
+            background: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-add-admin:hover {
+            background: #8e44ad;
+        }
+        .btn-add-admin:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .admin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .admin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .admin-email-display {
+            font-size: 0.95rem;
+            color: #2c3e50;
+        }
+        .admin-item.current {
+            background: #e8f4f8;
+            border: 1px solid #3498db;
+        }
+        .admin-badge {
+            font-size: 0.75rem;
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        .btn-remove-admin {
+            padding: 6px 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .btn-remove-admin:hover {
+            background: #c0392b;
+        }
+        .btn-remove-admin:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .admin-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        .admin-message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .admin-message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Invite Codes */
+        .btn-invite-codes {
+            padding: 8px 16px;
+            background: #27ae60;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn-invite-codes:hover {
+            background: #219a52;
+        }
+        .generate-code-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .generate-code-form input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .generate-code-form input:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+        .btn-generate-code {
+            padding: 12px 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-generate-code:hover {
+            background: #219a52;
+        }
+        .btn-generate-code:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        .invite-code-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .invite-code-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            gap: 10px;
+        }
+        .invite-code-item.used {
+            background: #e9ecef;
+            opacity: 0.7;
+        }
+        .invite-code-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            letter-spacing: 2px;
+        }
+        .invite-code-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .invite-code-status {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .invite-code-status.available {
+            background: #d4edda;
+            color: #155724;
+        }
+        .invite-code-status.used {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .btn-copy-code {
+            padding: 6px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .btn-copy-code:hover {
+            background: #2980b9;
+        }
+        .btn-delete-code {
+            padding: 6px 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .btn-delete-code:hover {
+            background: #c0392b;
+        }
+        .invite-code-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .code-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .code-stat {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        .code-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .code-stat-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .filter-tab {
+            padding: 8px 16px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .filter-tab:hover {
+            background: #dee2e6;
+        }
+        .filter-tab.active {
+            background: #27ae60;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .main-content {
+                padding: 20px 15px;
+            }
+            .user-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .user-meta {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .tabs {
+                overflow-x: auto;
+            }
+            .data-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="login-box">
+                <h1>Sleep Well Admin</h1>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required placeholder="admin@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required placeholder="Enter password">
+                    </div>
+                    <button type="submit" class="btn" id="loginBtn">Sign In</button>
+                    <p class="error-message" id="loginError"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <header class="header">
+            <h1>Sleep Well Admin Dashboard</h1>
+            <div class="header-actions">
+                <span class="user-email" id="adminEmail"></span>
+                <button class="btn-invite-codes" id="inviteCodesBtn">Invite Codes</button>
+                <button class="btn-manage-admins" id="manageAdminsBtn">Manage Admins</button>
+                <button class="btn-logout" id="logoutBtn">Sign Out</button>
+            </div>
+        </header>
+
+    <!-- Admin Management Modal -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Admins</h2>
+                <button class="modal-close" id="closeAdminModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="adminMessage"></div>
+                <div class="add-admin-form">
+                    <input type="email" id="newAdminEmail" placeholder="Enter email address">
+                    <button class="btn-add-admin" id="addAdminBtn">Add Admin</button>
+                </div>
+                <h4 style="margin-bottom: 15px; color: #2c3e50;">Current Admins</h4>
+                <div class="admin-list" id="adminList">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading admins...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Codes Modal -->
+    <div class="modal-overlay" id="inviteCodesModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>Invite Codes</h2>
+                <button class="modal-close" id="closeInviteCodesModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="inviteCodeMessage"></div>
+
+                <div class="code-stats" id="codeStats">
+                    <div class="code-stat">
+                        <div class="code-stat-value" id="totalCodes">-</div>
+                        <div class="code-stat-label">Total Codes</div>
+                    </div>
+                    <div class="code-stat">
+                        <div class="code-stat-value" id="availableCodes">-</div>
+                        <div class="code-stat-label">Available</div>
+                    </div>
+                    <div class="code-stat">
+                        <div class="code-stat-value" id="usedCodes">-</div>
+                        <div class="code-stat-label">Used</div>
+                    </div>
+                </div>
+
+                <div class="generate-code-form">
+                    <input type="text" id="codeNote" placeholder="Note (optional, e.g., 'For John Smith')">
+                    <button class="btn-generate-code" id="generateCodeBtn">Generate Code</button>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="available">Available</button>
+                    <button class="filter-tab" data-filter="used">Used</button>
+                </div>
+
+                <div class="invite-code-list" id="inviteCodeList">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading invite codes...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-card">
+                <div class="stat-value" id="totalUsers">-</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeUsers">-</div>
+                <div class="stat-label">Active (7 days)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completedBaseline">-</div>
+                <div class="stat-label">Completed Baseline</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgModules">-</div>
+                <div class="stat-label">Avg Modules Done</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="controls">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search by name or email...">
+                <button class="btn-refresh" id="refreshBtn">Refresh Data</button>
+            </div>
+
+            <div class="user-list" id="userList">
+                <div class="loading" id="loadingIndicator">
+                    <div class="loading-spinner"></div>
+                    <p>Loading users...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDM5SJuWMkljiihn6sRQ1KO4Mxk-myFCtM",
+            authDomain: "restq-6bf41.firebaseapp.com",
+            projectId: "restq-6bf41",
+            storageBucket: "restq-6bf41.appspot.com",
+            messagingSenderId: "601167941853",
+            appId: "1:601167941853:web:d270b26ce20f5ace278b34"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Module names
+        const MODULES = [
+            { id: 1, name: "Sleep Efficiency", week: 1 },
+            { id: 2, name: "Sleep Schedule and Restriction", week: 2 },
+            { id: 3, name: "Keeping Track", week: 3 },
+            { id: 4, name: "Naps", week: 4 },
+            { id: 5, name: "Lights and Sounds", week: 5 },
+            { id: 6, name: "Bedtime Routines", week: 6 },
+            { id: 7, name: "Healthy Eating", week: 7 },
+            { id: 8, name: "Healthy Drinks", week: 8 },
+            { id: 9, name: "Healthy Body Weight", week: 9 },
+            { id: 10, name: "Building Physical Activity and Strength", week: 10 },
+            { id: 11, name: "Stress", week: 11 },
+            { id: 12, name: "Cognitive Strategies to Improve Sleep", week: 12 }
+        ];
+
+        // Global state
+        let allUsers = [];
+        let currentUser = null;
+
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const dashboard = document.getElementById('dashboard');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const adminEmail = document.getElementById('adminEmail');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const searchBox = document.getElementById('searchBox');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const userList = document.getElementById('userList');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // Check if user is an authorized admin
+        async function isAuthorizedAdmin(email) {
+            try {
+                const adminDoc = await db.collection('admins').doc(email).get();
+                return adminDoc.exists;
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                return false;
+            }
+        }
+
+        // Auth state listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Check if user is in the admins allowlist
+                const isAdmin = await isAuthorizedAdmin(user.email);
+                if (isAdmin) {
+                    currentUser = user;
+                    showDashboard();
+                    await loadAllUsers();
+                } else {
+                    // Not authorized - sign them out
+                    await auth.signOut();
+                    loginError.textContent = 'Access denied. You are not authorized to view this dashboard.';
+                }
+            } else {
+                currentUser = null;
+                showLogin();
+            }
+        });
+
+        // Login form handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+            loginError.textContent = '';
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                loginError.textContent = getErrorMessage(error.code);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        });
+
+        // Logout handler
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        // Search handler
+        searchBox.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            renderUsers(filterUsers(query));
+        });
+
+        // Refresh handler
+        refreshBtn.addEventListener('click', () => {
+            loadAllUsers();
+        });
+
+        function showLogin() {
+            loginScreen.classList.remove('hidden');
+            dashboard.classList.remove('active');
+        }
+
+        function showDashboard() {
+            loginScreen.classList.add('hidden');
+            dashboard.classList.add('active');
+            adminEmail.textContent = currentUser.email;
+        }
+
+        function getErrorMessage(code) {
+            const messages = {
+                'auth/user-not-found': 'No account found with this email',
+                'auth/wrong-password': 'Incorrect password',
+                'auth/invalid-email': 'Invalid email address',
+                'auth/too-many-requests': 'Too many attempts. Please try again later'
+            };
+            return messages[code] || 'Sign in failed. Please try again.';
+        }
+
+        async function loadAllUsers() {
+            userList.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Loading users...</p></div>';
+
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                allUsers = [];
+
+                for (const userDoc of usersSnapshot.docs) {
+                    const userData = userDoc.data();
+                    const uid = userDoc.id;
+
+                    // Load sub-collections
+                    const [results, sleepData, healthData, lessonProgress] = await Promise.all([
+                        loadResults(uid),
+                        loadSleepData(uid),
+                        loadHealthData(uid),
+                        loadLessonProgress(uid)
+                    ]);
+
+                    allUsers.push({
+                        uid,
+                        ...userData,
+                        results,
+                        sleepData,
+                        healthData,
+                        lessonProgress
+                    });
+                }
+
+                // Sort by creation date (newest first)
+                allUsers.sort((a, b) => {
+                    const dateA = a.creationDate ? new Date(a.creationDate) : new Date(0);
+                    const dateB = b.creationDate ? new Date(b.creationDate) : new Date(0);
+                    return dateB - dateA;
+                });
+
+                updateStats();
+                renderUsers(allUsers);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                userList.innerHTML = '<div class="empty-state"><p>Error loading users. Please check your permissions.</p></div>';
+            }
+        }
+
+        async function loadResults(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).collection('results').doc(`scores_${uid}`).get();
+                return doc.exists ? doc.data() : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        async function loadSleepData(uid) {
+            try {
+                console.log('Loading sleep data for user:', uid);
+                const snapshot = await db.collection('users').doc(uid).collection('sleepData').orderBy(firebase.firestore.FieldPath.documentId(), 'desc').limit(30).get();
+                console.log('Sleep data loaded:', snapshot.docs.length, 'entries');
+                return snapshot.docs.map(doc => ({ date: doc.id, ...doc.data() }));
+            } catch (error) {
+                console.error('Error loading sleep data for', uid, error);
+                return [];
+            }
+        }
+
+        async function loadHealthData(uid) {
+            try {
+                console.log('Loading health data for user:', uid);
+                const snapshot = await db.collection('users').doc(uid).collection('healthData').orderBy(firebase.firestore.FieldPath.documentId(), 'desc').limit(30).get();
+                console.log('Health data loaded:', snapshot.docs.length, 'entries');
+                return snapshot.docs.map(doc => ({ date: doc.id, ...doc.data() }));
+            } catch (error) {
+                console.error('Error loading health data for', uid, error);
+                return [];
+            }
+        }
+
+        async function loadLessonProgress(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).collection('lessonTracking').doc('progress').get();
+                return doc.exists ? doc.data() : {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function filterUsers(query) {
+            if (!query) return allUsers;
+            return allUsers.filter(user =>
+                (user.name && user.name.toLowerCase().includes(query)) ||
+                (user.email && user.email.toLowerCase().includes(query))
+            );
+        }
+
+        function updateStats() {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+            const totalUsers = allUsers.length;
+            let activeUsers = 0;
+            let completedBaseline = 0;
+            let totalModules = 0;
+
+            allUsers.forEach(user => {
+                // Check for active users (any tracker data in last 7 days)
+                const recentSleep = user.sleepData.some(d => new Date(d.date) >= sevenDaysAgo);
+                const recentHealth = user.healthData.some(d => new Date(d.date) >= sevenDaysAgo);
+                if (recentSleep || recentHealth) activeUsers++;
+
+                // Check baseline completion
+                if (user.results && user.results.completedAssessment) completedBaseline++;
+
+                // Count modules completed
+                const modulesCompleted = Object.values(user.lessonProgress || {}).filter(v => v === true).length;
+                totalModules += modulesCompleted;
+            });
+
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            document.getElementById('completedBaseline').textContent = completedBaseline;
+            document.getElementById('avgModules').textContent = totalUsers > 0 ? (totalModules / totalUsers).toFixed(1) : '0';
+        }
+
+        function renderUsers(users) {
+            if (users.length === 0) {
+                userList.innerHTML = '<div class="empty-state"><p>No users found</p></div>';
+                return;
+            }
+
+            userList.innerHTML = users.map(user => renderUserCard(user)).join('');
+
+            // Add click handlers for expanding
+            document.querySelectorAll('.user-card-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    header.parentElement.classList.toggle('expanded');
+                });
+            });
+
+            // Add tab handlers
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const tabGroup = tab.closest('.user-details-panel');
+                    const tabName = tab.dataset.tab;
+
+                    tabGroup.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tabGroup.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    tabGroup.querySelector(`[data-content="${tabName}"]`).classList.add('active');
+                });
+            });
+        }
+
+        function renderUserCard(user) {
+            const initials = getInitials(user.name || user.email || 'U');
+            const creationDate = user.creationDate ? formatDate(user.creationDate) : 'Unknown';
+            const modulesCompleted = Object.values(user.lessonProgress || {}).filter(v => v === true).length;
+            const sleepEntries = user.sleepData.length;
+            const healthEntries = user.healthData.length;
+
+            // Calculate current week
+            let currentWeek = user.currentWeek || '-';
+            if (user.creationDate) {
+                const weekNum = Math.ceil((new Date() - new Date(user.creationDate)) / (7 * 24 * 60 * 60 * 1000));
+                currentWeek = Math.max(1, Math.min(12, weekNum));
+            }
+
+            // Check if on track (module >= current week)
+            const onTrack = modulesCompleted >= currentWeek;
+
+            return `
+                <div class="user-card">
+                    <div class="user-card-header">
+                        <div class="user-info">
+                            <div class="user-avatar">${initials}</div>
+                            <div class="user-details">
+                                <h3>${escapeHtml(user.name || 'No Name')}</h3>
+                                <p>${escapeHtml(user.email || 'No Email')}</p>
+                            </div>
+                        </div>
+                        <div class="user-meta">
+                            <div class="meta-item">
+                                <div class="meta-value">${currentWeek}</div>
+                                <div class="meta-label">Week</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-value">${modulesCompleted}/12</div>
+                                <div class="meta-label">Modules</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-value">${sleepEntries + healthEntries}</div>
+                                <div class="meta-label">Entries</div>
+                            </div>
+                            <span class="expand-icon">▼</span>
+                        </div>
+                    </div>
+                    <div class="user-details-panel">
+                        <div class="tabs">
+                            <button class="tab active" data-tab="baseline">Baseline</button>
+                            <button class="tab" data-tab="tracker">Sleep Tracker</button>
+                            <button class="tab" data-tab="health">Health Tracker</button>
+                            <button class="tab" data-tab="modules">Modules</button>
+                            <button class="tab" data-tab="activity">Activity</button>
+                        </div>
+
+                        <div class="tab-content active" data-content="baseline">
+                            ${renderBaseline(user.results)}
+                        </div>
+
+                        <div class="tab-content" data-content="tracker">
+                            ${renderSleepTracker(user.sleepData)}
+                        </div>
+
+                        <div class="tab-content" data-content="health">
+                            ${renderHealthTracker(user.healthData)}
+                        </div>
+
+                        <div class="tab-content" data-content="modules">
+                            ${renderModules(user.lessonProgress, currentWeek)}
+                        </div>
+
+                        <div class="tab-content" data-content="activity">
+                            ${renderActivity(user)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBaseline(results) {
+            if (!results || !results.completedAssessment) {
+                return '<div class="no-data">Baseline assessment not completed</div>';
+            }
+
+            const isiClass = results.insomniaSeverityIndex <= 7 ? 'good' : results.insomniaSeverityIndex <= 14 ? 'warning' : 'bad';
+            const effClass = results.sleepEfficiency >= 85 ? 'good' : results.sleepEfficiency >= 75 ? 'warning' : 'bad';
+            const bmiClass = results.bmi >= 18.5 && results.bmi <= 24.9 ? 'good' : results.bmi >= 25 && results.bmi <= 29.9 ? 'warning' : 'bad';
+
+            return `
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">Insomnia Severity Index</div>
+                        <div class="data-value ${isiClass}">${results.insomniaSeverityIndex || '-'}/28</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Sleep Efficiency</div>
+                        <div class="data-value ${effClass}">${results.sleepEfficiency ? results.sleepEfficiency.toFixed(1) + '%' : '-'}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Sleep Apnea Risk</div>
+                        <div class="data-value">${results.sleepApneaRisk || '-'}/5</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">BMI</div>
+                        <div class="data-value ${bmiClass}">${results.bmi ? results.bmi.toFixed(1) : '-'}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Diet Score</div>
+                        <div class="data-value">${results.diet || '-'}/5</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Physical Activity</div>
+                        <div class="data-value">${results.physicalActivity || '-'}/5</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Stress Level</div>
+                        <div class="data-value">${results.stress || '-'}/5</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Deployment Status</div>
+                        <div class="data-value">${results.isDeployed ? 'Deployed' : 'Not Deployed'}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSleepTracker(sleepData) {
+            if (!sleepData || sleepData.length === 0) {
+                return '<div class="no-data">No sleep tracker data</div>';
+            }
+
+            return `
+                <table class="tracker-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Sleep Time</th>
+                            <th>In Bed</th>
+                            <th>Fall Asleep</th>
+                            <th>Woke Up</th>
+                            <th>Rating</th>
+                            <th>Naps</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sleepData.slice(0, 14).map(entry => `
+                            <tr>
+                                <td>${formatDateShort(entry.date)}</td>
+                                <td>${formatTime(entry.timeAsleepHours, entry.timeAsleepMinutes)}</td>
+                                <td>${formatTime(entry.inBedHours, entry.inBedMinutes)}</td>
+                                <td>${formatTime(entry.fallAsleepHours, entry.fallAsleepMinutes)}</td>
+                                <td>${entry.timesWokeUp || '-'}</td>
+                                <td>${entry.sleepRating || '-'}</td>
+                                <td>${entry.naps ? formatTime(entry.napTimeHours, entry.napTimeMinutes) : 'No'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                ${sleepData.length > 14 ? `<p style="text-align: center; margin-top: 15px; color: #6c757d;">Showing 14 of ${sleepData.length} entries</p>` : ''}
+            `;
+        }
+
+        function renderHealthTracker(healthData) {
+            if (!healthData || healthData.length === 0) {
+                return '<div class="no-data">No health tracker data</div>';
+            }
+
+            return `
+                <table class="tracker-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Caffeine</th>
+                            <th>Sugary Drinks</th>
+                            <th>Vegetables</th>
+                            <th>Fast Food</th>
+                            <th>Exercise (min)</th>
+                            <th>Diet</th>
+                            <th>Stress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${healthData.slice(0, 14).map(entry => `
+                            <tr>
+                                <td>${formatDateShort(entry.date)}</td>
+                                <td>${entry.caffeine || '-'}</td>
+                                <td>${entry.sugaryDrinks || '-'}</td>
+                                <td>${entry.vegetables || '-'}</td>
+                                <td>${entry.fastFood || '-'}</td>
+                                <td>${entry.minPA || '-'}</td>
+                                <td>${entry.rateDiet || '-'}</td>
+                                <td>${entry.stressLevel || '-'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                ${healthData.length > 14 ? `<p style="text-align: center; margin-top: 15px; color: #6c757d;">Showing 14 of ${healthData.length} entries</p>` : ''}
+            `;
+        }
+
+        function renderModules(lessonProgress, currentWeek) {
+            const completed = Object.values(lessonProgress || {}).filter(v => v === true).length;
+            const percentage = (completed / 12) * 100;
+
+            return `
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span><strong>${completed}/12</strong> modules completed</span>
+                        <span>Week ${currentWeek}: ${completed >= currentWeek ? '<span style="color: #27ae60;">On Track</span>' : '<span style="color: #e74c3c;">Behind</span>'}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                </div>
+                <div class="module-list">
+                    ${MODULES.map(module => {
+                        const isCompleted = lessonProgress && lessonProgress[module.id];
+                        const shouldBeComplete = module.week <= currentWeek;
+                        return `
+                            <div class="module-item">
+                                <div class="module-status ${isCompleted ? 'completed' : 'pending'}">
+                                    ${isCompleted ? '✓' : module.id}
+                                </div>
+                                <div class="module-name">${module.name}</div>
+                                <div class="module-week" style="${!isCompleted && shouldBeComplete ? 'color: #e74c3c;' : ''}">
+                                    Week ${module.week}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function renderActivity(user) {
+            // Combine sleep and health data dates to show activity
+            const activityDates = new Map();
+
+            user.sleepData.forEach(entry => {
+                const date = entry.date;
+                if (!activityDates.has(date)) {
+                    activityDates.set(date, { sleep: false, health: false });
+                }
+                activityDates.get(date).sleep = true;
+            });
+
+            user.healthData.forEach(entry => {
+                const date = entry.date;
+                if (!activityDates.has(date)) {
+                    activityDates.set(date, { sleep: false, health: false });
+                }
+                activityDates.get(date).health = true;
+            });
+
+            // Sort by date descending
+            const sortedDates = Array.from(activityDates.entries())
+                .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+                .slice(0, 30);
+
+            if (sortedDates.length === 0) {
+                return '<div class="no-data">No activity recorded</div>';
+            }
+
+            // Calculate streaks and stats
+            const totalDays = sortedDates.length;
+            const accountCreated = user.creationDate ? formatDate(user.creationDate) : 'Unknown';
+            const lastActive = sortedDates[0] ? formatDate(sortedDates[0][0]) : 'Never';
+
+            return `
+                <div class="data-grid" style="margin-bottom: 20px;">
+                    <div class="data-item">
+                        <div class="data-label">Account Created</div>
+                        <div class="data-value">${accountCreated}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Last Active</div>
+                        <div class="data-value">${lastActive}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Total Active Days</div>
+                        <div class="data-value">${totalDays}</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Days Since Signup</div>
+                        <div class="data-value">${user.creationDate ? Math.ceil((new Date() - new Date(user.creationDate)) / (24 * 60 * 60 * 1000)) : '-'}</div>
+                    </div>
+                </div>
+                <h4 style="margin-bottom: 15px; color: #2c3e50;">Recent Activity (Last 30 entries)</h4>
+                <div class="login-list">
+                    ${sortedDates.map(([date, types]) => `
+                        <div class="login-item">
+                            <div class="login-dot"></div>
+                            <div class="login-date">${formatDate(date)}</div>
+                            <div class="login-entries">
+                                ${types.sleep ? '🌙 Sleep' : ''}
+                                ${types.health ? '💪 Health' : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Helper functions
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        function formatDate(dateStr) {
+            try {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            } catch {
+                return dateStr;
+            }
+        }
+
+        function formatDateShort(dateStr) {
+            try {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            } catch {
+                return dateStr;
+            }
+        }
+
+        function formatTime(hours, minutes) {
+            if (!hours && !minutes) return '-';
+            const h = hours || '0';
+            const m = minutes || '0';
+            return `${h}h ${m}m`;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Admin Management Functions
+        const adminModal = document.getElementById('adminModal');
+        const manageAdminsBtn = document.getElementById('manageAdminsBtn');
+        const closeAdminModal = document.getElementById('closeAdminModal');
+        const addAdminBtn = document.getElementById('addAdminBtn');
+        const newAdminEmail = document.getElementById('newAdminEmail');
+        const adminListEl = document.getElementById('adminList');
+        const adminMessage = document.getElementById('adminMessage');
+
+        // Open admin modal
+        manageAdminsBtn.addEventListener('click', () => {
+            adminModal.classList.add('active');
+            loadAdminList();
+        });
+
+        // Close admin modal
+        closeAdminModal.addEventListener('click', () => {
+            adminModal.classList.remove('active');
+            adminMessage.innerHTML = '';
+        });
+
+        // Close modal when clicking outside
+        adminModal.addEventListener('click', (e) => {
+            if (e.target === adminModal) {
+                adminModal.classList.remove('active');
+                adminMessage.innerHTML = '';
+            }
+        });
+
+        // Add new admin
+        addAdminBtn.addEventListener('click', async () => {
+            const email = newAdminEmail.value.trim().toLowerCase();
+
+            if (!email) {
+                showAdminMessage('Please enter an email address.', 'error');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                showAdminMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            addAdminBtn.disabled = true;
+            addAdminBtn.textContent = 'Adding...';
+
+            try {
+                // Check if admin already exists
+                const existingAdmin = await db.collection('admins').doc(email).get();
+                if (existingAdmin.exists) {
+                    showAdminMessage('This email is already an admin.', 'error');
+                    return;
+                }
+
+                // Add new admin
+                await db.collection('admins').doc(email).set({
+                    addedBy: currentUser.email,
+                    addedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showAdminMessage(`Successfully added ${email} as an admin.`, 'success');
+                newAdminEmail.value = '';
+                loadAdminList();
+            } catch (error) {
+                console.error('Error adding admin:', error);
+                showAdminMessage('Failed to add admin. Please try again.', 'error');
+            } finally {
+                addAdminBtn.disabled = false;
+                addAdminBtn.textContent = 'Add Admin';
+            }
+        });
+
+        // Handle Enter key in email input
+        newAdminEmail.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addAdminBtn.click();
+            }
+        });
+
+        // Load admin list
+        async function loadAdminList() {
+            adminListEl.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Loading admins...</p></div>';
+
+            try {
+                const adminsSnapshot = await db.collection('admins').get();
+                const admins = adminsSnapshot.docs.map(doc => ({
+                    email: doc.id,
+                    ...doc.data()
+                }));
+
+                if (admins.length === 0) {
+                    adminListEl.innerHTML = '<div class="no-data">No admins found</div>';
+                    return;
+                }
+
+                adminListEl.innerHTML = admins.map(admin => {
+                    const isCurrentUser = admin.email === currentUser.email;
+                    return `
+                        <div class="admin-item ${isCurrentUser ? 'current' : ''}">
+                            <div>
+                                <span class="admin-email-display">${escapeHtml(admin.email)}</span>
+                                ${isCurrentUser ? '<span class="admin-badge">You</span>' : ''}
+                            </div>
+                            <button class="btn-remove-admin"
+                                    onclick="removeAdmin('${escapeHtml(admin.email)}')"
+                                    ${isCurrentUser ? 'disabled title="Cannot remove yourself"' : ''}>
+                                Remove
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading admins:', error);
+                adminListEl.innerHTML = '<div class="no-data">Error loading admins</div>';
+            }
+        }
+
+        // Remove admin
+        async function removeAdmin(email) {
+            if (email === currentUser.email) {
+                showAdminMessage('You cannot remove yourself as an admin.', 'error');
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to remove ${email} as an admin?`)) {
+                return;
+            }
+
+            try {
+                await db.collection('admins').doc(email).delete();
+                showAdminMessage(`Successfully removed ${email} as an admin.`, 'success');
+                loadAdminList();
+            } catch (error) {
+                console.error('Error removing admin:', error);
+                showAdminMessage('Failed to remove admin. Please try again.', 'error');
+            }
+        }
+
+        // Show admin message
+        function showAdminMessage(message, type) {
+            adminMessage.innerHTML = `<div class="admin-message ${type}">${escapeHtml(message)}</div>`;
+            setTimeout(() => {
+                adminMessage.innerHTML = '';
+            }, 5000);
+        }
+
+        // Validate email format
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // ==================== INVITE CODES FUNCTIONALITY ====================
+
+        const inviteCodesModal = document.getElementById('inviteCodesModal');
+        const inviteCodesBtn = document.getElementById('inviteCodesBtn');
+        const closeInviteCodesModal = document.getElementById('closeInviteCodesModal');
+        const generateCodeBtn = document.getElementById('generateCodeBtn');
+        const codeNoteInput = document.getElementById('codeNote');
+        const inviteCodeListEl = document.getElementById('inviteCodeList');
+        const inviteCodeMessage = document.getElementById('inviteCodeMessage');
+
+        let allInviteCodes = [];
+        let currentFilter = 'all';
+
+        // Open invite codes modal
+        inviteCodesBtn.addEventListener('click', () => {
+            inviteCodesModal.classList.add('active');
+            loadInviteCodes();
+        });
+
+        // Close invite codes modal
+        closeInviteCodesModal.addEventListener('click', () => {
+            inviteCodesModal.classList.remove('active');
+            inviteCodeMessage.innerHTML = '';
+        });
+
+        // Close modal when clicking outside
+        inviteCodesModal.addEventListener('click', (e) => {
+            if (e.target === inviteCodesModal) {
+                inviteCodesModal.classList.remove('active');
+                inviteCodeMessage.innerHTML = '';
+            }
+        });
+
+        // Filter tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.filter;
+                renderInviteCodes();
+            });
+        });
+
+        // Generate new invite code
+        generateCodeBtn.addEventListener('click', async () => {
+            generateCodeBtn.disabled = true;
+            generateCodeBtn.textContent = 'Generating...';
+
+            try {
+                const code = generateRandomCode();
+                const note = codeNoteInput.value.trim();
+
+                // Check if code already exists (very unlikely but safe)
+                const existingCode = await db.collection('inviteCodes').doc(code).get();
+                if (existingCode.exists) {
+                    showInviteCodeMessage('Code collision, please try again.', 'error');
+                    return;
+                }
+
+                // Create the invite code document
+                await db.collection('inviteCodes').doc(code).set({
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdBy: currentUser.email,
+                    note: note || null,
+                    usedBy: null,
+                    usedAt: null,
+                    active: true
+                });
+
+                showInviteCodeMessage(`Code "${code}" created successfully!`, 'success');
+                codeNoteInput.value = '';
+                loadInviteCodes();
+
+                // Auto-copy to clipboard
+                copyToClipboard(code);
+            } catch (error) {
+                console.error('Error generating code:', error);
+                showInviteCodeMessage('Failed to generate code. Please try again.', 'error');
+            } finally {
+                generateCodeBtn.disabled = false;
+                generateCodeBtn.textContent = 'Generate Code';
+            }
+        });
+
+        // Generate a random 6-character alphanumeric code
+        function generateRandomCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Excluded confusing chars: 0, O, 1, I
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // Load invite codes from Firestore
+        async function loadInviteCodes() {
+            inviteCodeListEl.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Loading invite codes...</p></div>';
+
+            try {
+                const codesSnapshot = await db.collection('inviteCodes')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                allInviteCodes = codesSnapshot.docs.map(doc => ({
+                    code: doc.id,
+                    ...doc.data()
+                }));
+
+                updateCodeStats();
+                renderInviteCodes();
+            } catch (error) {
+                console.error('Error loading invite codes:', error);
+                inviteCodeListEl.innerHTML = '<div class="no-data">Error loading codes. Please check your permissions.</div>';
+            }
+        }
+
+        // Update stats display
+        function updateCodeStats() {
+            const total = allInviteCodes.length;
+            const available = allInviteCodes.filter(c => c.active && !c.usedBy).length;
+            const used = allInviteCodes.filter(c => c.usedBy).length;
+
+            document.getElementById('totalCodes').textContent = total;
+            document.getElementById('availableCodes').textContent = available;
+            document.getElementById('usedCodes').textContent = used;
+        }
+
+        // Render invite codes based on current filter
+        function renderInviteCodes() {
+            let filteredCodes = allInviteCodes;
+
+            if (currentFilter === 'available') {
+                filteredCodes = allInviteCodes.filter(c => c.active && !c.usedBy);
+            } else if (currentFilter === 'used') {
+                filteredCodes = allInviteCodes.filter(c => c.usedBy);
+            }
+
+            if (filteredCodes.length === 0) {
+                inviteCodeListEl.innerHTML = '<div class="no-data">No invite codes found</div>';
+                return;
+            }
+
+            inviteCodeListEl.innerHTML = filteredCodes.map(code => {
+                const isUsed = !!code.usedBy;
+                const createdDate = code.createdAt ? formatDate(code.createdAt.toDate()) : 'Unknown';
+                const usedDate = code.usedAt ? formatDate(code.usedAt.toDate()) : null;
+
+                return `
+                    <div class="invite-code-item ${isUsed ? 'used' : ''}">
+                        <div>
+                            <div class="invite-code-display">${escapeHtml(code.code)}</div>
+                            <div class="invite-code-meta">
+                                Created ${createdDate}${code.note ? ` - ${escapeHtml(code.note)}` : ''}
+                                ${isUsed ? `<br>Used by ${escapeHtml(code.usedBy)} on ${usedDate}` : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="invite-code-status ${isUsed ? 'used' : 'available'}">
+                                ${isUsed ? 'Used' : 'Available'}
+                            </span>
+                            <div class="invite-code-actions">
+                                ${!isUsed ? `<button class="btn-copy-code" onclick="copyToClipboard('${code.code}')">Copy</button>` : ''}
+                                <button class="btn-delete-code" onclick="deleteInviteCode('${code.code}')">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Copy code to clipboard
+        async function copyToClipboard(code) {
+            try {
+                await navigator.clipboard.writeText(code);
+                showInviteCodeMessage(`Code "${code}" copied to clipboard!`, 'success');
+            } catch (error) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = code;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showInviteCodeMessage(`Code "${code}" copied to clipboard!`, 'success');
+            }
+        }
+
+        // Delete invite code
+        async function deleteInviteCode(code) {
+            if (!confirm(`Are you sure you want to delete invite code "${code}"?`)) {
+                return;
+            }
+
+            try {
+                await db.collection('inviteCodes').doc(code).delete();
+                showInviteCodeMessage(`Code "${code}" deleted successfully.`, 'success');
+                loadInviteCodes();
+            } catch (error) {
+                console.error('Error deleting code:', error);
+                showInviteCodeMessage('Failed to delete code. Please try again.', 'error');
+            }
+        }
+
+        // Show invite code message
+        function showInviteCodeMessage(message, type) {
+            inviteCodeMessage.innerHTML = `<div class="admin-message ${type}">${escapeHtml(message)}</div>`;
+            setTimeout(() => {
+                inviteCodeMessage.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

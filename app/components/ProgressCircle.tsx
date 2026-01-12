@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { Svg, Circle } from 'react-native-svg';
+import { fontWeights, colors } from '../styles';
 
 interface ProgressCircleProps {
   percentage: number;
@@ -33,7 +34,7 @@ const ProgressCircle: React.FC<ProgressCircleProps> = ({ percentage, label }) =>
       <Svg height={diameter} width={diameter} viewBox={`0 0 ${diameter} ${diameter}`}>
         <Circle
           stroke={progressColorBackground}
-          fill="none"
+          fill="white"
           cx={radius}
           cy={radius}
           r={radius - strokeWidth / 2}
@@ -53,7 +54,7 @@ const ProgressCircle: React.FC<ProgressCircleProps> = ({ percentage, label }) =>
         />
       </Svg>
       <View style={[styles.textLabel, { height: diameter, width: diameter }]}>
-        <Text style={styles.progressLabel}>{label}</Text>
+        <Text style={styles.progressLabel}>{label.replace(' ', '\n')}</Text>
       </View>
     </View>
   );
@@ -63,10 +64,15 @@ const styles = StyleSheet.create({
   progressContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 8,
+    margin: 6,
     position: 'relative',
     width: diameter,
     height: diameter,
+    shadowColor: colors.primaryDark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 5,
+    elevation: 5,
   },
   textLabel: {
     position: 'absolute',
@@ -79,8 +85,11 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    color: colors.primaryDark,
+    fontWeight: fontWeights.medium,
     textAlign: 'center',
+    shadowColor: colors.primaryDark,
+    shadowOffset: { width: 0, height: 1 },
     paddingHorizontal: 10,  // Allow text wrapping within the circle
     flexWrap: 'wrap',       // Wrap text to fit into the circle
   },
