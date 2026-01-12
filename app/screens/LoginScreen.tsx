@@ -74,7 +74,7 @@ const LoginScreen: React.FC = () => {
   };
 
   const onPressSignUp = async () => {
-    navigation.navigate('SignUp'); // Navigate to sign-up screen
+    navigation.replace('SignUp'); // Replace to prevent stack buildup
   };
 
   return (

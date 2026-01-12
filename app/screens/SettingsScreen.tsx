@@ -8,6 +8,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { RootStackParamList } from '../../types/navigationTypes';
 import { colors, fontSizes, fontWeights, spacing } from '../styles';
 import InfoModal from '../components/InfoModal';
+import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SettingsScreen'>;
 
@@ -23,6 +24,7 @@ const SettingsScreen: React.FC = () => {
   const navigation = useNavigation<SettingsScreenNavigationProp>();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [infoVisible, setInfoVisible] = useState(false);
+  const cleanupLessonTracking = useLessonTrackingStore((state) => state.cleanup);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -69,6 +71,9 @@ const SettingsScreen: React.FC = () => {
           text: 'Log Out',
           style: 'destructive',
           onPress: () => {
+            // Cleanup Firestore listeners before signing out
+            cleanupLessonTracking();
+
             FIREBASE_AUTH.signOut()
               .then(() => {
                 navigation.reset({

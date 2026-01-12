@@ -105,7 +105,7 @@ const SignUpScreen: React.FC = () => {
       await markCodeAsUsed(inviteCode, email);
 
       Alert.alert('Account created successfully, now you can login!');
-      navigation.navigate('Login');
+      navigation.replace('Login');
     } catch (error) {
       console.error(error);
       Alert.alert('Sign up failed: ' + (error as Error).message);
@@ -115,7 +115,7 @@ const SignUpScreen: React.FC = () => {
   };
 
   const onPressLogin = () => {
-    navigation.navigate('Login'); // Use navigate with the name of the screen
+    navigation.replace('Login'); // Replace to prevent stack buildup
   };
 
   return (
