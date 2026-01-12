@@ -8,6 +8,7 @@ import { RootStackParamList } from '../../types/navigationTypes';
 import { useNavigation } from '@react-navigation/native';
 import { useWeeklyLessonsStore } from '../../stores/WeeklyLessonStore';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
+import FirstTimeModal from '../components/FirstTimeModal';
 
 type WeeklyLessonsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'WeeklyLessonsScreen'>;
 
@@ -98,6 +99,10 @@ const WeeklyLessonsScreen: React.FC = () => {
       style={styles.container}
       resizeMode="cover"
     >
+      <FirstTimeModal
+        storageKey="@hasSeenHomeScreen"
+        message="Here you can see your weekly progress, access your weekly modules, and access your sleep coach's contact information."
+      />
       <View style={styles.headerContent}>
         <Image
           source={require('../../assets/icon.png')}
@@ -106,7 +111,7 @@ const WeeklyLessonsScreen: React.FC = () => {
         />
         <Text style={styles.title}>Sleep Well{"\n"}Firefighters</Text>
         <Text style={styles.subtitle}>A Wildland Urban Interface Institute{'\n'}Research Study at Cal Poly</Text>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LessonTrackingScreen')}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.replace('LessonTrackingScreen')}>
           <Text style={styles.buttonText}>Open Modules</Text>
         </TouchableOpacity>
       </View>

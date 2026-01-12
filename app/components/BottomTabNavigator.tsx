@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -8,6 +8,15 @@ import SleepTrackerScreen from '../screens/SleepTracker';
 import WeeklyGoals from '../screens/WeeklyGoals';
 import ResourceLibraryScreen from '../screens/ResourceLibrary';
 import WeeklyLessonsScreen from '../screens/WeeklyLessonsScreen';
+import InfoModal from './InfoModal';
+
+// Info messages for each screen
+const INFO_MESSAGES = {
+  home: "Here you can see your weekly progress, access your weekly modules, and access your sleep coach's contact information.",
+  tracker: "Track your sleep and health information here daily.",
+  goals: "Tap any of the descriptions to get more information about what each goal entails.",
+  library: "This is a list of links and resources you can access to better help you with your sleep and wellness goals.",
+};
 
 type ScreenType = {
   SleepTrackerScreen: undefined;
@@ -20,89 +29,135 @@ type ScreenType = {
 const Tab = createBottomTabNavigator<ScreenType>();
 const Stack = createStackNavigator();
 
-function SleepTrackerStack({ navigation }: SleepTrackerStackProps) {
+// Helper component for info button
+const InfoButton: React.FC<{ onPress: () => void }> = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={{ marginRight: 10 }}>
+    <Ionicons name="information-circle-outline" size={24} color="#52796F" />
+  </TouchableOpacity>
+);
+
+// Helper component for settings button
+const SettingsButton: React.FC<{ onPress: () => void }> = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={{ marginLeft: 10 }}>
+    <Ionicons name="settings-outline" size={24} color="#52796F" />
+  </TouchableOpacity>
+);
+
+function SleepTrackerStack() {
+  const [infoVisible, setInfoVisible] = useState(false);
+
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="SleepTrackerMain"
-        component={SleepTrackerScreen}
-        options={{
-          title: 'Sleep Tracker',
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => {
-                const parentNav = (navigation as any).getParent?.();
-                if (parentNav) {
-                  parentNav.navigate('ResultsScreen', { fromTracker: true });
-                }
-              }}
-              style={{ marginRight: 10 }}
-            >
-              <Ionicons name="stats-chart" size={24} color="#52796F" />
-            </TouchableOpacity>
-          ),
-        }}
+    <>
+      <InfoModal
+        visible={infoVisible}
+        message={INFO_MESSAGES.tracker}
+        onClose={() => setInfoVisible(false)}
       />
-    </Stack.Navigator>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="SleepTrackerMain"
+          component={SleepTrackerScreen}
+          options={{
+            title: 'Sleep Tracker',
+            headerRight: () => (
+              <InfoButton onPress={() => setInfoVisible(true)} />
+            ),
+          }}
+        />
+      </Stack.Navigator>
+    </>
   );
 }
 
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../types/navigationTypes';
+function WeeklyLessonsStack() {
+  const [infoVisible, setInfoVisible] = useState(false);
 
-type WeeklyLessonsStackProps = {
-  navigation: StackNavigationProp<ScreenType, 'WeeklyLessonsScreen'>;
-};
-
-type SleepTrackerStackProps = {
-  navigation: StackNavigationProp<any>;
-};
-
-function WeeklyLessonsStack({ navigation }: WeeklyLessonsStackProps) {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="WeeklyLessonsMain"
-        component={WeeklyLessonsScreen}
-        options={{
-          title: 'Improve My Sleep',
-          // Ensure no back button appears on this root tab screen
-          headerLeft: () => null,
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => {
-                // Prefer navigating on the root stack so we don't add on top of this nested stack
-                const parentNav = (navigation as any).getParent?.();
-                if (parentNav) {
-                  parentNav.navigate('ListMain');
-                } else {
-                  navigation.navigate('ListMain');
-                }
-              }}
-              style={{ marginRight: 10 }}
-            >
-              <Ionicons name="call" size={24} color="#52796F" />
-            </TouchableOpacity>
-          ),
-        }}
+    <>
+      <InfoModal
+        visible={infoVisible}
+        message={INFO_MESSAGES.home}
+        onClose={() => setInfoVisible(false)}
       />
-    </Stack.Navigator>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="WeeklyLessonsMain"
+          component={WeeklyLessonsScreen}
+          options={({ navigation }) => ({
+            title: 'Improve My Sleep',
+            headerLeft: () => (
+              <SettingsButton
+                onPress={() => {
+                  // Navigate up through: Screen -> Stack -> Tab -> Root
+                  const tabNav = navigation.getParent();
+                  const rootNav = tabNav?.getParent?.();
+                  if (rootNav) {
+                    rootNav.navigate('SettingsScreen');
+                  } else {
+                    console.log('Could not find root navigator');
+                  }
+                }}
+              />
+            ),
+            headerRight: () => (
+              <InfoButton onPress={() => setInfoVisible(true)} />
+            ),
+          })}
+        />
+      </Stack.Navigator>
+    </>
   );
 }
 
 function WeeklyGoalsStack() {
+  const [infoVisible, setInfoVisible] = useState(false);
+
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="WeeklyGoalsMain" component={WeeklyGoals} options={{ title: 'Weekly Goals' }} />
-    </Stack.Navigator>
+    <>
+      <InfoModal
+        visible={infoVisible}
+        message={INFO_MESSAGES.goals}
+        onClose={() => setInfoVisible(false)}
+      />
+      <Stack.Navigator>
+        <Stack.Screen
+          name="WeeklyGoalsMain"
+          component={WeeklyGoals}
+          options={{
+            title: 'Weekly Goals',
+            headerRight: () => (
+              <InfoButton onPress={() => setInfoVisible(true)} />
+            ),
+          }}
+        />
+      </Stack.Navigator>
+    </>
   );
 }
 
 function ResourceLibraryStack() {
+  const [infoVisible, setInfoVisible] = useState(false);
+
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="ResourceLibraryMain" component={ResourceLibraryScreen} options={{ title: 'Resource Library' }} />
-    </Stack.Navigator>
+    <>
+      <InfoModal
+        visible={infoVisible}
+        message={INFO_MESSAGES.library}
+        onClose={() => setInfoVisible(false)}
+      />
+      <Stack.Navigator>
+        <Stack.Screen
+          name="ResourceLibraryMain"
+          component={ResourceLibraryScreen}
+          options={{
+            title: 'Resource Library',
+            headerRight: () => (
+              <InfoButton onPress={() => setInfoVisible(true)} />
+            ),
+          }}
+        />
+      </Stack.Navigator>
+    </>
   );
 }
 

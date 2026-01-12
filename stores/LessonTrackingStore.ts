@@ -16,14 +16,17 @@ interface LessonTrackingState {
   allLessonsCompleted: boolean;
   currentWeek: number | null;
   lessons: Lesson[];
+  unsubscribe: (() => void) | null;
   fetchUserProgress: () => void;
   updateLessonProgress: (lessonId: number, completed: boolean) => Promise<void>;
+  cleanup: () => void;
 }
 
 export const useLessonTrackingStore = create<LessonTrackingState>((set, get) => ({
   userProgress: {},
   allLessonsCompleted: false,
   currentWeek: null,
+  unsubscribe: null,
   lessons: [
     { id: 1, title: 'Module #1: Sleep Efficiency', image: require('../assets/modules/fall_2025_ssm1.png'), completed: false },
     { id: 2, title: 'Module #2: Sleep Schedule and Restriction', image: require('../assets/modules/fall_2025_ssm2.png'), completed: false },
@@ -64,6 +67,13 @@ export const useLessonTrackingStore = create<LessonTrackingState>((set, get) => 
     }
 
     const lessonTrackingRef = doc(userDocRef, 'lessonTracking', 'progress');
+
+    // Cleanup any existing subscription before creating a new one
+    const currentUnsubscribe = get().unsubscribe;
+    if (currentUnsubscribe) {
+      currentUnsubscribe();
+    }
+
     const unsubscribe = onSnapshot(lessonTrackingRef, (doc) => {
       if (doc.exists()) {
         const data = doc.data();
@@ -72,7 +82,20 @@ export const useLessonTrackingStore = create<LessonTrackingState>((set, get) => 
       }
     });
 
-    return () => unsubscribe();
+    set({ unsubscribe });
+  },
+
+  cleanup: () => {
+    const unsubscribe = get().unsubscribe;
+    if (unsubscribe) {
+      unsubscribe();
+      set({
+        unsubscribe: null,
+        userProgress: {},
+        allLessonsCompleted: false,
+        currentWeek: null,
+      });
+    }
   },
 
   updateLessonProgress: async (lessonId: number, completed: boolean) => {
