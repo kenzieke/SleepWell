@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useLayoutEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,6 +8,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { RootStackParamList } from '../../types/navigationTypes';
 import { colors, fontSizes, fontWeights, spacing } from '../styles';
 import InfoModal from '../components/InfoModal';
+import ScalableText from '../components/ScalableText';
 import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SettingsScreen'>;
@@ -97,7 +98,7 @@ const SettingsScreen: React.FC = () => {
     <TouchableOpacity style={styles.settingItem} onPress={onPress}>
       <View style={styles.settingItemLeft}>
         <Ionicons name={iconName} size={24} color={colors.textPrimary} style={styles.icon} />
-        <Text style={styles.settingText}>{title}</Text>
+        <ScalableText style={styles.settingText} maxScale={2}>{title}</ScalableText>
       </View>
       {showChevron && (
         <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
@@ -106,7 +107,7 @@ const SettingsScreen: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       <InfoModal
         visible={infoVisible}
         message={SETTINGS_INFO_MESSAGE}
@@ -118,9 +119,9 @@ const SettingsScreen: React.FC = () => {
           <View style={styles.profileIcon}>
             <Ionicons name="person-circle" size={60} color={colors.primary} />
           </View>
-          <Text style={styles.profileName}>{userProfile.name}</Text>
-          <Text style={styles.profileEmail}>{userProfile.email}</Text>
-          <Text style={styles.profileCode}>Access Code: {userProfile.inviteCode}</Text>
+          <ScalableText style={styles.profileName} maxScale={2}>{userProfile.name}</ScalableText>
+          <ScalableText style={styles.profileEmail} maxScale={2}>{userProfile.email}</ScalableText>
+          <ScalableText style={styles.profileCode} maxScale={2}>Access Code: {userProfile.inviteCode}</ScalableText>
         </View>
       )}
 
@@ -136,7 +137,7 @@ const SettingsScreen: React.FC = () => {
 
         {renderSettingItem('log-out-outline', 'Log Out', handleLogout, false)}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -144,6 +145,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   profileSection: {
     alignItems: 'center',

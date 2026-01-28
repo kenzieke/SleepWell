@@ -452,7 +452,7 @@ const SleepTrackerScreen: React.FC = () => {
                   buttonColor={colors.borderMedium}
                   borderColor={colors.borderMedium}
                   hasPadding
-                  fontSize={14}
+                  fontSize={12}
                   options={[
                   { label: 'no', value: 'yes' },
                   { label: 'yes', value: 'no' },
@@ -471,7 +471,7 @@ const SleepTrackerScreen: React.FC = () => {
                   buttonColor={colors.borderMedium}
                   borderColor={colors.borderMedium}
                   hasPadding
-                  fontSize={14}
+                  fontSize={12}
                   options={[
                   { label: 'no', value: 'yes' },
                   { label: 'yes', value: 'no' },
@@ -598,7 +598,7 @@ const SleepTrackerScreen: React.FC = () => {
             buttonColor={colors.borderMedium}
             borderColor={colors.borderMedium}
             hasPadding
-            fontSize={14}
+            fontSize={12}
             options={[
             { label: 'no', value: 'yes' },
             { label: 'yes', value: 'no' },
@@ -617,7 +617,7 @@ const SleepTrackerScreen: React.FC = () => {
             buttonColor={colors.borderMedium}
             borderColor={colors.borderMedium}
             hasPadding
-            fontSize={14}
+            fontSize={12}
             options={[
             { label: 'no', value: 'yes' },
             { label: 'yes', value: 'no' },
@@ -709,7 +709,7 @@ const SleepTrackerScreen: React.FC = () => {
               buttonColor={colors.borderMedium}
               borderColor={colors.borderMedium}
               hasPadding
-              fontSize={14}
+              fontSize={12}
               options={[
                 { label: 'kgs', value: 'kgs' },
                 { label: 'lbs', value: 'lbs' },
@@ -877,10 +877,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   switchSelector: {
-    width: 80,
-    height: 30,
-    borderRadius: 15,
-    marginLeft: 150,
+    width: 120,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 'auto',
   },
   switchButton: {
     padding: 2,

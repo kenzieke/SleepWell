@@ -169,11 +169,12 @@ const SleepAssessmentScreen = () => {
           <SwitchSelector
             initial={0}
             onPress={value => setIsDeployed(value)}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={'#BDBDBD'}
+            selectedColor={'#52796F'}
+            buttonColor={'#BDBDBD'}
+            borderColor={'#BDBDBD'}
             hasPadding
+            fontSize={12}
             options={[
               { label: 'yes', value: 'no' },
               { label: 'no', value: 'yes' },
@@ -187,11 +188,12 @@ const SleepAssessmentScreen = () => {
           <SwitchSelector
             initial={0}
             onPress={value => setIsOnDuty(value)}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={'#BDBDBD'}
+            selectedColor={'#52796F'}
+            buttonColor={'#BDBDBD'}
+            borderColor={'#BDBDBD'}
             hasPadding
+            fontSize={12}
             options={[
               { label: 'yes', value: 'no' },
               { label: 'no', value: 'yes' },
@@ -374,11 +376,12 @@ const SleepAssessmentScreen = () => {
           <SwitchSelector
             initial={0}
             onPress={value => setHeightUnit(value === 'cm' ? 'cm' : 'in')}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={'#BDBDBD'}
+            selectedColor={'#52796F'}
+            buttonColor={'#BDBDBD'}
+            borderColor={'#BDBDBD'}
             hasPadding
+            fontSize={12}
             options={[
               { label: 'cm', value: 'cm' },
               { label: 'in', value: 'in' },
@@ -402,11 +405,12 @@ const SleepAssessmentScreen = () => {
           <SwitchSelector
             initial={0}
             onPress={value => setWeightUnit(value === 'kgs' ? 'kgs' : 'lbs')}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={'#BDBDBD'}
+            selectedColor={'#52796F'}
+            buttonColor={'#BDBDBD'}
+            borderColor={'#BDBDBD'}
             hasPadding
+            fontSize={12}
             options={[
               { label: 'kgs', value: 'kgs' },
               { label: 'lbs', value: 'lbs' },
@@ -458,10 +462,10 @@ const styles = StyleSheet.create({
     width: '100%', 
   },
   switchSelector: {
-    width: 80, // Adjust the width as needed
-    height: 30, // Adjust the height as needed
-    borderRadius: 15, // Half of the height to make it rounded
-    marginLeft: 150, // Add some space between the text input and the switch
+    width: 120,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 'auto',
   },
   switchButton: {
     padding: 2, // Reduce padding to decrease the size of the button
