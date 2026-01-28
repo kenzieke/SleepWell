@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
+import ScalableText from './ScalableText';
 
 interface WeeklyModuleModalProps {
   visible: boolean;
@@ -13,14 +14,20 @@ const WeeklyModuleModal: React.FC<WeeklyModuleModalProps> = ({ visible, moduleNa
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onLater}>
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>Complete your weekly module now:</Text>
-          <Text style={styles.moduleName}>{moduleName}</Text>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <ScalableText style={styles.title} maxScale={2}>Complete your weekly module now:</ScalableText>
+            <ScalableText style={styles.moduleName} maxScale={2}>{moduleName}</ScalableText>
+          </ScrollView>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={onDoNow}>
-              <Text style={styles.buttonText}>Do now</Text>
+              <ScalableText style={styles.buttonText} maxScale={2}>Do now</ScalableText>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, styles.laterButton]} onPress={onLater}>
-              <Text style={styles.buttonText}>Later</Text>
+              <ScalableText style={styles.buttonText} maxScale={2}>Later</ScalableText>
             </TouchableOpacity>
           </View>
         </View>
@@ -35,8 +42,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    padding: 20,
   },
   modalContainer: {
+    maxHeight: '80%',
     backgroundColor: 'white',
     borderRadius: 15,
     padding: 25,
@@ -47,6 +56,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 6,
+  },
+  scrollView: {
+    flexGrow: 0,
+    width: '100%',
+  },
+  scrollContent: {
+    alignItems: 'center',
   },
   title: {
     fontSize: 18,

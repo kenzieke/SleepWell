@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
+import ScalableText from './ScalableText';
 
 interface FirstTimeModalProps {
   storageKey: string;
@@ -45,9 +46,15 @@ const FirstTimeModal: React.FC<FirstTimeModalProps> = ({ storageKey, message }) 
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.modalText}>{message}</Text>
-          <TouchableOpacity onPress={handleClose}>
-            <Text style={styles.closeButton}>Got it!</Text>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <ScalableText style={styles.modalText} maxScale={2}>{message}</ScalableText>
+          </ScrollView>
+          <TouchableOpacity onPress={handleClose} style={styles.closeButtonContainer}>
+            <ScalableText style={styles.closeButtonText} maxScale={2}>Got it!</ScalableText>
           </TouchableOpacity>
         </View>
       </View>
@@ -61,9 +68,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: spacing.xl,
   },
   modalView: {
-    margin: spacing.xl,
+    maxHeight: '80%',
     backgroundColor: colors.background,
     borderWidth: 2,
     borderColor: colors.primaryDark,
@@ -75,22 +83,29 @@ const styles = StyleSheet.create({
     padding: 35,
     alignItems: 'center',
   },
+  scrollView: {
+    flexGrow: 0,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
   modalText: {
     marginBottom: 15,
     fontSize: fontSizes.md,
     fontWeight: fontWeights.medium,
     textAlign: 'center',
   },
-  closeButton: {
+  closeButtonContainer: {
     backgroundColor: colors.primaryDark,
     borderRadius: borderRadius.xxl,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
+  },
+  closeButtonText: {
     color: colors.textWhite,
     fontSize: fontSizes.md,
     fontWeight: fontWeights.medium,
     textAlign: 'center',
-    overflow: 'hidden',
   },
 });
 

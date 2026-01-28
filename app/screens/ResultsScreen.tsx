@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, Modal, Image, StyleSheet } from 'react-native';
+import { ScrollView, View, TouchableOpacity, Modal, Image, StyleSheet } from 'react-native';
 import { CategoryDetails, useResultsStore } from '../../stores/ResultsStore';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 import FirstTimeModal from '../components/FirstTimeModal';
+import ScalableText from '../components/ScalableText';
 
 const ResultsScreen = () => {
   const {
@@ -31,13 +32,19 @@ const ResultsScreen = () => {
 
     return (
       <View style={styles.modalContent}>
-        <Text style={styles.modalHeaderText}>Your {selectedCategory} score is:</Text>
-        <Text style={styles.modalScoreText}>{details.score}</Text>
-        <Text style={styles.modalDescriptionText}>{details.description}</Text>
+        <ScrollView
+          style={styles.modalScrollView}
+          contentContainerStyle={styles.modalScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <ScalableText style={styles.modalHeaderText} maxScale={2}>Your {selectedCategory} score is:</ScalableText>
+          <ScalableText style={styles.modalScoreText} maxScale={2}>{details.score}</ScalableText>
+          <ScalableText style={styles.modalDescriptionText} maxScale={2}>{details.description}</ScalableText>
+        </ScrollView>
         <TouchableOpacity
           onPress={() => setModalVisible(false)}
           style={styles.button}>
-          <Text style={styles.buttonText}>Close</Text>
+          <ScalableText style={styles.buttonText} maxScale={2}>Close</ScalableText>
         </TouchableOpacity>
       </View>
     );
@@ -50,16 +57,16 @@ const ResultsScreen = () => {
         message="Here are your baseline results from your very first sleep assessment. Click on any of them to see your scores explained."
       />
       <View style={styles.container}>
-        <Text style={styles.instructionText}>
+        <ScalableText style={styles.instructionText} maxScale={2}>
           Click on any of the following categories to see more about your results.
-        </Text>
+        </ScalableText>
         {Object.keys(getCategoryDetails(results)).map((category) => (
           <TouchableOpacity
             key={category}
             style={styles.categoryContainer}
             onPress={() => handleCategoryPress(category)}
           >
-            <Text style={styles.categoryText}>{category}</Text>
+            <ScalableText style={styles.categoryText} maxScale={2}>{category}</ScalableText>
             <Image
               source={getCategoryDetails(results)[category].image}
               style={styles.scaleImage}
@@ -134,9 +141,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: spacing.xl,
   },
   modalContent: {
-    margin: spacing.xl,
+    maxHeight: '80%',
     backgroundColor: colors.background,
     borderWidth: 2,
     borderColor: colors.primaryDark,
@@ -150,6 +158,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 10,
     elevation: 5,
+  },
+  modalScrollView: {
+    flexGrow: 0,
+  },
+  modalScrollContent: {
+    alignItems: 'center',
   },
   modalText: {
     marginBottom: 15,
