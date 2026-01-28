@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import ScalableText from './ScalableText';
 import { Svg, Circle } from 'react-native-svg';
 import { fontWeights, colors } from '../styles';
 
@@ -54,7 +55,7 @@ const ProgressCircle: React.FC<ProgressCircleProps> = ({ percentage, label }) =>
         />
       </Svg>
       <View style={[styles.textLabel, { height: diameter, width: diameter }]}>
-        <Text style={styles.progressLabel}>{label.replace(' ', '\n')}</Text>
+        <ScalableText style={styles.progressLabel}>{label.replace(' ', '\n')}</ScalableText>
       </View>
     </View>
   );

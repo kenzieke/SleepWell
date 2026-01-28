@@ -1,6 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button } from 'react-native';
+import { TouchableOpacity, Text } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
+
+// Custom header title component with controlled font scaling
+const HeaderTitle: React.FC<{ children: string }> = ({ children }) => (
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.3}
+    style={{ fontSize: 17, fontWeight: '600', color: '#000' }}
+  >
+    {children}
+  </Text>
+);
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import LoginScreen from '../app/screens/LoginScreen';
 import SignUpScreen from '../app/screens/SignUpScreen';
@@ -87,7 +98,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               component={SleepAssessmentScreen}
               options={{
                 headerShown: true,
-                title: 'Sleep Assessment',
+                headerTitle: () => <HeaderTitle>Sleep Assessment</HeaderTitle>,
                 headerTitleAlign: 'center',
                 headerLeft: () => null, // Disable back button during initial assessment
                 headerLeftContainerStyle: { width: 0 }, // Remove left space to center title properly
@@ -99,7 +110,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               component={ResultsScreen}
               options={({ navigation, route }) => ({
                 headerShown: true,
-                title: 'Sleep Assessment Results',
+                headerTitle: () => <HeaderTitle>Sleep Assessment Results</HeaderTitle>,
                 headerBackTitleVisible: false,
                 headerRight: () => {
                   // Only show "Next" button if not coming from tracker (initial assessment flow)
@@ -108,7 +119,18 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                     return null;
                   }
                   return (
-                    <Button onPress={() => navigation.replace('Main')} title="Next" color="#52796F" />
+                    <TouchableOpacity
+                      onPress={() => navigation.replace('Main')}
+                      style={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                    >
+                      <Text
+                        allowFontScaling={true}
+                        maxFontSizeMultiplier={1.3}
+                        style={{ color: '#52796F', fontSize: 17 }}
+                      >
+                        Next
+                      </Text>
+                    </TouchableOpacity>
                   );
                 },
                 headerLeft: () => {
@@ -116,7 +138,20 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
                   // During initial assessment, prevent going back to assessment/signup
                   const fromTracker = route.params?.fromTracker;
                   if (fromTracker) {
-                    return <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />;
+                    return (
+                      <TouchableOpacity
+                        onPress={() => navigation.goBack()}
+                        style={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                      >
+                        <Text
+                          allowFontScaling={true}
+                          maxFontSizeMultiplier={1.3}
+                          style={{ color: '#52796F', fontSize: 17 }}
+                        >
+                          Back
+                        </Text>
+                      </TouchableOpacity>
+                    );
                   }
                   return null;
                 },
@@ -127,11 +162,22 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               name="ListMain"
               component={ListScreen}
               options={({ navigation }) => ({
-                title: 'Sleep Coach',
+                headerTitle: () => <HeaderTitle>Sleep Coach</HeaderTitle>,
                 headerShown: true,
                 headerTitleAlign: 'center',
                 headerLeft: () => (
-                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                  >
+                    <Text
+                      allowFontScaling={true}
+                      maxFontSizeMultiplier={1.3}
+                      style={{ color: '#52796F', fontSize: 17 }}
+                    >
+                      Back
+                    </Text>
+                  </TouchableOpacity>
                 ),
               })}
             />
@@ -140,12 +186,23 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               name="LessonTrackingScreen"
               component={LessonTrackingScreen}
               options={({ navigation }) => ({
-                title: 'Modules',
+                headerTitle: () => <HeaderTitle>Modules</HeaderTitle>,
                 headerShown: true,
                 headerTitleAlign: 'center',
                 headerLeft: () => (
                   // Use goBack to avoid stacking 'Main' repeatedly
-                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                  >
+                    <Text
+                      allowFontScaling={true}
+                      maxFontSizeMultiplier={1.3}
+                      style={{ color: '#52796F', fontSize: 17 }}
+                    >
+                      Back
+                    </Text>
+                  </TouchableOpacity>
                 ),
               })}
             />
@@ -153,7 +210,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
             <Stack.Screen
               name="LessonDetailScreen"
               component={LessonDetailScreen}
-              options={{ title: 'Module Detail' }}
+              options={{ headerTitle: () => <HeaderTitle>Module Detail</HeaderTitle> }}
             />
 
             <Stack.Screen
@@ -161,11 +218,22 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               component={AudioPlayerScreen}
               options={({ navigation }) => ({
                 headerShown: true,
-                title: 'Audio Player',
+                headerTitle: () => <HeaderTitle>Audio Player</HeaderTitle>,
                 headerTitleAlign: 'center',
                 headerLeft: () => (
                   // Pop back to the previous screen instead of navigating to 'Main'
-                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                  >
+                    <Text
+                      allowFontScaling={true}
+                      maxFontSizeMultiplier={1.3}
+                      style={{ color: '#52796F', fontSize: 17 }}
+                    >
+                      Back
+                    </Text>
+                  </TouchableOpacity>
                 ),
               })}
             />
@@ -175,10 +243,21 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
               component={SettingsScreen}
               options={({ navigation }) => ({
                 headerShown: true,
-                title: 'Settings',
+                headerTitle: () => <HeaderTitle>Settings</HeaderTitle>,
                 headerTitleAlign: 'center',
                 headerLeft: () => (
-                  <Button onPress={() => navigation.goBack()} title="Back" color="#52796F" />
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                  >
+                    <Text
+                      allowFontScaling={true}
+                      maxFontSizeMultiplier={1.3}
+                      style={{ color: '#52796F', fontSize: 17 }}
+                    >
+                      Back
+                    </Text>
+                  </TouchableOpacity>
                 ),
               })}
             />

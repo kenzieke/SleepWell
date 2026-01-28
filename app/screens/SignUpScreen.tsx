@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import ScalableText from '../components/ScalableText';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -89,20 +90,21 @@ const SignUpScreen: React.FC = () => {
       }
 
       // Create the user account
-      const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      const trimmedEmail = email.trim();
+      const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, trimmedEmail, password);
       const user = response.user;
 
       // Set the document in Firestore
       const userDocRef = doc(FIRESTORE_DB, 'users', user.uid);
       await setDoc(userDocRef, {
-        name: name,
-        email: email,
+        name: name.trim(),
+        email: trimmedEmail,
         creationDate: new Date().toISOString(),
         inviteCode: inviteCode.toUpperCase()
       });
 
       // Mark the invite code as used
-      await markCodeAsUsed(inviteCode, email);
+      await markCodeAsUsed(inviteCode, trimmedEmail);
 
       Alert.alert('Account created successfully, now you can login!');
       navigation.replace('Login');
@@ -119,17 +121,20 @@ const SignUpScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={onPressLogin} style={styles.loginContainer}>
-        <Text style={styles.loginText}>Login</Text>
-      </TouchableOpacity>
-      <Text style={styles.title}>Sign Up</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={onPressLogin} style={styles.loginContainer}>
+          <ScalableText style={styles.loginText}>Login</ScalableText>
+        </TouchableOpacity>
+        <ScalableText style={styles.title}>Sign Up</ScalableText>
         <TextInput
           style={styles.inputView}
           placeholder="Name"
           placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setName(text)}
           value={name}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
         />
         <TextInput
           style={styles.inputView}
@@ -138,6 +143,8 @@ const SignUpScreen: React.FC = () => {
           placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setEmail(text)}
           value={email}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
         />
         <TextInput
           style={styles.inputView}
@@ -147,6 +154,8 @@ const SignUpScreen: React.FC = () => {
           secureTextEntry={true}
           onChangeText={(text) => setPassword(text)}
           value={password}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
         />
         <TextInput
           style={styles.inputView}
@@ -156,11 +165,14 @@ const SignUpScreen: React.FC = () => {
           onChangeText={(text) => setInviteCode(text.toUpperCase())}
           value={inviteCode}
           maxLength={6}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
         />
-      <TouchableOpacity style={styles.signUpBtn} onPress={onPressSignUp} disabled={loading}>
-        {loading ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.signUpText}>Sign Up</Text>}
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.signUpBtn} onPress={onPressSignUp} disabled={loading}>
+          {loading ? <ActivityIndicator color={colors.primary} /> : <ScalableText style={styles.signUpText}>Sign Up</ScalableText>}
+        </TouchableOpacity>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -181,16 +193,16 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: '#E8E8E8',
     borderRadius: borderRadius.xxl,
-    height: 50,
+    minHeight: 50,
     marginBottom: spacing.xl,
-    justifyContent: 'center',
-    padding: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
     fontWeight: fontWeights.bold,
-    color: '#919191',
+    color: colors.textPrimary,
   },
   inputText: {
     fontWeight: fontWeights.bold,
-    height: 50,
+    minHeight: 50,
     color: '#919191',
   },
   button: {
@@ -219,7 +231,8 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: colors.primary,
     borderRadius: borderRadius.xxl,
-    height: 50,
+    minHeight: 50,
+    paddingVertical: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 40,

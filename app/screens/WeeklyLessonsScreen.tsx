@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, Image, ImageBackground } from 'react-native';
+import { View, TouchableOpacity, Modal, StyleSheet, Image, ImageBackground, ScrollView } from 'react-native';
+import ScalableText from '../components/ScalableText';
 import ProgressCircle from '../components/ProgressCircle';
 import { FIREBASE_AUTH } from '../../FirebaseConfig';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -101,49 +102,51 @@ const WeeklyLessonsScreen: React.FC = () => {
       style={styles.container}
       resizeMode="cover"
     >
-      <FirstTimeModal
-        storageKey="@hasSeenHomeScreen"
-        message="Here you can see your weekly progress, access your weekly modules, and access your sleep coach's contact information."
-      />
-      <View style={styles.headerContent}>
-        <Image
-          source={require('../../assets/icon.png')}
-          style={styles.logo}
-          resizeMode="contain"
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <FirstTimeModal
+          storageKey="@hasSeenHomeScreen"
+          message="Here you can see your weekly progress, access your weekly modules, and access your sleep coach's contact information."
         />
-        <Text style={styles.title}>Sleep Well{"\n"}Firefighters</Text>
-        <Text style={styles.subtitle}>A Wildland Urban Interface Institute{'\n'}Research Study at Cal Poly</Text>
-        <TouchableOpacity style={styles.button} onPress={() => rootNavigation?.navigate('LessonTrackingScreen')}>
-          <Text style={styles.buttonText}>Open Modules</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.headerContent}>
+          <Image
+            source={require('../../assets/icon.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <ScalableText style={styles.title}>Sleep Well{"\n"}Firefighters</ScalableText>
+          <ScalableText style={styles.subtitle}>A Wildland Urban Interface Institute{'\n'}Research Study at Cal Poly</ScalableText>
+          <TouchableOpacity style={styles.button} onPress={() => rootNavigation?.navigate('LessonTrackingScreen')}>
+            <ScalableText style={styles.buttonText}>Open Modules</ScalableText>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.progressContainer}>
-        <Text style={styles.header}>Weekly Progress</Text>
-        <View style={styles.progressRow}>
-          {progressData.slice(0, 3).map((item, index) => (
-            <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
-              <ProgressCircle key={`first-row-${index}`} percentage={item.value ?? 0} label={item.label} />
-            </TouchableOpacity>
-          ))}
+        <View style={styles.progressContainer}>
+          <ScalableText style={styles.header}>Weekly Progress</ScalableText>
+          <View style={styles.progressRow}>
+            {progressData.slice(0, 3).map((item, index) => (
+              <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
+                <ProgressCircle key={`first-row-${index}`} percentage={item.value ?? 0} label={item.label} />
+              </TouchableOpacity>
+            ))}
+          </View>
+          <View style={styles.progressRow}>
+            {progressData.slice(3).map((item, index) => (
+              <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
+                <ProgressCircle key={`second-row-${index}`} percentage={item.value ?? 0} label={item.label} />
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-        <View style={styles.progressRow}>
-          {progressData.slice(3).map((item, index) => (
-            <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
-              <ProgressCircle key={`second-row-${index}`} percentage={item.value ?? 0} label={item.label} />
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+      </ScrollView>
 
       <Modal animationType="slide" visible={modalVisible} transparent onRequestClose={() => setModalVisible(false)}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             {selectedItem && (
-              <Text style={styles.modalText}>{getDescriptionForItem(selectedItem)}</Text>
+              <ScalableText style={styles.modalText}>{getDescriptionForItem(selectedItem)}</ScalableText>
             )}
             <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Text style={styles.closeButton}>Close</Text>
+              <ScalableText style={styles.closeButton}>Close</ScalableText>
             </TouchableOpacity>
           </View>
         </View>
@@ -155,6 +158,10 @@ const WeeklyLessonsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: spacing.xxxl,
   },
   headerContent: {
     paddingTop: spacing.xxxl,

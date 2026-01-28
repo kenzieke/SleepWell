@@ -2,7 +2,18 @@ import React, { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Text } from 'react-native';
+
+// Custom header title component with controlled font scaling
+const HeaderTitle: React.FC<{ children: string }> = ({ children }) => (
+  <Text
+    allowFontScaling={true}
+    maxFontSizeMultiplier={1.3}
+    style={{ fontSize: 17, fontWeight: '600', color: '#000' }}
+  >
+    {children}
+  </Text>
+);
 
 import SleepTrackerScreen from '../screens/SleepTracker';
 import WeeklyGoals from '../screens/WeeklyGoals';
@@ -58,7 +69,7 @@ function SleepTrackerStack() {
           name="SleepTrackerMain"
           component={SleepTrackerScreen}
           options={{
-            title: 'Sleep Tracker',
+            headerTitle: () => <HeaderTitle>Sleep Tracker</HeaderTitle>,
             headerRight: () => (
               <InfoButton onPress={() => setInfoVisible(true)} />
             ),
@@ -84,7 +95,7 @@ function WeeklyLessonsStack() {
           name="WeeklyLessonsMain"
           component={WeeklyLessonsScreen}
           options={({ navigation }) => ({
-            title: 'Improve My Sleep',
+            headerTitle: () => <HeaderTitle>Improve My Sleep</HeaderTitle>,
             headerLeft: () => (
               <SettingsButton
                 onPress={() => {
@@ -124,7 +135,7 @@ function WeeklyGoalsStack() {
           name="WeeklyGoalsMain"
           component={WeeklyGoals}
           options={{
-            title: 'Weekly Goals',
+            headerTitle: () => <HeaderTitle>Weekly Goals</HeaderTitle>,
             headerRight: () => (
               <InfoButton onPress={() => setInfoVisible(true)} />
             ),
@@ -150,7 +161,7 @@ function ResourceLibraryStack() {
           name="ResourceLibraryMain"
           component={ResourceLibraryScreen}
           options={{
-            title: 'Resource Library',
+            headerTitle: () => <HeaderTitle>Resource Library</HeaderTitle>,
             headerRight: () => (
               <InfoButton onPress={() => setInfoVisible(true)} />
             ),
