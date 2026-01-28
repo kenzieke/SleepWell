@@ -1,13 +1,15 @@
 import {
   StyleSheet,
-  Text,
   View,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
+import ScalableText from '../components/ScalableText';
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
@@ -78,48 +80,50 @@ const LoginScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <View style={styles.inputView}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <ScalableText style={styles.title}>Login</ScalableText>
         <TextInput
-          style={styles.inputText}
+          style={styles.inputView}
           placeholder="Email"
           autoCapitalize="none"
           placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setEmail(text)}
           value={email}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
         />
-      </View>
-      <View style={styles.inputView}>
         <TextInput
-          style={styles.inputText}
+          style={styles.inputView}
           secureTextEntry={true}
           placeholder="Password"
           autoCapitalize="none"
           placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setPassword(text)}
           value={password}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
         />
+
+        <TouchableOpacity onPress={onPressForgotPassword}>
+          <ScalableText style={styles.forgotPasswordText}>Forgot your password?</ScalableText>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={onPressLogin} style={styles.loginBtn} disabled={loading}>
+          {loading ? <ActivityIndicator color={colors.primary} /> : <ScalableText style={styles.loginText}>Login</ScalableText>}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={onPressSignUp} style={styles.signUpContainer}>
+          <ScalableText style={styles.signUpText}>Sign Up</ScalableText>
+        </TouchableOpacity>
+
+        <ForgotPasswordModal
+          visible={forgotPasswordModalVisible}
+          onClose={() => setForgotPasswordModalVisible(false)}
+        />
+
       </View>
-
-      <TouchableOpacity onPress={onPressForgotPassword}>
-        <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={onPressLogin} style={styles.loginBtn} disabled={loading}>
-        {loading ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.loginText}>Login</Text>}
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={onPressSignUp} style={styles.signUpContainer}>
-        <Text style={styles.signUpText}>Sign Up</Text>
-      </TouchableOpacity>
-
-      <ForgotPasswordModal
-        visible={forgotPasswordModalVisible}
-        onClose={() => setForgotPasswordModalVisible(false)}
-      />
-
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -140,15 +144,12 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: '#E8E8E8',
     borderRadius: borderRadius.xxl,
-    height: 50,
+    minHeight: 50,
     marginBottom: spacing.xl,
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  inputText: {
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
     fontWeight: fontWeights.bold,
-    height: 50,
-    color: '#919191',
+    color: colors.textPrimary,
   },
   forgotPasswordText: {
     fontWeight: fontWeights.bold,
@@ -174,7 +175,8 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: colors.primary,
     borderRadius: borderRadius.xxl,
-    height: 50,
+    minHeight: 50,
+    paddingVertical: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 40,

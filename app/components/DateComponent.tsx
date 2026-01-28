@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView, View, TouchableOpacity, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import ScalableText from './ScalableText';
 
 interface DateComponentProps {
   date: Date;
@@ -27,14 +28,16 @@ export const DateComponent: React.FC<DateComponentProps> = ({ date, setDate }) =
     <SafeAreaView style={styles.container}>
       <View style={styles.row}>
         <TouchableOpacity
-          onPress={showDatepicker} 
+          onPress={showDatepicker}
           style={styles.button}
         >
-          <Text style={styles.buttonText}>Select Date</Text>
+          <ScalableText style={styles.buttonText} numberOfLines={1} adjustsFontSizeToFit>
+            Select Date
+          </ScalableText>
         </TouchableOpacity>
-        <Text style={styles.selectedDateText}>
-          Selected: {date ? date.toLocaleDateString() : 'No date selected'}
-        </Text>
+        <ScalableText style={styles.selectedDateText} numberOfLines={1} adjustsFontSizeToFit>
+          {date ? date.toLocaleDateString() : 'No date selected'}
+        </ScalableText>
       </View>
       {show && (
         <DateTimePicker
@@ -55,28 +58,30 @@ const styles = StyleSheet.create({
     marginTop: -16,
   },
   row: {
-    flexDirection: 'row', // Align children in a row
-    alignItems: 'center', // Align children vertically in the center
-    justifyContent: 'space-between', // Distribute children evenly
-    padding: 10, // Add padding for aesthetics
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    padding: 10,
+    flexWrap: 'wrap',
+    gap: 10,
   },
   button: {
-    // Styles for the touchable area
     backgroundColor: 'white',
     borderRadius: 5,
     padding: 10,
     alignItems: 'center',
+    flexShrink: 0,
   },
   buttonText: {
-    // Styles for the text inside the button
     fontSize: 16,
     fontWeight: 'bold',
     color: '#52796F',
   },
   selectedDateText: {
-    // Styles for the selected date text
     fontSize: 16,
     color: '#000',
     padding: 10,
+    flex: 1,
+    minWidth: 100,
   },
 });

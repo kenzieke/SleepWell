@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { ScrollView, View, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import ScalableText from '../components/ScalableText';
 import SwitchSelector from 'react-native-switch-selector';
 import { DateComponent } from '../components/DateComponent';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
@@ -29,7 +30,7 @@ const OptionButton: React.FC<{
       styles.optionButton,
       isSelected && styles.optionButtonSelected,
     ]}>
-    <Text
+    <ScalableText
       style={[
         styles.optionText,
         isSelected && styles.optionTextSelected,
@@ -39,7 +40,7 @@ const OptionButton: React.FC<{
       minimumFontScale={0.5}
     >
       {label}
-    </Text>
+    </ScalableText>
   </TouchableOpacity>
 );
 
@@ -64,7 +65,7 @@ const SleepTrackerScreen: React.FC = () => {
     console.log("Current Value: ", value);
     return (
       <View style={styles.questionContainer}>
-        {question && <Text style={styles.questionText}>{question}</Text>}
+        {question && <ScalableText style={styles.questionText}>{question}</ScalableText>}
         <View style={styles.optionsRow}>
           {options.map((option, index) => (
             <OptionButton
@@ -442,7 +443,7 @@ const SleepTrackerScreen: React.FC = () => {
         </View>
 
           <View style={styles.switchContainer}>
-              <Text style={styles.questionText}>On Duty?</Text>
+              <ScalableText style={styles.questionText}>On Duty?</ScalableText>
               <SwitchSelector
                   initial={0}
                   onPress={value => setIsOnDuty(value)}
@@ -451,6 +452,7 @@ const SleepTrackerScreen: React.FC = () => {
                   buttonColor={colors.borderMedium}
                   borderColor={colors.borderMedium}
                   hasPadding
+                  fontSize={14}
                   options={[
                   { label: 'no', value: 'yes' },
                   { label: 'yes', value: 'no' },
@@ -460,7 +462,7 @@ const SleepTrackerScreen: React.FC = () => {
           </View>
 
           <View style={styles.switchContainer}>
-              <Text style={styles.questionText}>Deployed?</Text>
+              <ScalableText style={styles.questionText}>Deployed?</ScalableText>
               <SwitchSelector
                   initial={0}
                   onPress={value => setIsDeployed(value)}
@@ -469,6 +471,7 @@ const SleepTrackerScreen: React.FC = () => {
                   buttonColor={colors.borderMedium}
                   borderColor={colors.borderMedium}
                   hasPadding
+                  fontSize={14}
                   options={[
                   { label: 'no', value: 'yes' },
                   { label: 'yes', value: 'no' },
@@ -487,83 +490,97 @@ const SleepTrackerScreen: React.FC = () => {
         </View>
 
       <View style={styles.questionContainer}>
-        <Text style={styles.questionText}>
+        <ScalableText style={styles.questionText}>
           How long were you in bed/cot/mat in total?
-        </Text>
+        </ScalableText>
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
             onChangeText={handleInputChange(setInBedHours)}
             value={displayEmptyOrValue(inBedHours)}
             keyboardType="numeric"
             maxLength={2}
           />
-          <Text style={styles.unitText}>hours</Text>
+          <ScalableText style={styles.unitText} numberOfLines={1}>hours</ScalableText>
           <TextInput
             style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
             onChangeText={handleMinuteInputChange(setInBedMinutes)}
             value={displayEmptyOrValue(inBedMinutes)}
             keyboardType="numeric"
             maxLength={2}
           />
-          <Text style={styles.unitText}>min</Text>
+          <ScalableText style={styles.unitText} numberOfLines={1}>min</ScalableText>
         </View>
       </View>
 
       <View style={styles.questionContainer}>
-        <Text style={styles.questionText}>
+        <ScalableText style={styles.questionText}>
           How long did you actually sleep in total (excluding naps)?
-        </Text>
+        </ScalableText>
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
             onChangeText={handleInputChange(setTimeAsleepHours)}
             value={displayEmptyOrValue(timeAsleepHours)}
             keyboardType="numeric"
             maxLength={2}
           />
-          <Text style={styles.unitText}>hours</Text>
+          <ScalableText style={styles.unitText} numberOfLines={1}>hours</ScalableText>
           <TextInput
             style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
             onChangeText={handleMinuteInputChange(setTimeAsleepMinutes)}
             value={displayEmptyOrValue(timeAsleepMinutes)}
             keyboardType="numeric"
             maxLength={2}
           />
-          <Text style={styles.unitText}>min</Text>
+          <ScalableText style={styles.unitText} numberOfLines={1}>min</ScalableText>
         </View>
       </View>
 
       <View style={styles.questionContainer}>
-        <Text style={styles.questionText}>
+        <ScalableText style={styles.questionText}>
           How long did it take you to fall asleep (at first)?
-        </Text>
+        </ScalableText>
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
             onChangeText={handleInputChange(setFallAsleepHours)}
             value={displayEmptyOrValue(fallAsleepHours)}
             keyboardType="numeric"
             maxLength={2}
           />
-          <Text style={styles.unitText}>hours</Text>
+          <ScalableText style={styles.unitText} numberOfLines={1}>hours</ScalableText>
           <TextInput
             style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
             onChangeText={handleMinuteInputChange(setFallAsleepMinutes)}
             value={displayEmptyOrValue(fallAsleepMinutes)}
             keyboardType="numeric"
             maxLength={2}
           />
-          <Text style={styles.unitText}>min</Text>
+          <ScalableText style={styles.unitText} numberOfLines={1}>min</ScalableText>
         </View>
       </View>
 
       <View style={styles.questionContainer}>
-        <Text style={styles.questionText}>
+        <ScalableText style={styles.questionText}>
           How many times did you wake up?
-        </Text>
+        </ScalableText>
         <TextInput
           style={styles.healthInput}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
           onChangeText={handleInputChange(setTimesWokeUp)}
           value={displayEmptyOrValue(timesWokeUp)}
           keyboardType="numeric"
@@ -572,7 +589,7 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.switchContainer}>
-        <Text style={styles.questionText}>Take any sleep medications?</Text>
+        <ScalableText style={styles.questionText}>Take any sleep medications?</ScalableText>
         <SwitchSelector
             initial={0}
             onPress={value => setSleepMedications(value)}
@@ -581,6 +598,7 @@ const SleepTrackerScreen: React.FC = () => {
             buttonColor={colors.borderMedium}
             borderColor={colors.borderMedium}
             hasPadding
+            fontSize={14}
             options={[
             { label: 'no', value: 'yes' },
             { label: 'yes', value: 'no' },
@@ -590,7 +608,7 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.switchContainer}>
-        <Text style={styles.questionText}>Any naps during the day before?</Text>
+        <ScalableText style={styles.questionText}>Any naps during the day before?</ScalableText>
         <SwitchSelector
             initial={0}
             onPress={value => setNaps(value)}
@@ -599,6 +617,7 @@ const SleepTrackerScreen: React.FC = () => {
             buttonColor={colors.borderMedium}
             borderColor={colors.borderMedium}
             hasPadding
+            fontSize={14}
             options={[
             { label: 'no', value: 'yes' },
             { label: 'yes', value: 'no' },
@@ -608,35 +627,41 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
-        <Text style={styles.questionText}>
+        <ScalableText style={styles.questionText}>
           How much time did you nap in total?
-        </Text>
+        </ScalableText>
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
             onChangeText={handleInputChange(setNapTimeHours)}
             value={displayEmptyOrValue(napTimeHours)}
             keyboardType="numeric"
             maxLength={2}
           />
-          <Text style={styles.unitText}>hours</Text>
+          <ScalableText style={styles.unitText} numberOfLines={1}>hours</ScalableText>
           <TextInput
             style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
             onChangeText={handleMinuteInputChange(setNapTimeMinutes)}
             value={displayEmptyOrValue(napTimeMinutes)}
             keyboardType="numeric"
             maxLength={2}
           />
-          <Text style={styles.unitText}>min</Text>
+          <ScalableText style={styles.unitText} numberOfLines={1}>min</ScalableText>
         </View>
       </View>
 
       <View style={styles.questionContainer}>
-        <Text style={styles.questionText}>
+        <ScalableText style={styles.questionText}>
           Comments:
-        </Text>
+        </ScalableText>
         <TextInput
           style={styles.healthInput}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
           onChangeText={setComments}
           value={comments}
           placeholder="Comments"
@@ -644,7 +669,7 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
-        <Text style={styles.sectionHeaderText}>This next section is to be completed at the end of your day:</Text>
+        <ScalableText style={styles.sectionHeaderText}>This next section is to be completed at the end of your day:</ScalableText>
       </View>
 
       <View style={styles.questionContainer}>
@@ -663,10 +688,12 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>Weight:</Text>
+          <ScalableText style={styles.questionText}>Weight:</ScalableText>
           <View style={styles.inputRow}>
             <TextInput
                 style={styles.healthInput}
+                allowFontScaling={true}
+                maxFontSizeMultiplier={1.5}
                 onChangeText={setDailyWeight}
                 value={dailyWeight}
                 keyboardType="numeric"
@@ -682,6 +709,7 @@ const SleepTrackerScreen: React.FC = () => {
               buttonColor={colors.borderMedium}
               borderColor={colors.borderMedium}
               hasPadding
+              fontSize={14}
               options={[
                 { label: 'kgs', value: 'kgs' },
                 { label: 'lbs', value: 'lbs' },
@@ -692,11 +720,13 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>
+          <ScalableText style={styles.questionText}>
               Drinks with caffeine today:
-          </Text>
+          </ScalableText>
           <TextInput
               style={styles.healthInput}
+              allowFontScaling={true}
+              maxFontSizeMultiplier={1.5}
               onChangeText={setCaffeine}
               value={caffeine}
               keyboardType="numeric"
@@ -706,11 +736,13 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>
+          <ScalableText style={styles.questionText}>
               Vegetable servings today:
-          </Text>
+          </ScalableText>
           <TextInput
               style={styles.healthInput}
+              allowFontScaling={true}
+              maxFontSizeMultiplier={1.5}
               onChangeText={setVegetables}
               value={vegetables}
               keyboardType="numeric"
@@ -720,11 +752,13 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>
+          <ScalableText style={styles.questionText}>
               Sugary drinks today:
-          </Text>
+          </ScalableText>
           <TextInput
               style={styles.healthInput}
+              allowFontScaling={true}
+              maxFontSizeMultiplier={1.5}
               onChangeText={setSugaryDrinks}
               value={sugaryDrinks}
               keyboardType="numeric"
@@ -734,11 +768,13 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>
+          <ScalableText style={styles.questionText}>
               Fast food today:
-          </Text>
+          </ScalableText>
           <TextInput
               style={styles.healthInput}
+              allowFontScaling={true}
+              maxFontSizeMultiplier={1.5}
               onChangeText={setFastFood}
               value={fastFood}
               keyboardType="numeric"
@@ -748,11 +784,13 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>
+          <ScalableText style={styles.questionText}>
               Minutes of physical activity today:
-          </Text>
+          </ScalableText>
           <TextInput
               style={styles.healthInput}
+              allowFontScaling={true}
+              maxFontSizeMultiplier={1.5}
               onChangeText={setMinPA}
               value={minPA}
               keyboardType="numeric"
@@ -762,11 +800,13 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
       <View style={styles.questionContainer}>
-          <Text style={styles.questionText}>
+          <ScalableText style={styles.questionText}>
               Other goals for today:
-          </Text>
+          </ScalableText>
           <TextInput
               style={styles.healthInput}
+              allowFontScaling={true}
+              maxFontSizeMultiplier={1.5}
               onChangeText={setGoals}
               value={goals}
               placeholder="Enter your goals here"
@@ -774,7 +814,7 @@ const SleepTrackerScreen: React.FC = () => {
       </View>
 
         <TouchableOpacity style={styles.button} onPress={saveData}>
-          <Text style={styles.buttonText}>Save</Text>
+          <ScalableText style={styles.buttonText}>Save</ScalableText>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -858,7 +898,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 40,
+    minHeight: 40,
   },
   optionButtonSelected: {
     backgroundColor: colors.primary,
