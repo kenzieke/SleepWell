@@ -32,15 +32,9 @@ const ResultsScreen = () => {
 
     return (
       <View style={styles.modalContent}>
-        <ScrollView
-          style={styles.modalScrollView}
-          contentContainerStyle={styles.modalScrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <ScalableText style={styles.modalHeaderText} maxScale={2}>Your {selectedCategory} score is:</ScalableText>
-          <ScalableText style={styles.modalScoreText} maxScale={2}>{details.score}</ScalableText>
-          <ScalableText style={styles.modalDescriptionText} maxScale={2}>{details.description}</ScalableText>
-        </ScrollView>
+        <ScalableText style={styles.modalHeaderText} maxScale={2}>Your {selectedCategory} score is:</ScalableText>
+        <ScalableText style={styles.modalScoreText} maxScale={2}>{details.score}</ScalableText>
+        <ScalableText style={styles.modalDescriptionText} maxScale={2}>{details.description}</ScalableText>
         <TouchableOpacity
           onPress={() => setModalVisible(false)}
           style={styles.button}>
@@ -81,8 +75,14 @@ const ResultsScreen = () => {
         visible={isModalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.centeredView}>
-          {renderModalContent()}
+        <View style={styles.modalOverlay}>
+          <ScrollView
+            style={styles.modalScrollView}
+            contentContainerStyle={styles.modalScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {renderModalContent()}
+          </ScrollView>
         </View>
       </Modal>
     </ScrollView>
@@ -136,15 +136,20 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.md,
     textAlign: 'center',
   },
-  centeredView: {
+  modalOverlay: {
     flex: 1,
     backgroundColor: colors.overlay,
+  },
+  modalScrollView: {
+    flex: 1,
+  },
+  modalScrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.xl,
   },
   modalContent: {
-    maxHeight: '80%',
     backgroundColor: colors.background,
     borderWidth: 2,
     borderColor: colors.primaryDark,
@@ -158,12 +163,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 10,
     elevation: 5,
-  },
-  modalScrollView: {
-    flexGrow: 0,
-  },
-  modalScrollContent: {
-    alignItems: 'center',
   },
   modalText: {
     marginBottom: 15,

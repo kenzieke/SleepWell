@@ -105,15 +105,21 @@ const WeeklyGoals: React.FC = () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <ScalableText style={styles.modalText} maxScale={2}>
-              {selectedGoal?.description || 'Content not available'}
-            </ScalableText>
-            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonContainer}>
-              <ScalableText style={styles.closeButtonText} maxScale={2}>Close</ScalableText>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.modalOverlay}>
+          <ScrollView
+            style={styles.modalScrollView}
+            contentContainerStyle={styles.modalScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.modalView}>
+              <ScalableText style={styles.modalText} maxScale={2}>
+                {selectedGoal?.description || 'Content not available'}
+              </ScalableText>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonContainer}>
+                <ScalableText style={styles.closeButtonText} maxScale={2}>Close</ScalableText>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
       </Modal>
     </View>
@@ -158,15 +164,20 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
     lineHeight: 20,
   },
-  centeredView: {
+  modalOverlay: {
     flex: 1,
     backgroundColor: colors.overlay,
+  },
+  modalScrollView: {
+    flex: 1,
+  },
+  modalScrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 22,
+    padding: spacing.xl,
   },
   modalView: {
-    margin: spacing.xl,
     backgroundColor: colors.background,
     borderWidth: 2,
     borderColor: colors.primaryDark,

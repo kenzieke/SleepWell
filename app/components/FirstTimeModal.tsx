@@ -44,34 +44,39 @@ const FirstTimeModal: React.FC<FirstTimeModalProps> = ({ storageKey, message }) 
       visible={visible}
       onRequestClose={handleClose}
     >
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <ScrollView
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
+      <View style={styles.overlay}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.modalView}>
             <ScalableText style={styles.modalText} maxScale={2}>{message}</ScalableText>
-          </ScrollView>
-          <TouchableOpacity onPress={handleClose} style={styles.closeButtonContainer}>
-            <ScalableText style={styles.closeButtonText} maxScale={2}>Got it!</ScalableText>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity onPress={handleClose} style={styles.closeButtonContainer}>
+              <ScalableText style={styles.closeButtonText} maxScale={2}>Got it!</ScalableText>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  centeredView: {
+  overlay: {
     flex: 1,
     backgroundColor: colors.overlay,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.xl,
   },
   modalView: {
-    maxHeight: '80%',
     backgroundColor: colors.background,
     borderWidth: 2,
     borderColor: colors.primaryDark,
@@ -82,12 +87,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xxl,
     padding: 35,
     alignItems: 'center',
-  },
-  scrollView: {
-    flexGrow: 0,
-  },
-  scrollContent: {
-    flexGrow: 1,
   },
   modalText: {
     marginBottom: 15,
