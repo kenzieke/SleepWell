@@ -462,7 +462,7 @@ const SleepTrackerScreen: React.FC = () => {
           </View>
 
           <View style={styles.switchContainer}>
-              <ScalableText style={styles.questionText}>Deployed?</ScalableText>
+              <ScalableText style={styles.questionText}>Deployed (Out of county)?</ScalableText>
               <SwitchSelector
                   initial={0}
                   onPress={value => setIsDeployed(value)}

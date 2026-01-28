@@ -14,9 +14,9 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 import FirstTimeModal from '../components/FirstTimeModal';
 
-// Original image dimensions
-const originalWidth = 1126;
-const originalHeight = 1882;
+// Cropped image dimensions (header removed)
+const originalWidth = 4509;
+const originalHeight = 7535;
 const aspectRatio = originalWidth / originalHeight;
 
 // Goal Content Map
@@ -74,7 +74,7 @@ const WeeklyGoals: React.FC = () => {
         message="Tap any of the descriptions to get more information about what each goal entails."
       />
       <Image
-        source={require('../../assets/wheel_without_header.png')}
+        source={require('../../assets/goal_wheel_cropped.png')}
         style={[
           styles.image,
           {
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    backgroundColor: '#B3D584',
+    backgroundColor: '#2C4A4A', // Dark teal to match bottom of wheel image
   },
   image: {
     position: 'absolute',

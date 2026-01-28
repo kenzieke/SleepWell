@@ -165,7 +165,7 @@ const SleepAssessmentScreen = () => {
         <View style={styles.container}>
         
         <View style={styles.switchContainer}>
-          <Text style={styles.questionText}>Are you currently deployed?</Text>
+          <Text style={styles.questionText}>Are you currently deployed (out of county)?</Text>
           <SwitchSelector
             initial={0}
             onPress={value => setIsDeployed(value)}
