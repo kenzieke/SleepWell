@@ -21,6 +21,19 @@ const getInsomniaSeverityDescription = (score: number) => {
   return `${description}\n\n*Note: this is not meant to be a medical diagnosis of insomnia.`;
 };
 
+const getSleepApneaScoreText = (score: number) => {
+  switch (score) {
+    case 5:
+      return 'High Risk';
+    case 3:
+      return 'At Risk';
+    case 1:
+      return 'Low Risk';
+    default:
+      return 'Not available';
+  }
+};
+
 const getSleepApneaDescription = (score: number) => {
   let riskLevel;
   switch (score) {
@@ -37,7 +50,7 @@ const getSleepApneaDescription = (score: number) => {
       riskLevel = 'an undetermined';
       break;
   }
-  return `You appear at ${riskLevel} risk for having obstructive sleep apnea. Sleep apnea has been linked to daytime sleepiness, reduced alertness, lethargy and impaired driving. It is also associated with hypertension and stroke. To determine if you have sleep apnea, it is necessary to be evaluated by a physician. 
+  return `You appear at ${riskLevel} risk for having obstructive sleep apnea. Sleep apnea has been linked to daytime sleepiness, reduced alertness, lethargy and impaired driving. It is also associated with hypertension and stroke. To determine if you have sleep apnea, it is necessary to be evaluated by a physician.
 
 *Note: this is not meant to be a medical diagnosis of sleep apnea.`;
 };
@@ -58,67 +71,29 @@ const getBMIDescription = (score: number) => {
 BMI is not a perfect measure but can help determine risk of sleep disorders and chronic diseases. If you have a BMI of 25 or more, our program includes proven strategies to promote healthy weight loss to improve sleep.`;
 };
 
-const getDietDescription = (score: number) => {
-  let dietScore;
+const getScoreText = (score: number) => {
   switch (score) {
     case 5:
-      dietScore = 'an area for improvement';
-      break;
+      return 'Needs Improvement';
     case 3:
-      dietScore = 'getting there';
-      break;
+      return 'Getting There';
     case 1:
-      dietScore = 'doing great';
-      break;
+      return 'Doing Great';
     default:
-      dietScore = 'an undetermined';
-      break;
+      return 'Not available';
   }
-  return `Your diet is ${dietScore}.
-  
-A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.`;
 };
 
-const getActivityDescription = (score: number) => {
-  let pa;
-  switch (score) {
-    case 5:
-      pa = 'an area for improvement';
-      break;
-    case 3:
-      pa = 'getting there';
-      break;
-    case 1:
-      pa = 'doing great';
-      break;
-    default:
-      pa = 'an undetermined';
-      break;
-  }
-  return `Your physical activity is ${pa}.
-
-A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.`
+const getDietDescription = () => {
+  return `A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Also pay attention to make sure you have plenty of vegetables.`;
 };
 
-const getStressDescription = (score: number) => {
-  let stressScore;
-  switch (score) {
-    case 5:
-      stressScore = 'an area for improvement';
-      break;
-    case 3:
-      stressScore = 'getting there';
-      break;
-    case 1:
-      stressScore = 'doing great';
-      break;
-    default:
-      stressScore = 'an undetermined';
-      break;
-  }
-  return `Your stress is ${stressScore}.
-  
-Managing stress is a key part of sleep health. Our program provides tools to help manage stress both on and off duty.`;
+const getActivityDescription = () => {
+  return `Regular physical activity has been linked with improved sleep quality (but avoid vigorous activity right before bed).`;
+};
+
+const getStressDescription = () => {
+  return `Managing stress is a key part of sleep health. Our program provides tools to help manage stress both on and off duty.`;
 };
 
 export const getCategoryDetails = (results: Results): Record<string, CategoryDetails> => ({
@@ -143,7 +118,7 @@ export const getCategoryDetails = (results: Results): Record<string, CategoryDet
             : results.sleepApneaRisk === 3
             ? scale3Image
             : scale5Image,
-    score: results.sleepApneaRisk ?? 'Not available',
+    score: results.sleepApneaRisk ? getSleepApneaScoreText(results.sleepApneaRisk) : 'Not available',
     description: results.sleepApneaRisk ? getSleepApneaDescription(results.sleepApneaRisk) : 'No score available.',
   },
   'Sleep Efficiency': {
@@ -176,21 +151,17 @@ export const getCategoryDetails = (results: Results): Record<string, CategoryDet
             : results.diet === 3
             ? scale3Image
             : scale5Image,
-    score: results.diet ?? 'Not available',
-    description: results.diet ? getDietDescription(results.diet) : 'No score available.',
+    score: results.diet ? getScoreText(results.diet) : 'Not available',
+    description: results.diet ? getDietDescription() : 'No score available.',
   },
   'Physical Activity': {
-    image: results.physicalActivity && results.physicalActivity <= 20
-            ? scale5Image
-            : results.physicalActivity && results.physicalActivity <= 40
-            ? scale4Image
-            : results.physicalActivity && results.physicalActivity <= 60
+    image: results.physicalActivity === 1
+            ? scale1Image
+            : results.physicalActivity === 3
             ? scale3Image
-            : results.physicalActivity && results.physicalActivity <= 80
-            ? scale4Image
             : scale5Image,
-    score: results.physicalActivity ?? 'Not available',
-    description: results.physicalActivity ? getActivityDescription(results.physicalActivity) : 'No score available.',
+    score: results.physicalActivity ? getScoreText(results.physicalActivity) : 'Not available',
+    description: results.physicalActivity ? getActivityDescription() : 'No score available.',
   },
   'Stress': {
     image: results.stress === 5
@@ -198,7 +169,7 @@ export const getCategoryDetails = (results: Results): Record<string, CategoryDet
             : results.stress === 3
             ? scale3Image
             : scale5Image,
-    score: results.stress ?? 'Not available',
-    description: results.stress ? getStressDescription(results.stress) : 'No score available.',
+    score: results.stress ? getScoreText(results.stress) : 'Not available',
+    description: results.stress ? getStressDescription() : 'No score available.',
   }
 });
