@@ -246,12 +246,13 @@ const SleepTrackerScreen: React.FC = () => {
     return () => clearCallbacks();
   }, []);
 
-  // Reset weight unit to original when leaving the screen with no weight entered
+  // Reset state when leaving the screen
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
       if (dailyWeight === '') {
         setWeightUnit(originalData?.healthData?.weight?.unit || 'kgs');
       }
+      setDate(new Date());
     });
     return unsubscribe;
   }, [navigation, dailyWeight, originalData]);
