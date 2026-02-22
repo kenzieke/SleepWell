@@ -118,6 +118,41 @@ export const getInsomniaSeverityIndex = (responses: {
   return total;
 };
 
+// Convert 12-hour time to minutes since midnight
+const toMinutesSinceMidnight = (hour: string, minute: string, amPm: string): number | undefined => {
+  let h = parseInt(hour, 10);
+  const m = parseInt(minute, 10);
+  if (isNaN(h) || isNaN(m) || h < 1 || h > 12 || m < 0 || m > 59) return undefined;
+  if (amPm === 'AM' && h === 12) h = 0;
+  else if (amPm === 'PM' && h !== 12) h += 12;
+  return h * 60 + m;
+};
+
+// Calculate daily sleep efficiency from tracker inputs
+export const computeDailySleepEfficiency = (
+  bedtimeHour: string, bedtimeMinute: string, bedtimeAmPm: string,
+  wakeTimeHour: string, wakeTimeMinute: string, wakeTimeAmPm: string,
+  fallAsleepDurationHours: string, fallAsleepDurationMinutes: string,
+  awakeningsDurationHours: string, awakeningsDurationMinutes: string,
+): number | undefined => {
+  const bedtime = toMinutesSinceMidnight(bedtimeHour, bedtimeMinute, bedtimeAmPm);
+  const wakeTime = toMinutesSinceMidnight(wakeTimeHour, wakeTimeMinute, wakeTimeAmPm);
+  if (bedtime === undefined || wakeTime === undefined) return undefined;
+
+  const timeInBed = wakeTime > bedtime
+    ? wakeTime - bedtime
+    : (1440 - bedtime) + wakeTime;
+
+  if (timeInBed <= 0) return undefined;
+
+  const fallAsleep = (parseInt(fallAsleepDurationHours, 10) || 0) * 60 + (parseInt(fallAsleepDurationMinutes, 10) || 0);
+  const awakenings = (parseInt(awakeningsDurationHours, 10) || 0) * 60 + (parseInt(awakeningsDurationMinutes, 10) || 0);
+  const totalSleepTime = timeInBed - fallAsleep - awakenings;
+
+  if (totalSleepTime <= 0) return 0;
+  return Math.min(100, Math.round((totalSleepTime / timeInBed) * 100));
+};
+
 // Physical Activity (0-50 is red; 50-100 is yellow, 100 and above is green)
 export const getPhysicalActivity = (hours: string, minutes: string): number => {
   // Helper function to convert hours to minutes

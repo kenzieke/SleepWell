@@ -1,13 +1,16 @@
 import { Firestore, doc, getDoc, collection, query, orderBy, limit, getDocs, where } from "firebase/firestore";
 
 interface SleepData {
-    fallAsleepHours: string;
-    fallAsleepMinutes: string;
-    inBedHours: string;
-    inBedMinutes: string;
-    timeAsleepHours: string;
-    timeAsleepMinutes: string;
-    timesWokeUp: string;
+    // New fields (current schema)
+    sleepEfficiency?: number;
+    // Old fields (legacy schema, for backward compat)
+    fallAsleepHours?: string;
+    fallAsleepMinutes?: string;
+    inBedHours?: string;
+    inBedMinutes?: string;
+    timeAsleepHours?: string;
+    timeAsleepMinutes?: string;
+    timesWokeUp?: string;
 }
 
 // Define interfaces for Firestore data
@@ -54,15 +57,21 @@ export const calculateBmiProgress = async (userId: string, firestore: Firestore)
     return 100;
 };
 
-// Updated calculateSleepEfficiency function
+// Get sleep efficiency from saved data (new schema) or recalculate from legacy fields
 export const calculateSleepEfficiency = (data: SleepData): number => {
+    // New schema: use pre-computed value from daily tracker
+    if (data.sleepEfficiency !== undefined && !isNaN(data.sleepEfficiency)) {
+      return data.sleepEfficiency;
+    }
+
+    // Legacy schema fallback: recalculate from old fields
     const fallAsleepTime = parseInt(data.fallAsleepHours || '0') * 60 + parseInt(data.fallAsleepMinutes || '0');
     const totalTimeInBed = parseInt(data.inBedHours || '0') * 60 + parseInt(data.inBedMinutes || '0');
     const totalSleepTime = parseInt(data.timeAsleepHours || '0') * 60 + parseInt(data.timeAsleepMinutes || '0');
     const timesWokeUp = parseInt(data.timesWokeUp || '0');
-  
+
     if (totalTimeInBed === 0) return 0;
-  
+
     const sleepEfficiency = (totalSleepTime / (fallAsleepTime + totalSleepTime + timesWokeUp)) * 100;
     return parseFloat(sleepEfficiency.toFixed(2));
 };  

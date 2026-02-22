@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';
 import { useBannerStore } from '../../stores/BannerStore';
+import { computeDailySleepEfficiency } from '../../utils/sleepAssessmentHelpers';
 import { useUnsavedChangesStore } from '../../stores/UnsavedChangesStore';
 import SaveBanner from '../components/SaveBanner';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
@@ -95,37 +96,53 @@ const SleepTrackerScreen: React.FC = () => {
   const [isAtHome, setIsAtHome] = useState(false);
   const [sleepRating, setSleepRating] = useState('');
 
-  const [timesWokeUp, setTimesWokeUp] = useState<string>('');
   const [naps, setNaps] = useState(false);
   const [sleepMedications, setSleepMedications] = useState(false);
   const [comments, setComments] = useState<string>('');
-  const [inBedHours, setInBedHours] = useState<string>('0');
-  const [inBedMinutes, setInBedMinutes] = useState<string>('0');
-  const [fallAsleepHours, setFallAsleepHours] = useState<string>('0');
-  const [fallAsleepMinutes, setFallAsleepMinutes] = useState<string>('0');
-  const [timeAsleepHours, setTimeAsleepHours] = useState<string>('0');
-  const [timeAsleepMinutes, setTimeAsleepMinutes] = useState<string>('0');
   const [napTimeHours, setNapTimeHours] = useState<string>('0');
   const [napTimeMinutes, setNapTimeMinutes] = useState<string>('0');
   const sleepOptions = ['Very Poor', 'Poor', 'Okay', 'Good', 'Outstanding'];
 
-  const clearForm = () => {
+  // New sleep questions state
+  const [bedtimeHour, setBedtimeHour] = useState<string>('');
+  const [bedtimeMinute, setBedtimeMinute] = useState<string>('0');
+  const [bedtimeAmPm, setBedtimeAmPm] = useState<string>('PM');
+  const [fallAsleepDurationHours, setFallAsleepDurationHours] = useState<string>('0');
+  const [fallAsleepDurationMinutes, setFallAsleepDurationMinutes] = useState<string>('0');
+  const [nightAwakenings, setNightAwakenings] = useState<string>('0');
+  const [awakeningsDurationHours, setAwakeningsDurationHours] = useState<string>('0');
+  const [awakeningsDurationMinutes, setAwakeningsDurationMinutes] = useState<string>('0');
+  const [wakeTimeHour, setWakeTimeHour] = useState<string>('');
+  const [wakeTimeMinute, setWakeTimeMinute] = useState<string>('0');
+  const [wakeTimeAmPm, setWakeTimeAmPm] = useState<string>('AM');
+  const [sleepLocation, setSleepLocation] = useState<string>('');
+  const sleepLocationOptions = ['Station', 'On Assignment', 'Off Duty'];
+
+  const clearSleepFields = () => {
     setIsDeployed(false);
     setIsOnDuty(false);
     setIsAtHome(false);
-    setTimesWokeUp('');
     setNaps(false);
     setSleepMedications(false);
     setComments('');
-    setInBedHours('0');
-    setInBedMinutes('0');
     setNapTimeHours('0');
     setNapTimeMinutes('0');
-    setTimeAsleepHours('0');
-    setTimeAsleepMinutes('0');
-    setFallAsleepHours('0');
-    setFallAsleepMinutes('0');
     setSleepRating('');
+    setBedtimeHour('');
+    setBedtimeMinute('0');
+    setBedtimeAmPm('PM');
+    setFallAsleepDurationHours('0');
+    setFallAsleepDurationMinutes('0');
+    setNightAwakenings('0');
+    setAwakeningsDurationHours('0');
+    setAwakeningsDurationMinutes('0');
+    setWakeTimeHour('');
+    setWakeTimeMinute('0');
+    setWakeTimeAmPm('AM');
+    setSleepLocation('');
+  };
+
+  const clearHealthFields = () => {
     setCaffeine('');
     setVegetables('');
     setSugaryDrinks('');
@@ -171,36 +188,46 @@ const SleepTrackerScreen: React.FC = () => {
       setIsDeployed(sd.isDeployed || false);
       setIsOnDuty(sd.isOnDuty || false);
       setIsAtHome(sd.isAtHome || false);
-      setTimesWokeUp(sd.timesWokeUp || '');
       setNaps(sd.naps || false);
       setSleepMedications(sd.sleepMedications || false);
       setComments(sd.comments || '');
-      setInBedHours(sd.inBedHours || '0');
-      setInBedMinutes(sd.inBedMinutes || '0');
       setNapTimeHours(sd.napTimeHours || '0');
       setNapTimeMinutes(sd.napTimeMinutes || '0');
-      setTimeAsleepHours(sd.timeAsleepHours || '0');
-      setTimeAsleepMinutes(sd.timeAsleepMinutes || '0');
-      setFallAsleepHours(sd.fallAsleepHours || '0');
-      setFallAsleepMinutes(sd.fallAsleepMinutes || '0');
       setSleepRating(sd.sleepRating || '');
+      setBedtimeHour(sd.bedtimeHour || '');
+      setBedtimeMinute(sd.bedtimeMinute || '0');
+      setBedtimeAmPm(sd.bedtimeAmPm || 'PM');
+      setFallAsleepDurationHours(sd.fallAsleepDurationHours || '0');
+      setFallAsleepDurationMinutes(sd.fallAsleepDurationMinutes || '0');
+      setNightAwakenings(sd.nightAwakenings || '0');
+      setAwakeningsDurationHours(sd.awakeningsDurationHours || '0');
+      setAwakeningsDurationMinutes(sd.awakeningsDurationMinutes || '0');
+      setWakeTimeHour(sd.wakeTimeHour || '');
+      setWakeTimeMinute(sd.wakeTimeMinute || '0');
+      setWakeTimeAmPm(sd.wakeTimeAmPm || 'AM');
+      setSleepLocation(sd.sleepLocation || '');
     } else {
       setIsDeployed(false);
       setIsOnDuty(false);
       setIsAtHome(false);
-      setTimesWokeUp('');
       setNaps(false);
       setSleepMedications(false);
       setComments('');
-      setInBedHours('0');
-      setInBedMinutes('0');
       setNapTimeHours('0');
       setNapTimeMinutes('0');
-      setTimeAsleepHours('0');
-      setTimeAsleepMinutes('0');
-      setFallAsleepHours('0');
-      setFallAsleepMinutes('0');
       setSleepRating('');
+      setBedtimeHour('');
+      setBedtimeMinute('0');
+      setBedtimeAmPm('PM');
+      setFallAsleepDurationHours('0');
+      setFallAsleepDurationMinutes('0');
+      setNightAwakenings('0');
+      setAwakeningsDurationHours('0');
+      setAwakeningsDurationMinutes('0');
+      setWakeTimeHour('');
+      setWakeTimeMinute('0');
+      setWakeTimeAmPm('AM');
+      setSleepLocation('');
     }
     if (originalData?.healthData) {
       const hd = originalData.healthData;
@@ -295,9 +322,7 @@ const SleepTrackerScreen: React.FC = () => {
           setIsLoading(false);
         }
       } else {
-        if (!isLoading) {
-          clearForm();
-        }
+        clearHealthFields();
         setOriginalData((prev: any) => ({ ...prev, healthData: null }));
         healthLoadedRef.current = true;
         if (sleepLoadedRef.current) {
@@ -330,18 +355,23 @@ const SleepTrackerScreen: React.FC = () => {
         setIsDeployed(data.isDeployed || false);
         setIsOnDuty(data.isOnDuty || false);
         setIsAtHome(data.isAtHome || false);
-        setTimesWokeUp(data.timesWokeUp || '0');
         setNaps(data.naps || false);
         setSleepMedications(data.sleepMedications || false);
         setComments(data.comments || '');
-        setInBedHours(data.inBedHours || '0');
-        setInBedMinutes(data.inBedMinutes || '0');
         setNapTimeHours(data.napTimeHours || '0');
         setNapTimeMinutes(data.napTimeMinutes || '0');
-        setTimeAsleepHours(data.timeAsleepHours || '0');
-        setTimeAsleepMinutes(data.timeAsleepMinutes || '0');
-        setFallAsleepHours(data.fallAsleepHours || '0');
-        setFallAsleepMinutes(data.fallAsleepMinutes || '0');
+        setBedtimeHour(data.bedtimeHour || '');
+        setBedtimeMinute(data.bedtimeMinute || '0');
+        setBedtimeAmPm(data.bedtimeAmPm || 'PM');
+        setFallAsleepDurationHours(data.fallAsleepDurationHours || '0');
+        setFallAsleepDurationMinutes(data.fallAsleepDurationMinutes || '0');
+        setNightAwakenings(data.nightAwakenings || '0');
+        setAwakeningsDurationHours(data.awakeningsDurationHours || '0');
+        setAwakeningsDurationMinutes(data.awakeningsDurationMinutes || '0');
+        setWakeTimeHour(data.wakeTimeHour || '');
+        setWakeTimeMinute(data.wakeTimeMinute || '0');
+        setWakeTimeAmPm(data.wakeTimeAmPm || 'AM');
+        setSleepLocation(data.sleepLocation || '');
         setOriginalData((prev: any) => ({
           ...prev,
           sleepData: data,
@@ -351,9 +381,7 @@ const SleepTrackerScreen: React.FC = () => {
           setIsLoading(false);
         }
       } else {
-        if (!isLoading) {
-          clearForm();
-        }
+        clearSleepFields();
         setOriginalData((prev: any) => ({ ...prev, sleepData: null }));
         sleepLoadedRef.current = true;
         if (healthLoadedRef.current) {
@@ -389,24 +417,37 @@ const SleepTrackerScreen: React.FC = () => {
       }
     };
 
+    const sleepEfficiency = computeDailySleepEfficiency(
+      bedtimeHour, bedtimeMinute, bedtimeAmPm,
+      wakeTimeHour, wakeTimeMinute, wakeTimeAmPm,
+      fallAsleepDurationHours, fallAsleepDurationMinutes,
+      awakeningsDurationHours, awakeningsDurationMinutes,
+    );
+
     const sleepData = {
       date: formattedDate,
       isDeployed,
       isOnDuty,
       isAtHome,
-      timesWokeUp: validateAndPrepareData(timesWokeUp, 'times woke up'),
       naps,
       sleepMedications,
       comments,
-      inBedHours: validateAndPrepareData(inBedHours, 'hours in bed'),
-      inBedMinutes: validateAndPrepareData(inBedMinutes, 'minutes in bed'),
       napTimeHours: validateAndPrepareData(napTimeHours, 'nap hours'),
       napTimeMinutes: validateAndPrepareData(napTimeMinutes, 'nap minutes'),
-      timeAsleepHours: validateAndPrepareData(timeAsleepHours, 'sleep hours'),
-      timeAsleepMinutes: validateAndPrepareData(timeAsleepMinutes, 'sleep minutes'),
-      fallAsleepHours: validateAndPrepareData(fallAsleepHours, 'fall asleep hours'),
-      fallAsleepMinutes: validateAndPrepareData(fallAsleepMinutes, 'fall asleep minutes'),
-      sleepRating
+      sleepRating,
+      bedtimeHour,
+      bedtimeMinute,
+      bedtimeAmPm,
+      fallAsleepDurationHours: validateAndPrepareData(fallAsleepDurationHours, 'fall asleep hours'),
+      fallAsleepDurationMinutes: validateAndPrepareData(fallAsleepDurationMinutes, 'fall asleep minutes'),
+      nightAwakenings: validateAndPrepareData(nightAwakenings, 'times woke up'),
+      awakeningsDurationHours: validateAndPrepareData(awakeningsDurationHours, 'awakenings hours'),
+      awakeningsDurationMinutes: validateAndPrepareData(awakeningsDurationMinutes, 'awakenings minutes'),
+      wakeTimeHour,
+      wakeTimeMinute,
+      wakeTimeAmPm,
+      sleepLocation,
+      ...(sleepEfficiency !== undefined && { sleepEfficiency }),
     };
 
     const healthData: HealthData = {
@@ -542,6 +583,22 @@ const SleepTrackerScreen: React.FC = () => {
     markDirty();
   };
 
+  const handleHourInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (value: string) => {
+    if (value === '') {
+      setter('');
+    } else {
+      const numValue = parseInt(value, 10);
+      if (numValue > 12) {
+        setter('12');
+      } else if (numValue < 1) {
+        setter('1');
+      } else {
+        setter(value);
+      }
+    }
+    markDirty();
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.wrapper}
@@ -611,17 +668,64 @@ const SleepTrackerScreen: React.FC = () => {
         })}
         </View>
 
+      {/* a. What time did you try to go to sleep? */}
       <View style={styles.questionContainer}>
         <ScalableText style={styles.questionText}>
-          How long were you in bed/cot/mat in total?
+          What time did you try to go to sleep?
         </ScalableText>
         <View style={styles.timeContainer}>
           <TextInput
             style={styles.timeInput}
             allowFontScaling={true}
             maxFontSizeMultiplier={1.5}
-            onChangeText={handleInputChange(setInBedHours)}
-            value={displayEmptyOrValue(inBedHours)}
+            onChangeText={handleHourInputChange(setBedtimeHour)}
+            value={bedtimeHour}
+            keyboardType="numeric"
+            placeholder="Hr"
+            maxLength={2}
+          />
+          <ScalableText style={styles.unitText} numberOfLines={1}>:</ScalableText>
+          <TextInput
+            style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
+            onChangeText={handleMinuteInputChange(setBedtimeMinute)}
+            value={displayEmptyOrValue(bedtimeMinute)}
+            keyboardType="numeric"
+            placeholder="Min"
+            maxLength={2}
+          />
+          <SwitchSelector
+            key={`bedtime-${bedtimeAmPm}`}
+            initial={bedtimeAmPm === 'AM' ? 0 : 1}
+            onPress={(value) => { setBedtimeAmPm(value); markDirty(); }}
+            textColor={colors.borderMedium}
+            selectedColor={colors.primary}
+            buttonColor={colors.borderMedium}
+            borderColor={colors.borderMedium}
+            hasPadding
+            fontSize={12}
+            options={[
+              { label: 'AM', value: 'AM' },
+              { label: 'PM', value: 'PM' },
+            ]}
+            style={styles.switchSelector}
+          />
+        </View>
+      </View>
+
+      {/* b. How long did it take you to fall asleep? */}
+      <View style={styles.questionContainer}>
+        <ScalableText style={styles.questionText}>
+          How long did it take you to fall asleep?
+        </ScalableText>
+        <View style={styles.timeContainer}>
+          <TextInput
+            style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
+            onChangeText={handleInputChange(setFallAsleepDurationHours)}
+            value={displayEmptyOrValue(fallAsleepDurationHours)}
             keyboardType="numeric"
             maxLength={2}
           />
@@ -630,8 +734,8 @@ const SleepTrackerScreen: React.FC = () => {
             style={styles.timeInput}
             allowFontScaling={true}
             maxFontSizeMultiplier={1.5}
-            onChangeText={handleMinuteInputChange(setInBedMinutes)}
-            value={displayEmptyOrValue(inBedMinutes)}
+            onChangeText={handleMinuteInputChange(setFallAsleepDurationMinutes)}
+            value={displayEmptyOrValue(fallAsleepDurationMinutes)}
             keyboardType="numeric"
             maxLength={2}
           />
@@ -639,75 +743,106 @@ const SleepTrackerScreen: React.FC = () => {
         </View>
       </View>
 
+      {/* c. How many times did you wake up? */}
       <View style={styles.questionContainer}>
         <ScalableText style={styles.questionText}>
-          How long did you actually sleep in total (excluding naps)?
-        </ScalableText>
-        <View style={styles.timeContainer}>
-          <TextInput
-            style={styles.timeInput}
-            allowFontScaling={true}
-            maxFontSizeMultiplier={1.5}
-            onChangeText={handleInputChange(setTimeAsleepHours)}
-            value={displayEmptyOrValue(timeAsleepHours)}
-            keyboardType="numeric"
-            maxLength={2}
-          />
-          <ScalableText style={styles.unitText} numberOfLines={1}>hours</ScalableText>
-          <TextInput
-            style={styles.timeInput}
-            allowFontScaling={true}
-            maxFontSizeMultiplier={1.5}
-            onChangeText={handleMinuteInputChange(setTimeAsleepMinutes)}
-            value={displayEmptyOrValue(timeAsleepMinutes)}
-            keyboardType="numeric"
-            maxLength={2}
-          />
-          <ScalableText style={styles.unitText} numberOfLines={1}>min</ScalableText>
-        </View>
-      </View>
-
-      <View style={styles.questionContainer}>
-        <ScalableText style={styles.questionText}>
-          How long did it take you to fall asleep (at first)?
-        </ScalableText>
-        <View style={styles.timeContainer}>
-          <TextInput
-            style={styles.timeInput}
-            allowFontScaling={true}
-            maxFontSizeMultiplier={1.5}
-            onChangeText={handleInputChange(setFallAsleepHours)}
-            value={displayEmptyOrValue(fallAsleepHours)}
-            keyboardType="numeric"
-            maxLength={2}
-          />
-          <ScalableText style={styles.unitText} numberOfLines={1}>hours</ScalableText>
-          <TextInput
-            style={styles.timeInput}
-            allowFontScaling={true}
-            maxFontSizeMultiplier={1.5}
-            onChangeText={handleMinuteInputChange(setFallAsleepMinutes)}
-            value={displayEmptyOrValue(fallAsleepMinutes)}
-            keyboardType="numeric"
-            maxLength={2}
-          />
-          <ScalableText style={styles.unitText} numberOfLines={1}>min</ScalableText>
-        </View>
-      </View>
-
-      <View style={styles.questionContainer}>
-        <ScalableText style={styles.questionText}>
-          How many times did you wake up?
+          How many times did you wake up, not counting your final awakening?
         </ScalableText>
         <TextInput
           style={styles.healthInput}
           allowFontScaling={true}
           maxFontSizeMultiplier={1.5}
-          onChangeText={handleInputChange(setTimesWokeUp)}
-          value={displayEmptyOrValue(timesWokeUp)}
+          onChangeText={handleInputChange(setNightAwakenings)}
+          value={displayEmptyOrValue(nightAwakenings)}
           keyboardType="numeric"
           placeholder="# of times"
+          maxLength={2}
         />
+      </View>
+
+      {/* d. In total, how long did these awakenings last? */}
+      <View style={styles.questionContainer}>
+        <ScalableText style={styles.questionText}>
+          In total, how long did these awakenings last?
+        </ScalableText>
+        <View style={styles.timeContainer}>
+          <TextInput
+            style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
+            onChangeText={handleInputChange(setAwakeningsDurationHours)}
+            value={displayEmptyOrValue(awakeningsDurationHours)}
+            keyboardType="numeric"
+            maxLength={2}
+          />
+          <ScalableText style={styles.unitText} numberOfLines={1}>hours</ScalableText>
+          <TextInput
+            style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
+            onChangeText={handleMinuteInputChange(setAwakeningsDurationMinutes)}
+            value={displayEmptyOrValue(awakeningsDurationMinutes)}
+            keyboardType="numeric"
+            maxLength={2}
+          />
+          <ScalableText style={styles.unitText} numberOfLines={1}>min</ScalableText>
+        </View>
+      </View>
+
+      {/* e. What time did you wake up? */}
+      <View style={styles.questionContainer}>
+        <ScalableText style={styles.questionText}>
+          What time did you wake up?
+        </ScalableText>
+        <View style={styles.timeContainer}>
+          <TextInput
+            style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
+            onChangeText={handleHourInputChange(setWakeTimeHour)}
+            value={wakeTimeHour}
+            keyboardType="numeric"
+            placeholder="Hr"
+            maxLength={2}
+          />
+          <ScalableText style={styles.unitText} numberOfLines={1}>:</ScalableText>
+          <TextInput
+            style={styles.timeInput}
+            allowFontScaling={true}
+            maxFontSizeMultiplier={1.5}
+            onChangeText={handleMinuteInputChange(setWakeTimeMinute)}
+            value={displayEmptyOrValue(wakeTimeMinute)}
+            keyboardType="numeric"
+            placeholder="Min"
+            maxLength={2}
+          />
+          <SwitchSelector
+            key={`wake-${wakeTimeAmPm}`}
+            initial={wakeTimeAmPm === 'AM' ? 0 : 1}
+            onPress={(value) => { setWakeTimeAmPm(value); markDirty(); }}
+            textColor={colors.borderMedium}
+            selectedColor={colors.primary}
+            buttonColor={colors.borderMedium}
+            borderColor={colors.borderMedium}
+            hasPadding
+            fontSize={12}
+            options={[
+              { label: 'AM', value: 'AM' },
+              { label: 'PM', value: 'PM' },
+            ]}
+            style={styles.switchSelector}
+          />
+        </View>
+      </View>
+
+      {/* f. Where did this sleep occur? */}
+      <View style={styles.questionContainer}>
+        {renderOptions({
+          question: 'Where did this sleep occur?',
+          value: sleepLocation,
+          setValue: setSleepLocation,
+          options: sleepLocationOptions,
+        })}
       </View>
 
       <View style={styles.switchContainer}>
