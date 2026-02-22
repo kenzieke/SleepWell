@@ -16,7 +16,7 @@ const getInsomniaSeverityDescription = (score: number) => {
   } else if (score >= 22 && score <= 28) {
     description += `Severe insomnia - Sleep Well delivers a science-based, comprehensive intervention for severe insomnia, employing sleep restriction, stimulus control, relaxation techniques, and cognitive restructuring to address sleep difficulties and promote sustainable improvements in sleep duration and quality.`;
   } else {
-    description += `Not clinically significant insomnia - Tailor how the app will help you.`;
+    description += `Low risk insomnia - Sleep Well offers many strategies to improve multiple dimensions of sleep (i.e., satisfaction, quality, efficiency, regularity, and timing) that may benefit your overall sleep and well-being.`;
   }
   return `${description}\n\n*Note: this is not meant to be a medical diagnosis of insomnia.`;
 };
@@ -147,19 +147,19 @@ export const getCategoryDetails = (results: Results): Record<string, CategoryDet
   },
   'Diet': {
     image: results.diet === 1
-            ? scale1Image
+            ? scale5Image
             : results.diet === 3
             ? scale3Image
-            : scale5Image,
+            : scale1Image,
     score: results.diet ? getScoreText(results.diet) : 'Not available',
     description: results.diet ? getDietDescription() : 'No score available.',
   },
   'Physical Activity': {
     image: results.physicalActivity === 1
-            ? scale1Image
+            ? scale5Image
             : results.physicalActivity === 3
             ? scale3Image
-            : scale5Image,
+            : scale1Image,
     score: results.physicalActivity ? getScoreText(results.physicalActivity) : 'Not available',
     description: results.physicalActivity ? getActivityDescription() : 'No score available.',
   },

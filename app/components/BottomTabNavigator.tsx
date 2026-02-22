@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { TouchableOpacity, Text } from 'react-native';
+import { useUnsavedChangesStore } from '../../stores/UnsavedChangesStore';
+import UnsavedChangesModal from './UnsavedChangesModal';
 
 // Custom header title component with controlled font scaling
 const HeaderTitle: React.FC<{ children: string }> = ({ children }) => (
@@ -173,65 +175,118 @@ function ResourceLibraryStack() {
 }
 
 const BottomTabNavigator: React.FC = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [pendingTabName, setPendingTabName] = useState<string | null>(null);
+  const tabNavigationRef = useRef<any>(null);
+
+  const handleSave = async () => {
+    const { saveCallback } = useUnsavedChangesStore.getState();
+    if (saveCallback) {
+      await saveCallback();
+    }
+    setModalVisible(false);
+    if (pendingTabName && tabNavigationRef.current) {
+      tabNavigationRef.current.navigate(pendingTabName);
+      setPendingTabName(null);
+    }
+  };
+
+  const handleDiscard = () => {
+    const { discardCallback } = useUnsavedChangesStore.getState();
+    if (discardCallback) {
+      discardCallback();
+    }
+    setModalVisible(false);
+    if (pendingTabName && tabNavigationRef.current) {
+      tabNavigationRef.current.navigate(pendingTabName);
+      setPendingTabName(null);
+    }
+  };
+
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          switch (route.name) {
-            case 'SleepTrackerScreen':
-              iconName = focused ? 'create' : 'create-outline'; // Adjust icon names as needed
-              break;
-            case 'WeeklyGoals':
-              iconName = focused ? 'trophy' : 'trophy-outline';
-              break;
-            case 'WeeklyLessonsScreen':
-              iconName = focused ? 'home' : 'home-outline';
-              break;
-            case 'ResourceLibraryScreen':
-              iconName = focused ? 'library' : 'library-outline';
-              break;
-          }
-          return <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={size} color={color} />;
-        },
-        tabBarShowLabel: true, // Ensure labels are shown under icons
-        tabBarActiveTintColor: '#52796F',
-        tabBarInactiveTintColor: 'gray',
-      })}
-    >
-      <Tab.Screen
-        name="WeeklyLessonsScreen"
-        component={WeeklyLessonsStack}
-        options={{
-          headerShown: false,
-          tabBarLabel: 'Home'
-        }}
+    <>
+      <UnsavedChangesModal
+        visible={modalVisible}
+        onSave={handleSave}
+        onDiscard={handleDiscard}
       />
-      <Tab.Screen
-        name="SleepTrackerScreen"
-        component={SleepTrackerStack}
-        options={{
-          headerShown: false,  // Hide the header
-          tabBarLabel: 'Tracker'  // Set label to show under the icon
+      <Tab.Navigator
+        screenListeners={({ navigation: tabNavigation }) => {
+          tabNavigationRef.current = tabNavigation;
+          return {
+            tabPress: (e) => {
+              const tabState = tabNavigation.getState();
+              const currentRoute = tabState.routes[tabState.index];
+              const isOnTracker = currentRoute.name === 'SleepTrackerScreen';
+              const targetTabName = (e.target ?? '').split('-')[0];
+              const { hasUnsavedChanges } = useUnsavedChangesStore.getState();
+
+              if (isOnTracker && hasUnsavedChanges && targetTabName !== 'SleepTrackerScreen') {
+                e.preventDefault();
+                setPendingTabName(targetTabName);
+                setModalVisible(true);
+              }
+            },
+          };
         }}
-      />
-      <Tab.Screen
-        name="WeeklyGoals"
-        component={WeeklyGoalsStack}
-        options={{
-          headerShown: false,  // Hide the header
-          tabBarLabel: 'Goals'  // Set label to show under the icon
-        }}
-      />
-      <Tab.Screen
-        name="ResourceLibraryScreen"
-        component={ResourceLibraryStack}
-        options={{
-          headerShown: false,  // Hide the header
-          tabBarLabel: 'Library'  // Set label to show under the icon
-        }}
-      />
-    </Tab.Navigator>
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+            switch (route.name) {
+              case 'SleepTrackerScreen':
+                iconName = focused ? 'create' : 'create-outline'; // Adjust icon names as needed
+                break;
+              case 'WeeklyGoals':
+                iconName = focused ? 'trophy' : 'trophy-outline';
+                break;
+              case 'WeeklyLessonsScreen':
+                iconName = focused ? 'home' : 'home-outline';
+                break;
+              case 'ResourceLibraryScreen':
+                iconName = focused ? 'library' : 'library-outline';
+                break;
+            }
+            return <Ionicons name={iconName as keyof typeof Ionicons.glyphMap} size={size} color={color} />;
+          },
+          tabBarShowLabel: true, // Ensure labels are shown under icons
+          tabBarActiveTintColor: '#52796F',
+          tabBarInactiveTintColor: 'gray',
+        })}
+      >
+        <Tab.Screen
+          name="WeeklyLessonsScreen"
+          component={WeeklyLessonsStack}
+          options={{
+            headerShown: false,
+            tabBarLabel: 'Home'
+          }}
+        />
+        <Tab.Screen
+          name="SleepTrackerScreen"
+          component={SleepTrackerStack}
+          options={{
+            headerShown: false,  // Hide the header
+            tabBarLabel: 'Tracker'  // Set label to show under the icon
+          }}
+        />
+        <Tab.Screen
+          name="WeeklyGoals"
+          component={WeeklyGoalsStack}
+          options={{
+            headerShown: false,  // Hide the header
+            tabBarLabel: 'Goals'  // Set label to show under the icon
+          }}
+        />
+        <Tab.Screen
+          name="ResourceLibraryScreen"
+          component={ResourceLibraryStack}
+          options={{
+            headerShown: false,  // Hide the header
+            tabBarLabel: 'Library'  // Set label to show under the icon
+          }}
+        />
+      </Tab.Navigator>
+    </>
   );
 };
 

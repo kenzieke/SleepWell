@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { ScrollView, View, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import ScalableText from '../components/ScalableText';
 import SwitchSelector from 'react-native-switch-selector';
@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';
 import { useBannerStore } from '../../stores/BannerStore';
+import { useUnsavedChangesStore } from '../../stores/UnsavedChangesStore';
 import SaveBanner from '../components/SaveBanner';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
 import FirstTimeModal from '../components/FirstTimeModal';
@@ -71,7 +72,7 @@ const SleepTrackerScreen: React.FC = () => {
             <OptionButton
               key={index}
               label={option}
-              onPress={() => setValue(option)}
+              onPress={() => { setValue(option); markDirty(); }}
               isSelected={value === option}
             />
           ))}
@@ -138,6 +139,8 @@ const SleepTrackerScreen: React.FC = () => {
   };
 
   const [isLoading, setIsLoading] = useState(false);
+  const sleepLoadedRef = useRef(false);
+  const healthLoadedRef = useRef(false);
   const [originalData, setOriginalData] = useState<any>(null);
 
   const [caffeine, setCaffeine] = useState<string>('');
@@ -153,6 +156,106 @@ const SleepTrackerScreen: React.FC = () => {
   const stressOptions: OptionType[] = ['None', 'Mild', 'Moderate', 'Severe', 'Very Severe'];
   const dietOptions: OptionType[] = ['Very Poor', 'Poor', 'Okay', 'Good', 'Outstanding'];
 
+  // --- Unsaved changes tracking ---
+  const { setHasUnsavedChanges, registerCallbacks, clearCallbacks } = useUnsavedChangesStore();
+
+  const markDirty = useCallback(() => {
+    if (sleepLoadedRef.current && healthLoadedRef.current) {
+      setHasUnsavedChanges(true);
+    }
+  }, []);
+
+  const discardChanges = useCallback(() => {
+    if (originalData?.sleepData) {
+      const sd = originalData.sleepData;
+      setIsDeployed(sd.isDeployed || false);
+      setIsOnDuty(sd.isOnDuty || false);
+      setIsAtHome(sd.isAtHome || false);
+      setTimesWokeUp(sd.timesWokeUp || '');
+      setNaps(sd.naps || false);
+      setSleepMedications(sd.sleepMedications || false);
+      setComments(sd.comments || '');
+      setInBedHours(sd.inBedHours || '0');
+      setInBedMinutes(sd.inBedMinutes || '0');
+      setNapTimeHours(sd.napTimeHours || '0');
+      setNapTimeMinutes(sd.napTimeMinutes || '0');
+      setTimeAsleepHours(sd.timeAsleepHours || '0');
+      setTimeAsleepMinutes(sd.timeAsleepMinutes || '0');
+      setFallAsleepHours(sd.fallAsleepHours || '0');
+      setFallAsleepMinutes(sd.fallAsleepMinutes || '0');
+      setSleepRating(sd.sleepRating || '');
+    } else {
+      setIsDeployed(false);
+      setIsOnDuty(false);
+      setIsAtHome(false);
+      setTimesWokeUp('');
+      setNaps(false);
+      setSleepMedications(false);
+      setComments('');
+      setInBedHours('0');
+      setInBedMinutes('0');
+      setNapTimeHours('0');
+      setNapTimeMinutes('0');
+      setTimeAsleepHours('0');
+      setTimeAsleepMinutes('0');
+      setFallAsleepHours('0');
+      setFallAsleepMinutes('0');
+      setSleepRating('');
+    }
+    if (originalData?.healthData) {
+      const hd = originalData.healthData;
+      setCaffeine(hd.caffeine);
+      setVegetables(hd.vegetables);
+      setSugaryDrinks(hd.sugaryDrinks);
+      setFastFood(hd.fastFood);
+      setMinPA(hd.minPA);
+      setGoals(hd.goals);
+      setDailyWeight(hd.weight?.value || '');
+      setWeightUnit(hd.weight?.unit || 'kgs');
+      setRateDiet(hd.rateDiet || 'null');
+      setStressLevel(hd.stressLevel || 'null');
+    } else {
+      setCaffeine('');
+      setVegetables('');
+      setSugaryDrinks('');
+      setFastFood('');
+      setMinPA('');
+      setGoals('');
+      setDailyWeight('');
+      setWeightUnit('kgs');
+      setRateDiet('null');
+      setStressLevel('null');
+    }
+    setHasUnsavedChanges(false);
+  }, [originalData]);
+
+  // Keep refs to latest callbacks to avoid stale closures
+  const saveDataRef = useRef<() => Promise<void>>(async () => {});
+  const discardChangesRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    saveDataRef.current = saveData;
+    discardChangesRef.current = discardChanges;
+  });
+
+  // Register stable callbacks with the store on mount
+  useEffect(() => {
+    registerCallbacks(
+      () => saveDataRef.current(),
+      () => discardChangesRef.current()
+    );
+    return () => clearCallbacks();
+  }, []);
+
+  // Reset weight unit to original when leaving the screen with no weight entered
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      if (dailyWeight === '') {
+        setWeightUnit(originalData?.healthData?.weight?.unit || 'kgs');
+      }
+    });
+    return unsubscribe;
+  }, [navigation, dailyWeight, originalData]);
+
   useEffect(() => {
     const userId = FIREBASE_AUTH.currentUser?.uid;
     if (!userId) return;
@@ -162,7 +265,8 @@ const SleepTrackerScreen: React.FC = () => {
     const formattedDate = date.toISOString().split('T')[0];
     const healthDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'healthData'), formattedDate);
 
-    console.log('Calling setIsLoading(true)');
+    healthLoadedRef.current = false;
+    setHasUnsavedChanges(false);
     setIsLoading(true);
 
     const unsubscribe = onSnapshot(healthDataRef, (docSnap) => {
@@ -181,18 +285,23 @@ const SleepTrackerScreen: React.FC = () => {
         setWeightUnit(data.weight?.unit || 'kgs');
         setRateDiet(data.rateDiet || 'null');
         setStressLevel(data.stressLevel || 'null');
-        setIsLoading(false);
-
         setOriginalData((prev: any) => ({
           ...prev,
           healthData: data,
         }));
+        healthLoadedRef.current = true;
+        if (sleepLoadedRef.current) {
+          setIsLoading(false);
+        }
       } else {
         if (!isLoading) {
           clearForm();
         }
-        setIsLoading(false);
         setOriginalData((prev: any) => ({ ...prev, healthData: null }));
+        healthLoadedRef.current = true;
+        if (sleepLoadedRef.current) {
+          setIsLoading(false);
+        }
       }
     });
 
@@ -209,7 +318,8 @@ const SleepTrackerScreen: React.FC = () => {
     const formattedDate = date.toISOString().split('T')[0];
     const sleepDataRef = doc(collection(FIRESTORE_DB, 'users', userId, 'sleepData'), formattedDate);
 
-    console.log(`Setting up snapshot listener for date: ${formattedDate}`);
+    sleepLoadedRef.current = false;
+    setHasUnsavedChanges(false);
     setIsLoading(true);
 
     const unsubscribe = onSnapshot(sleepDataRef, (docSnap) => {
@@ -231,17 +341,23 @@ const SleepTrackerScreen: React.FC = () => {
         setTimeAsleepMinutes(data.timeAsleepMinutes || '0');
         setFallAsleepHours(data.fallAsleepHours || '0');
         setFallAsleepMinutes(data.fallAsleepMinutes || '0');
-        setIsLoading(false);
-
         setOriginalData((prev: any) => ({
           ...prev,
           sleepData: data,
         }));
+        sleepLoadedRef.current = true;
+        if (healthLoadedRef.current) {
+          setIsLoading(false);
+        }
       } else {
         if (!isLoading) {
           clearForm();
         }
         setOriginalData((prev: any) => ({ ...prev, sleepData: null }));
+        sleepLoadedRef.current = true;
+        if (healthLoadedRef.current) {
+          setIsLoading(false);
+        }
       }
     });
 
@@ -388,6 +504,7 @@ const SleepTrackerScreen: React.FC = () => {
         await setDoc(healthDataRef, healthData);
 
         setOriginalData({ sleepData, healthData });
+        setHasUnsavedChanges(false);
         showBanner('Results saved!');
       }
     } catch (error) {
@@ -403,6 +520,7 @@ const SleepTrackerScreen: React.FC = () => {
 
   const handleInputChange: HandleInputChange = (setter) => (value) => {
     setter(value === '' ? '0' : value);
+    markDirty();
   };
 
   interface HandleMinuteInputChange {
@@ -420,6 +538,7 @@ const SleepTrackerScreen: React.FC = () => {
         setter(value);
       }
     }
+    markDirty();
   };
 
   return (
@@ -445,8 +564,9 @@ const SleepTrackerScreen: React.FC = () => {
           <View style={styles.switchContainer}>
               <ScalableText style={styles.questionText}>On Duty?</ScalableText>
               <SwitchSelector
-                  initial={0}
-                  onPress={value => setIsOnDuty(value)}
+                  key={String(isOnDuty)}
+                  initial={String(isOnDuty) === 'no' ? 1 : 0}
+                  onPress={value => { setIsOnDuty(value); markDirty(); }}
                   textColor={colors.borderMedium}
                   selectedColor={colors.primary}
                   buttonColor={colors.borderMedium}
@@ -464,8 +584,9 @@ const SleepTrackerScreen: React.FC = () => {
           <View style={styles.switchContainer}>
               <ScalableText style={styles.questionText}>Deployed (Out of county)?</ScalableText>
               <SwitchSelector
-                  initial={0}
-                  onPress={value => setIsDeployed(value)}
+                  key={String(isDeployed)}
+                  initial={String(isDeployed) === 'no' ? 1 : 0}
+                  onPress={value => { setIsDeployed(value); markDirty(); }}
                   textColor={colors.borderMedium}
                   selectedColor={colors.primary}
                   buttonColor={colors.borderMedium}
@@ -591,8 +712,9 @@ const SleepTrackerScreen: React.FC = () => {
       <View style={styles.switchContainer}>
         <ScalableText style={styles.questionText}>Take any sleep medications?</ScalableText>
         <SwitchSelector
-            initial={0}
-            onPress={value => setSleepMedications(value)}
+            key={String(sleepMedications)}
+            initial={String(sleepMedications) === 'no' ? 1 : 0}
+            onPress={value => { setSleepMedications(value); markDirty(); }}
             textColor={colors.borderMedium}
             selectedColor={colors.primary}
             buttonColor={colors.borderMedium}
@@ -610,8 +732,9 @@ const SleepTrackerScreen: React.FC = () => {
       <View style={styles.switchContainer}>
         <ScalableText style={styles.questionText}>Any naps during the day before?</ScalableText>
         <SwitchSelector
-            initial={0}
-            onPress={value => setNaps(value)}
+            key={String(naps)}
+            initial={String(naps) === 'no' ? 1 : 0}
+            onPress={value => { setNaps(value); markDirty(); }}
             textColor={colors.borderMedium}
             selectedColor={colors.primary}
             buttonColor={colors.borderMedium}
@@ -662,7 +785,7 @@ const SleepTrackerScreen: React.FC = () => {
           style={styles.healthInput}
           allowFontScaling={true}
           maxFontSizeMultiplier={1.5}
-          onChangeText={setComments}
+          onChangeText={(v) => { setComments(v); markDirty(); }}
           value={comments}
           placeholder="Comments"
         />
@@ -694,7 +817,7 @@ const SleepTrackerScreen: React.FC = () => {
                 style={styles.healthInput}
                 allowFontScaling={true}
                 maxFontSizeMultiplier={1.5}
-                onChangeText={setDailyWeight}
+                onChangeText={(v) => { setDailyWeight(v); markDirty(); }}
                 value={dailyWeight}
                 keyboardType="numeric"
                 placeholder="Enter here"
@@ -703,7 +826,7 @@ const SleepTrackerScreen: React.FC = () => {
             <SwitchSelector
               key={weightUnit}
               initial={weightUnit === 'lbs' ? 0 : 1}
-              onPress={(value) => setWeightUnit(value)}
+              onPress={(value) => { setWeightUnit(value); markDirty(); }}
               textColor={colors.borderMedium}
               selectedColor={colors.primary}
               buttonColor={colors.borderMedium}
@@ -727,7 +850,7 @@ const SleepTrackerScreen: React.FC = () => {
               style={styles.healthInput}
               allowFontScaling={true}
               maxFontSizeMultiplier={1.5}
-              onChangeText={setCaffeine}
+              onChangeText={(v) => { setCaffeine(v); markDirty(); }}
               value={caffeine}
               keyboardType="numeric"
               placeholder="# of drinks"
@@ -743,7 +866,7 @@ const SleepTrackerScreen: React.FC = () => {
               style={styles.healthInput}
               allowFontScaling={true}
               maxFontSizeMultiplier={1.5}
-              onChangeText={setVegetables}
+              onChangeText={(v) => { setVegetables(v); markDirty(); }}
               value={vegetables}
               keyboardType="numeric"
               placeholder="# of vegetable servings"
@@ -759,7 +882,7 @@ const SleepTrackerScreen: React.FC = () => {
               style={styles.healthInput}
               allowFontScaling={true}
               maxFontSizeMultiplier={1.5}
-              onChangeText={setSugaryDrinks}
+              onChangeText={(v) => { setSugaryDrinks(v); markDirty(); }}
               value={sugaryDrinks}
               keyboardType="numeric"
               placeholder="# of sugary drinks"
@@ -775,7 +898,7 @@ const SleepTrackerScreen: React.FC = () => {
               style={styles.healthInput}
               allowFontScaling={true}
               maxFontSizeMultiplier={1.5}
-              onChangeText={setFastFood}
+              onChangeText={(v) => { setFastFood(v); markDirty(); }}
               value={fastFood}
               keyboardType="numeric"
               placeholder="# of fast food items"
@@ -791,7 +914,7 @@ const SleepTrackerScreen: React.FC = () => {
               style={styles.healthInput}
               allowFontScaling={true}
               maxFontSizeMultiplier={1.5}
-              onChangeText={setMinPA}
+              onChangeText={(v) => { setMinPA(v); markDirty(); }}
               value={minPA}
               keyboardType="numeric"
               placeholder="Minutes of physical activity"
@@ -807,7 +930,7 @@ const SleepTrackerScreen: React.FC = () => {
               style={styles.healthInput}
               allowFontScaling={true}
               maxFontSizeMultiplier={1.5}
-              onChangeText={setGoals}
+              onChangeText={(v) => { setGoals(v); markDirty(); }}
               value={goals}
               placeholder="Enter your goals here"
           />

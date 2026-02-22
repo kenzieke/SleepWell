@@ -18,7 +18,19 @@ const coaches: CoachItem[] = [
     name: 'Cristina Macedo',
     phoneNumber: '805-756-5089',
     iconName: 'person',
-  }
+  },
+  {
+    id: '2',
+    name: 'Selene Tobin',
+    phoneNumber: '805-756-5653',
+    iconName: 'person',
+  },
+  {
+    id: '3',
+    name: 'Suzanne Phelan',
+    phoneNumber: '805-756-2087',
+    iconName: 'person',
+  },
 ];
 
 const List: React.FC = () => {
