@@ -15,6 +15,7 @@ export type RootStackParamList = {
   SleepAssessmentScreen: undefined;
   SleepTrackerScreen: undefined;
   AudioPlayerScreen: { moduleTitle: string; moduleSubtitle: string };
+  SettingsScreen: undefined;
 };
 
 // Existing RootStackNavigationProp
@@ -35,3 +36,5 @@ export type LoginScreenNavigationProp = NativeStackScreenProps<RootStackParamLis
 export type SleepTrackerScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'SleepTrackerScreen'>;
 
 export type AudioPlayerScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'AudioPlayerScreen'>;
+
+export type SettingsScreenNavigationProp = NativeStackScreenProps<RootStackParamList, 'SettingsScreen'>;

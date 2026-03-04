@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import FirstTimeModal from '../components/FirstTimeModal';
 
 // Data structure for sleep coaches
 type CoachItem = {
@@ -34,6 +35,10 @@ const List: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <FirstTimeModal
+        storageKey="@hasSeenSleepCoachScreen"
+        message="Here's your coach's information, and you can also logout."
+      />
       <FlatList
         data={coaches}
         renderItem={renderItem}

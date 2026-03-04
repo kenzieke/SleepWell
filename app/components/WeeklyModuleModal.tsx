@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
+import ScalableText from './ScalableText';
 
 interface WeeklyModuleModalProps {
   visible: boolean;
@@ -12,18 +13,24 @@ const WeeklyModuleModal: React.FC<WeeklyModuleModalProps> = ({ visible, moduleNa
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onLater}>
       <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.title}>Complete your weekly module now:</Text>
-          <Text style={styles.moduleName}>{moduleName}</Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={onDoNow}>
-              <Text style={styles.buttonText}>Do now</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.laterButton]} onPress={onLater}>
-              <Text style={styles.buttonText}>Later</Text>
-            </TouchableOpacity>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.modalContainer}>
+            <ScalableText style={styles.title} maxScale={2}>Complete your weekly module now:</ScalableText>
+            <ScalableText style={styles.moduleName} maxScale={2}>{moduleName}</ScalableText>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={onDoNow}>
+                <ScalableText style={styles.buttonText} maxScale={2}>Do now</ScalableText>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.button, styles.laterButton]} onPress={onLater}>
+                <ScalableText style={styles.buttonText} maxScale={2}>Later</ScalableText>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </View>
     </Modal>
   );
@@ -32,9 +39,16 @@ const WeeklyModuleModal: React.FC<WeeklyModuleModalProps> = ({ visible, moduleNa
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    padding: 20,
   },
   modalContainer: {
     backgroundColor: 'white',

@@ -1,6 +1,6 @@
 import { doc, setDoc, collection } from 'firebase/firestore';
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import SwitchSelector from 'react-native-switch-selector';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import OptionButton, { OptionType } from '../components/OptionButton';
@@ -117,7 +117,7 @@ const SleepAssessmentScreen = () => {
         const userDocRef = doc(FIRESTORE_DB, 'users', userId);
         const resultsDocRef = doc(collection(userDocRef, 'results'), `scores_${userId}`);
         await setDoc(resultsDocRef, results, { merge: true });
-        navigation.navigate('ResultsScreen');
+        navigation.replace('ResultsScreen');
       } else {
         console.error('No user logged in');
       }
@@ -157,19 +157,24 @@ const SleepAssessmentScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.keyboardAvoid}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.container}>
         
         <View style={styles.switchContainer}>
-          <Text style={styles.questionText}>Are you currently deployed?</Text>
+          <Text style={styles.questionText}>Are you currently deployed (out of county)?</Text>
           <SwitchSelector
             initial={0}
             onPress={value => setIsDeployed(value)}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={'#BDBDBD'}
+            selectedColor={'#52796F'}
+            buttonColor={'#BDBDBD'}
+            borderColor={'#BDBDBD'}
             hasPadding
+            fontSize={12}
             options={[
               { label: 'yes', value: 'no' },
               { label: 'no', value: 'yes' },
@@ -183,11 +188,12 @@ const SleepAssessmentScreen = () => {
           <SwitchSelector
             initial={0}
             onPress={value => setIsOnDuty(value)}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={'#BDBDBD'}
+            selectedColor={'#52796F'}
+            buttonColor={'#BDBDBD'}
+            borderColor={'#BDBDBD'}
             hasPadding
+            fontSize={12}
             options={[
               { label: 'yes', value: 'no' },
               { label: 'no', value: 'yes' },
@@ -370,11 +376,12 @@ const SleepAssessmentScreen = () => {
           <SwitchSelector
             initial={0}
             onPress={value => setHeightUnit(value === 'cm' ? 'cm' : 'in')}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={'#BDBDBD'}
+            selectedColor={'#52796F'}
+            buttonColor={'#BDBDBD'}
+            borderColor={'#BDBDBD'}
             hasPadding
+            fontSize={12}
             options={[
               { label: 'cm', value: 'cm' },
               { label: 'in', value: 'in' },
@@ -398,11 +405,12 @@ const SleepAssessmentScreen = () => {
           <SwitchSelector
             initial={0}
             onPress={value => setWeightUnit(value === 'kgs' ? 'kgs' : 'lbs')}
-            textColor={'#BDBDBD'} // your active text color
-            selectedColor={'#52796F'} // the color for the label text when it is selected
-            buttonColor={'#BDBDBD'} // the color for the button when it is selected
-            borderColor={'#BDBDBD'} // border color
+            textColor={'#BDBDBD'}
+            selectedColor={'#52796F'}
+            buttonColor={'#BDBDBD'}
+            borderColor={'#BDBDBD'}
             hasPadding
+            fontSize={12}
             options={[
               { label: 'kgs', value: 'kgs' },
               { label: 'lbs', value: 'lbs' },
@@ -415,12 +423,16 @@ const SleepAssessmentScreen = () => {
       <TouchableOpacity style={styles.button} onPress={calculateResults}>
         <Text style={styles.buttonText}>Finish</Text>
       </TouchableOpacity>
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  keyboardAvoid: {
+    flex: 1,
+  },
   scrollView: {
     flex: 1,
     backgroundColor: '#fff',
@@ -450,10 +462,10 @@ const styles = StyleSheet.create({
     width: '100%', 
   },
   switchSelector: {
-    width: 80, // Adjust the width as needed
-    height: 30, // Adjust the height as needed
-    borderRadius: 15, // Half of the height to make it rounded
-    marginLeft: 150, // Add some space between the text input and the switch
+    width: 120,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 'auto',
   },
   switchButton: {
     padding: 2, // Reduce padding to decrease the size of the button

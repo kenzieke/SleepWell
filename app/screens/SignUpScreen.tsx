@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import ScalableText from '../components/ScalableText';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../FirebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import { RootStackParamList } from '../../types/navigationTypes';
 import { useNavigation } from '@react-navigation/native';
@@ -15,24 +16,98 @@ const SignUpScreen: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const validateInviteCode = async (code: string): Promise<boolean> => {
+    try {
+      const codeRef = doc(FIRESTORE_DB, 'inviteCodes', code.toUpperCase());
+      const codeDoc = await getDoc(codeRef);
+
+      if (!codeDoc.exists()) {
+        Alert.alert('Invalid Code', 'The invite code you entered does not exist.');
+        return false;
+      }
+
+      const codeData = codeDoc.data();
+      if (codeData.usedBy) {
+        Alert.alert('Code Already Used', 'This invite code has already been used.');
+        return false;
+      }
+
+      if (!codeData.active) {
+        Alert.alert('Invalid Code', 'This invite code is no longer active.');
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error validating invite code:', error);
+      Alert.alert('Error', 'Could not validate invite code. Please try again.');
+      return false;
+    }
+  };
+
+  const markCodeAsUsed = async (code: string, userEmail: string) => {
+    try {
+      const codeRef = doc(FIRESTORE_DB, 'inviteCodes', code.toUpperCase());
+      await updateDoc(codeRef, {
+        usedBy: userEmail,
+        usedAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error('Error marking code as used:', error);
+      // Non-critical error - account was still created
+    }
+  };
+
   const onPressSignUp = async () => {
+    // Validate fields
+    if (!name.trim()) {
+      Alert.alert('Missing Information', 'Please enter your name.');
+      return;
+    }
+    if (!email.trim()) {
+      Alert.alert('Missing Information', 'Please enter your email.');
+      return;
+    }
+    if (!password.trim()) {
+      Alert.alert('Missing Information', 'Please enter a password.');
+      return;
+    }
+    if (!inviteCode.trim()) {
+      Alert.alert('Missing Information', 'Please enter your invite code.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
+      // Validate invite code first
+      const isValidCode = await validateInviteCode(inviteCode);
+      if (!isValidCode) {
+        setLoading(false);
+        return;
+      }
+
+      // Create the user account
+      const trimmedEmail = email.trim();
+      const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, trimmedEmail, password);
       const user = response.user;
 
       // Set the document in Firestore
       const userDocRef = doc(FIRESTORE_DB, 'users', user.uid);
       await setDoc(userDocRef, {
-        name: name,
-        email: email,
-        creationDate: new Date().toISOString() // Store the creation date
+        name: name.trim(),
+        email: trimmedEmail,
+        creationDate: new Date().toISOString(),
+        inviteCode: inviteCode.toUpperCase()
       });
 
+      // Mark the invite code as used
+      await markCodeAsUsed(inviteCode, trimmedEmail);
+
       Alert.alert('Account created successfully, now you can login!');
-      navigation.navigate('Login');
+      navigation.replace('Login');
     } catch (error) {
       console.error(error);
       Alert.alert('Sign up failed: ' + (error as Error).message);
@@ -42,21 +117,24 @@ const SignUpScreen: React.FC = () => {
   };
 
   const onPressLogin = () => {
-    navigation.navigate('Login'); // Use navigate with the name of the screen
+    navigation.replace('Login'); // Replace to prevent stack buildup
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={onPressLogin} style={styles.loginContainer}>
-        <Text style={styles.loginText}>Login</Text>
-      </TouchableOpacity>
-      <Text style={styles.title}>Sign Up</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={onPressLogin} style={styles.loginContainer}>
+          <ScalableText style={styles.loginText}>Login</ScalableText>
+        </TouchableOpacity>
+        <ScalableText style={styles.title}>Sign Up</ScalableText>
         <TextInput
           style={styles.inputView}
           placeholder="Name"
           placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setName(text)}
           value={name}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
         />
         <TextInput
           style={styles.inputView}
@@ -65,6 +143,8 @@ const SignUpScreen: React.FC = () => {
           placeholderTextColor={colors.borderMedium}
           onChangeText={(text) => setEmail(text)}
           value={email}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
         />
         <TextInput
           style={styles.inputView}
@@ -74,11 +154,25 @@ const SignUpScreen: React.FC = () => {
           secureTextEntry={true}
           onChangeText={(text) => setPassword(text)}
           value={password}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
         />
-      <TouchableOpacity style={styles.signUpBtn} onPress={onPressSignUp} disabled={loading}>
-        {loading ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.signUpText}>Sign Up</Text>}
-      </TouchableOpacity>
-    </View>
+        <TextInput
+          style={styles.inputView}
+          placeholder="Invite Code"
+          autoCapitalize="characters"
+          placeholderTextColor={colors.borderMedium}
+          onChangeText={(text) => setInviteCode(text.toUpperCase())}
+          value={inviteCode}
+          maxLength={6}
+          allowFontScaling={true}
+          maxFontSizeMultiplier={1.5}
+        />
+        <TouchableOpacity style={styles.signUpBtn} onPress={onPressSignUp} disabled={loading}>
+          {loading ? <ActivityIndicator color={colors.primary} /> : <ScalableText style={styles.signUpText}>Sign Up</ScalableText>}
+        </TouchableOpacity>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -99,16 +193,16 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: '#E8E8E8',
     borderRadius: borderRadius.xxl,
-    height: 50,
+    minHeight: 50,
     marginBottom: spacing.xl,
-    justifyContent: 'center',
-    padding: spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
     fontWeight: fontWeights.bold,
-    color: '#919191',
+    color: colors.textPrimary,
   },
   inputText: {
     fontWeight: fontWeights.bold,
-    height: 50,
+    minHeight: 50,
     color: '#919191',
   },
   button: {
@@ -137,7 +231,8 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: colors.primary,
     borderRadius: borderRadius.xxl,
-    height: 50,
+    minHeight: 50,
+    paddingVertical: spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 40,

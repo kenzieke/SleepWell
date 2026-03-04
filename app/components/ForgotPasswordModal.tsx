@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import {
   Modal,
   View,
-  Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../../FirebaseConfig';
+import ScalableText from './ScalableText';
 
 interface ForgotPasswordModalProps {
   visible: boolean;
@@ -57,40 +58,48 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ visible, onCl
       onRequestClose={handleClose}
     >
       <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.title}>Reset Password</Text>
-          <Text style={styles.description}>
-            Enter your email address to be sent a link to reset your password.
-          </Text>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.modalContainer}>
+            <ScalableText style={styles.title} maxScale={2}>Reset Password</ScalableText>
+            <ScalableText style={styles.description} maxScale={2}>
+              Enter your email address to be sent a link to reset your password.
+            </ScalableText>
 
-          <View style={styles.inputView}>
-            <TextInput
-              style={styles.inputText}
-              placeholder="Email"
-              autoCapitalize="none"
-              placeholderTextColor="#BDBDBD"
-              onChangeText={setEmail}
-              value={email}
-              keyboardType="email-address"
-            />
+            <View style={styles.inputView}>
+              <TextInput
+                style={styles.inputText}
+                placeholder="Email"
+                autoCapitalize="none"
+                placeholderTextColor="#BDBDBD"
+                onChangeText={setEmail}
+                value={email}
+                keyboardType="email-address"
+                allowFontScaling={true}
+                maxFontSizeMultiplier={1.5}
+              />
+            </View>
+
+            <TouchableOpacity
+              onPress={handleSendResetEmail}
+              style={styles.sendBtn}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <ScalableText style={styles.sendBtnText} maxScale={2}>Send</ScalableText>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={handleClose} style={styles.cancelBtn}>
+              <ScalableText style={styles.cancelBtnText} maxScale={2}>Cancel</ScalableText>
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            onPress={handleSendResetEmail}
-            style={styles.sendBtn}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.sendBtnText}>Send</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handleClose} style={styles.cancelBtn}>
-            <Text style={styles.cancelBtnText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
+        </ScrollView>
       </View>
     </Modal>
   );
@@ -100,8 +109,15 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  scrollView: {
+    flexGrow: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   modalContainer: {
     width: '85%',

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, Image } from 'react-native';
+import { View, TouchableOpacity, Modal, StyleSheet, Image, ImageBackground, ScrollView } from 'react-native';
+import ScalableText from '../components/ScalableText';
 import ProgressCircle from '../components/ProgressCircle';
 import { FIREBASE_AUTH } from '../../FirebaseConfig';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,6 +9,7 @@ import { RootStackParamList } from '../../types/navigationTypes';
 import { useNavigation } from '@react-navigation/native';
 import { useWeeklyLessonsStore } from '../../stores/WeeklyLessonStore';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
+import FirstTimeModal from '../components/FirstTimeModal';
 
 type WeeklyLessonsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'WeeklyLessonsScreen'>;
 
@@ -22,6 +24,8 @@ interface ProgressDataItem {
 
 const WeeklyLessonsScreen: React.FC = () => {
   const navigation = useNavigation<WeeklyLessonsScreenNavigationProp>();
+  // Get the root navigator to navigate to screens outside the tab navigator
+  const rootNavigation = navigation.getParent()?.getParent();
   const { progressData, fetchData } = useWeeklyLessonsStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProgressDataItem | null>(null);
@@ -93,92 +97,149 @@ const WeeklyLessonsScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.greenHeader}>
-        <Image source={require('../../assets/Pillow.jpg')} style={styles.imageStyle} resizeMode="contain" />
-      </View>
-      <View>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LessonTrackingScreen')}>
-          <Text style={styles.buttonText}>Open Modules</Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.header}>Weekly Progress</Text>
-      <View style={styles.progressRow}>
-        {progressData.slice(0, 3).map((item, index) => (
-          <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
-            <ProgressCircle key={`first-row-${index}`} percentage={item.value ?? 0} label={item.label} />
+    <ImageBackground
+      source={require('../../assets/sleepwellhomebackground.png')}
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <FirstTimeModal
+          storageKey="@hasSeenHomeScreen"
+          message="Here you can see your weekly progress, access your weekly modules, and access your sleep coach's contact information."
+        />
+        <View style={styles.headerContent}>
+          <Image
+            source={require('../../assets/icon.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <ScalableText style={styles.title}>Sleep Well{"\n"}Firefighters</ScalableText>
+          <ScalableText style={styles.subtitle}>A Wildland Urban Interface Institute{'\n'}Research Study at Cal Poly</ScalableText>
+          <TouchableOpacity style={styles.button} onPress={() => rootNavigation?.navigate('LessonTrackingScreen')}>
+            <ScalableText style={styles.buttonText}>Open Modules</ScalableText>
           </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.progressRow}>
-        {progressData.slice(3).map((item, index) => (
-          <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
-            <ProgressCircle key={`second-row-${index}`} percentage={item.value ?? 0} label={item.label} />
-          </TouchableOpacity>
-        ))}
-      </View>
-      <Modal visible={modalVisible} transparent onRequestClose={() => setModalVisible(false)}>
+        </View>
+
+        <View style={styles.progressContainer}>
+          <ScalableText style={styles.header}>Weekly Progress</ScalableText>
+          <View style={styles.progressRow}>
+            {progressData.slice(0, 3).map((item, index) => (
+              <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
+                <ProgressCircle key={`first-row-${index}`} percentage={item.value ?? 0} label={item.label} />
+              </TouchableOpacity>
+            ))}
+          </View>
+          <View style={styles.progressRow}>
+            {progressData.slice(3).map((item, index) => (
+              <TouchableOpacity key={index} onPress={() => handleOpenModal(item)}>
+                <ProgressCircle key={`second-row-${index}`} percentage={item.value ?? 0} label={item.label} />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+
+      <Modal animationType="slide" visible={modalVisible} transparent onRequestClose={() => setModalVisible(false)}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             {selectedItem && (
-              <Text style={styles.modalText}>{getDescriptionForItem(selectedItem)}</Text>
+              <ScalableText style={styles.modalText}>{getDescriptionForItem(selectedItem)}</ScalableText>
             )}
             <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Text style={styles.closeButton}>Close</Text>
+              <ScalableText style={styles.closeButton}>Close</ScalableText>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
-  greenHeader: {
-    backgroundColor: colors.primary,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: spacing.xxxl,
+  },
+  headerContent: {
+    paddingTop: spacing.xxxl,
+    paddingBottom: spacing.xxxl,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 275,
   },
-  imageStyle: {
-    width: '100%',
-    height: 200,
+  logo: {
+    width: 80,
+    height: 80,
+    marginBottom: spacing.md,
+  },
+  title: {
+    fontSize: fontSizes.hero,
+    fontWeight: fontWeights.bold,
+    color: colors.textWhite,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+    textShadowColor: colors.primaryDark,
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 2,
+  },
+  subtitle: {
+    fontSize: fontSizes.md,
+    color: colors.textWhite,
+    fontStyle: 'italic',
+    fontWeight: fontWeights.medium,
+    textAlign: 'center',
+    marginBottom: spacing.xl,
+    textShadowColor: colors.primaryDark,
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 1,
+  },
+  progressContainer: {
+    borderRadius: borderRadius.xxl,
+    paddingBottom: spacing.xxxl,
   },
   header: {
-    paddingTop: spacing.md,
-    fontSize: fontSizes.xxxl,
+    paddingBottom: spacing.sm,
+    fontSize: fontSizes.xxl,
     fontWeight: fontWeights.bold,
-    color: colors.textPrimary,
+    fontStyle: 'italic',
+    color: colors.textWhite,
     textAlign: 'center',
+    textShadowColor: colors.primaryDark,
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 5,
   },
   progressRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
-    marginVertical: spacing.lg,
+    marginVertical: spacing.sm,
   },
   button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xxxl,
+    borderRadius: 30,
+    borderWidth: 2,
+    shadowColor: colors.primaryDark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 8,
+    borderColor: colors.primaryDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: fontSizes.xxl,
-    color: colors.textWhite,
+    fontSize: fontSizes.xl,
+    color: colors.primaryDark,
     fontWeight: fontWeights.bold,
   },
   centeredView: {
     flex: 1,
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
@@ -187,28 +248,29 @@ const styles = StyleSheet.create({
     margin: spacing.xl,
     backgroundColor: colors.background,
     borderWidth: 2,
-    borderColor: colors.primary,
+    borderColor: colors.primaryDark,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 50,
+    shadowOpacity: 1,
+    shadowRadius: 10,
     elevation: 5,
-    borderRadius: borderRadius.xl,
+    borderRadius: borderRadius.xxl,
     padding: 35,
     alignItems: 'center',
   },
   modalText: {
     marginBottom: 15,
     fontSize: fontSizes.md,
-    fontWeight: fontWeights.bold,
+    fontWeight: fontWeights.medium,
     textAlign: 'center',
   },
   closeButton: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
+    backgroundColor: colors.primaryDark,
+    borderRadius: borderRadius.xxl,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
     color: colors.textWhite,
     fontSize: fontSizes.md,
+    fontWeight: fontWeights.medium,
     textAlign: 'center',
   },
 });

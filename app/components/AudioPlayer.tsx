@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-audio';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
@@ -7,6 +7,7 @@ import { Asset } from 'expo-asset';
 import { useLessonTrackingStore } from '../../stores/LessonTrackingStore';
 import { findLessonBySubtitle } from '../../utils/lessonHelpers';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
+import ScalableText from './ScalableText';
 
 interface AudioPlayerProps {
   moduleTitle: string;
@@ -85,9 +86,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{moduleTitle}</Text>
+      <ScalableText style={styles.title} maxScale={2}>{moduleTitle}</ScalableText>
       <View style={styles.imagePlaceholder} />
-      <Text style={styles.subtitle}>{moduleSubtitle}</Text>
+      <ScalableText style={styles.subtitle} maxScale={2}>{moduleSubtitle}</ScalableText>
 
       <Slider
         style={styles.slider}
@@ -118,22 +119,23 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ moduleTitle, moduleSubtitle, 
         </TouchableOpacity>
       </View>
 
-      {!uri && <Text style={styles.noSource}>No audio source provided.</Text>}
+      {!uri && <ScalableText style={styles.noSource} maxScale={2}>No audio source provided.</ScalableText>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: spacing.xxl,
     backgroundColor: colors.background,
   },
   title: {
     fontSize: fontSizes.xxl,
     fontWeight: fontWeights.bold,
     marginBottom: spacing.md,
+    textAlign: 'center',
+    paddingHorizontal: spacing.md,
   },
   imagePlaceholder: {
     width: 200,

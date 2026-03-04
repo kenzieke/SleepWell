@@ -1,102 +1,102 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 import React, { useState } from 'react';
 import {
-  Image,
   StyleSheet,
   View,
-  useWindowDimensions,
   TouchableOpacity,
   Modal,
-  Text,
+  ScrollView,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, fontSizes, fontWeights, spacing, borderRadius } from '../styles';
+import FirstTimeModal from '../components/FirstTimeModal';
+import ScalableText from '../components/ScalableText';
 
-// Original image dimensions
-const originalWidth = 1126;
-const originalHeight = 1882;
-const aspectRatio = originalWidth / originalHeight;
-
-// Goal Content Map
-const goalContentMap: { [key: string]: string } = {
-  sleepDuration: 'Ensure you get at least 7-9 hours of sleep every night.',
-  sleepQuality: 'Your sleep quality is measured by the percentage of time spent asleep while in bed. Our program is designed to help improve this quality.',
-  bodyComposition: 'BMI is not perfect but helps gauge risk of sleep disorders. Our program includes strategies for weight management to improve sleep.',
-  nutrition: 'A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Aim for balanced meals with vegetables.',
-  stress: 'Managing stress is crucial for sleep health. Our program offers tools to help manage stress effectively.',
-  physicalActivity: 'Regular physical activity improves sleep quality. Avoid vigorous activities right before bed.',
-};
-
-// Touchable Areas (percentage-based for better scaling)
-const touchableAreas = [
-  { id: 'sleepDuration', top: 0, left: 0, width: 1, height: 0.15 },
-  { id: 'sleepQuality', top: 0.15, left: 0, width: 1, height: 0.16 },
-  { id: 'bodyComposition', top: 0.31, left: 0, width: 1, height: 0.19 },
-  { id: 'nutrition', top: 0.5, left: 0, width: 1, height: 0.193 },
-  { id: 'stress', top: 0.69, left: 0, width: 1, height: 0.16 },
-  { id: 'physicalActivity', top: 0.85, left: 0, width: 1, height: 0.19 },
+// Goal data with colors from top to bottom
+const goals = [
+  {
+    id: 'sleepDuration',
+    title: 'Sleep Duration',
+    subtitle: 'Sleep 7-9 hours per night.',
+    icon: 'moon-outline' as const,
+    backgroundColor: '#05323b', // Deep teal
+    description: 'Ensure you get at least 7-9 hours of sleep every night.',
+  },
+  {
+    id: 'sleepQuality',
+    title: 'Sleep Quality',
+    subtitle: 'Fall asleep fast and sleep soundly.',
+    icon: 'alarm-outline' as const,
+    backgroundColor: '#0f5968', // Dark cyan
+    description: 'Your sleep quality is measured by the percentage of time spent asleep while in bed. Our program is designed to help improve this quality.',
+  },
+  {
+    id: 'bodyComposition',
+    title: 'Body Composition',
+    subtitle: 'Lose any excess fat and/or build body mass.',
+    icon: 'nutrition-outline' as const,
+    backgroundColor: '#1d7883', // Teal
+    description: 'BMI is not perfect but helps gauge risk of sleep disorders. Our program includes strategies for weight management to improve sleep.',
+  },
+  {
+    id: 'nutrition',
+    title: 'Nutrition',
+    subtitle: 'Eat a balanced, nutrient-dense diet, stay hydrated, and limit caffeine.',
+    icon: 'leaf-outline' as const,
+    backgroundColor: '#2f939b', // Soft teal
+    description: 'A healthy diet with minimal caffeine and sugary beverages is ideal for sleep. Aim for balanced meals with vegetables.',
+  },
+  {
+    id: 'stress',
+    title: 'Stress',
+    subtitle: 'Boost stress management skills on and off duty.',
+    icon: 'cloud-outline' as const,
+    backgroundColor: '#1d7883', // Teal
+    description: 'Managing stress is crucial for sleep health. Our program offers tools to help manage stress effectively.',
+  },
+  {
+    id: 'physicalActivity',
+    title: 'Physical Activity',
+    subtitle: 'Engage in a moderate-intensity aerobic exercise for at least 150 minutes per week.',
+    icon: 'barbell-outline' as const,
+    backgroundColor: '#0f5968', // Dark cyan
+    description: 'Regular physical activity improves sleep quality. Avoid vigorous activities right before bed.',
+  },
 ];
 
-// Main Component
 const WeeklyGoals: React.FC = () => {
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
-  const availableHeight = screenHeight - insets.top - insets.bottom;
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState('');
+  const [selectedGoal, setSelectedGoal] = useState<typeof goals[0] | null>(null);
 
-  // Ensure full coverage: Fit by height or width
-  let adjustedWidth = screenWidth;
-  let adjustedHeight = screenWidth / aspectRatio;
-
-  // Ensure the image is fully visible above the tab bar
-  if (adjustedHeight > availableHeight - tabBarHeight) {
-    adjustedHeight = availableHeight - tabBarHeight
-    adjustedWidth = adjustedHeight * aspectRatio;
-  }
-
-  // Properly align image
-  const imageLeftOffset = (screenWidth - adjustedWidth) / 2;
-
-  // Open modal
-  const openModal = (goalId: string) => {
-    setSelectedGoal(goalId);
+  const openModal = (goal: typeof goals[0]) => {
+    setSelectedGoal(goal);
     setModalVisible(true);
   };
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../../assets/wheel_without_header.png')}
-        style={[
-          styles.image,
-          {
-            width: adjustedWidth,
-            height: adjustedHeight,
-            left: imageLeftOffset,
-          },
-        ]}
-        resizeMode="cover"
+      <FirstTimeModal
+        storageKey="@hasSeenWeeklyGoals"
+        message="Tap any of the descriptions to get more information about what each goal entails."
       />
 
-      {/* Dynamically positioned touchable areas */}
-      {touchableAreas.map((area) => (
-        <TouchableOpacity
-          key={area.id}
-          style={[
-            styles.touchableArea,
-            {
-              top: adjustedHeight * area.top,
-              left: imageLeftOffset + adjustedWidth * area.left,
-              width: adjustedWidth * area.width,
-              height: adjustedHeight * area.height,
-            },
-          ]}
-          onPress={() => openModal(area.id)}
-        />
-      ))}
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {goals.map((goal) => (
+          <TouchableOpacity
+            key={goal.id}
+            style={[styles.goalCard, { backgroundColor: goal.backgroundColor }]}
+            onPress={() => openModal(goal)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.iconContainer}>
+              <Ionicons name={goal.icon} size={40} color="rgba(255,255,255,0.4)" />
+            </View>
+            <View style={styles.textContainer}>
+              <ScalableText style={styles.goalTitle} maxScale={2}>{goal.title}</ScalableText>
+              <ScalableText style={styles.goalSubtitle} maxScale={2}>{goal.subtitle}</ScalableText>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
       {/* Modal */}
       <Modal
@@ -105,72 +105,106 @@ const WeeklyGoals: React.FC = () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              {goalContentMap[selectedGoal] || 'Content not available'}
-            </Text>
-            <TouchableOpacity
-              style={[styles.button, styles.buttonClose]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.textStyle}>Done</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.modalOverlay}>
+          <ScrollView
+            style={styles.modalScrollView}
+            contentContainerStyle={styles.modalScrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.modalView}>
+              <ScalableText style={styles.modalText} maxScale={2}>
+                {selectedGoal?.description || 'Content not available'}
+              </ScalableText>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonContainer}>
+                <ScalableText style={styles.closeButtonText} maxScale={2}>Close</ScalableText>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
       </Modal>
     </View>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative',
-    backgroundColor: '#B3D584',
+    backgroundColor: '#0f5968', // Dark cyan to match bottom card
   },
-  image: {
-    position: 'absolute',
-  },
-  touchableArea: {
-    position: 'absolute',
-    backgroundColor: colors.transparent,
-  },
-  centeredView: {
+  scrollView: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  goalCard: {
+    minHeight: 100,
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+  },
+  iconContainer: {
+    width: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textContainer: {
+    flex: 1,
+    paddingLeft: spacing.md,
+  },
+  goalTitle: {
+    fontSize: fontSizes.lg,
+    fontWeight: fontWeights.bold,
+    color: '#FFFFFF',
+    marginBottom: spacing.xs,
+  },
+  goalSubtitle: {
+    fontSize: fontSizes.sm,
+    color: 'rgba(255,255,255,0.8)',
+    lineHeight: 20,
+  },
+  modalOverlay: {
+    flex: 1,
     backgroundColor: colors.overlay,
   },
-  modalView: {
-    margin: spacing.xl,
-    backgroundColor: colors.background,
-    borderRadius: borderRadius.xl,
-    padding: spacing.xxxl,
+  modalScrollView: {
+    flex: 1,
+  },
+  modalScrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: colors.textPrimary,
+    padding: spacing.xl,
+  },
+  modalView: {
+    backgroundColor: colors.background,
+    borderWidth: 2,
+    borderColor: colors.primaryDark,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOpacity: 1,
+    shadowRadius: 10,
     elevation: 5,
+    borderRadius: borderRadius.xxl,
+    padding: 35,
+    alignItems: 'center',
   },
   modalText: {
     marginBottom: 15,
-    textAlign: 'center',
     fontSize: fontSizes.md,
+    fontWeight: fontWeights.medium,
+    textAlign: 'center',
   },
-  button: {
-    borderRadius: borderRadius.xl,
-    padding: spacing.md,
-    elevation: 2,
+  closeButtonContainer: {
+    backgroundColor: colors.primaryDark,
+    borderRadius: borderRadius.xxl,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
   },
-  buttonClose: {
-    backgroundColor: colors.primary,
-  },
-  textStyle: {
+  closeButtonText: {
     color: colors.textWhite,
-    fontWeight: fontWeights.bold,
+    fontSize: fontSizes.md,
+    fontWeight: fontWeights.medium,
     textAlign: 'center',
   },
 });
