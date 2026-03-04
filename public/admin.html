@@ -395,18 +395,25 @@
         }
 
         /* Tracker Table */
+        .tracker-table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
         .tracker-table {
             width: 100%;
             background: white;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            min-width: 600px;
         }
         .tracker-table th,
         .tracker-table td {
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #e9ecef;
+            white-space: nowrap;
         }
         .tracker-table th {
             background: #f8f9fa;
@@ -421,6 +428,35 @@
         }
         .tracker-table tr:hover td {
             background: #f8f9fa;
+        }
+        .version-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .version-badge.v1 {
+            background: #e8f4f8;
+            color: #2980b9;
+        }
+        .version-badge.v2 {
+            background: #e8f8e8;
+            color: #27ae60;
+        }
+        .tracker-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0 12px;
+        }
+        .tracker-section-header:first-child {
+            margin-top: 0;
+        }
+        .tracker-section-header h4 {
+            color: #2c3e50;
+            font-size: 0.95rem;
         }
 
         /* Login Activity */
@@ -1202,40 +1238,133 @@
             `;
         }
 
+        function isV2Entry(entry) {
+            return entry.bedtimeHour !== undefined && entry.bedtimeHour !== null;
+        }
+
+        function formatClockTime(hour, minute, amPm) {
+            if (!hour) return '-';
+            const m = (minute || '0').toString().padStart(2, '0');
+            return `${hour}:${m} ${amPm || ''}`;
+        }
+
+        function formatYesNo(val) {
+            if (val === true) return 'Yes';
+            if (val === false) return 'No';
+            return '-';
+        }
+
         function renderSleepTracker(sleepData) {
             if (!sleepData || sleepData.length === 0) {
                 return '<div class="no-data">No sleep tracker data</div>';
             }
 
-            return `
-                <table class="tracker-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Sleep Time</th>
-                            <th>In Bed</th>
-                            <th>Fall Asleep</th>
-                            <th>Woke Up</th>
-                            <th>Rating</th>
-                            <th>Naps</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${sleepData.slice(0, 14).map(entry => `
-                            <tr>
-                                <td>${formatDateShort(entry.date)}</td>
-                                <td>${formatTime(entry.timeAsleepHours, entry.timeAsleepMinutes)}</td>
-                                <td>${formatTime(entry.inBedHours, entry.inBedMinutes)}</td>
-                                <td>${formatTime(entry.fallAsleepHours, entry.fallAsleepMinutes)}</td>
-                                <td>${entry.timesWokeUp || '-'}</td>
-                                <td>${entry.sleepRating || '-'}</td>
-                                <td>${entry.naps ? formatTime(entry.napTimeHours, entry.napTimeMinutes) : 'No'}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                ${sleepData.length > 14 ? `<p style="text-align: center; margin-top: 15px; color: #6c757d;">Showing 14 of ${sleepData.length} entries</p>` : ''}
-            `;
+            const v2Entries = sleepData.filter(e => isV2Entry(e));
+            const v1Entries = sleepData.filter(e => !isV2Entry(e));
+
+            let html = '';
+
+            // V2 entries (new schema)
+            if (v2Entries.length > 0) {
+                html += `
+                    <div class="tracker-section-header">
+                        <span class="version-badge v2">Version 2</span>
+                        <h4>New Sleep Questions (${v2Entries.length} entries)</h4>
+                    </div>
+                    <div class="tracker-table-wrapper">
+                        <table class="tracker-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Bedtime</th>
+                                    <th>Fall Asleep</th>
+                                    <th>Awakenings</th>
+                                    <th>Awakenings Dur.</th>
+                                    <th>Wake Time</th>
+                                    <th>Location</th>
+                                    <th>Efficiency</th>
+                                    <th>Rating</th>
+                                    <th>Naps</th>
+                                    <th>On Duty</th>
+                                    <th>Deployed</th>
+                                    <th>Meds</th>
+                                    <th>Comments</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${v2Entries.slice(0, 30).map(entry => `
+                                    <tr>
+                                        <td>${formatDateShort(entry.date)}</td>
+                                        <td>${formatClockTime(entry.bedtimeHour, entry.bedtimeMinute, entry.bedtimeAmPm)}</td>
+                                        <td>${formatTime(entry.fallAsleepDurationHours, entry.fallAsleepDurationMinutes)}</td>
+                                        <td>${entry.nightAwakenings || '0'}</td>
+                                        <td>${formatTime(entry.awakeningsDurationHours, entry.awakeningsDurationMinutes)}</td>
+                                        <td>${formatClockTime(entry.wakeTimeHour, entry.wakeTimeMinute, entry.wakeTimeAmPm)}</td>
+                                        <td>${entry.sleepLocation || '-'}</td>
+                                        <td>${entry.sleepEfficiency !== undefined ? entry.sleepEfficiency + '%' : '-'}</td>
+                                        <td>${entry.sleepRating || '-'}</td>
+                                        <td>${entry.naps ? formatTime(entry.napTimeHours, entry.napTimeMinutes) : 'No'}</td>
+                                        <td>${formatYesNo(entry.isOnDuty)}</td>
+                                        <td>${formatYesNo(entry.isDeployed)}</td>
+                                        <td>${formatYesNo(entry.sleepMedications)}</td>
+                                        <td>${entry.comments ? escapeHtml(entry.comments) : '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${v2Entries.length > 30 ? `<p style="text-align: center; margin-top: 10px; color: #6c757d;">Showing 30 of ${v2Entries.length} entries</p>` : ''}
+                `;
+            }
+
+            // V1 entries (legacy schema)
+            if (v1Entries.length > 0) {
+                html += `
+                    <div class="tracker-section-header" ${v2Entries.length > 0 ? 'style="margin-top: 30px;"' : ''}>
+                        <span class="version-badge v1">Version 1</span>
+                        <h4>Original Sleep Questions (${v1Entries.length} entries)</h4>
+                    </div>
+                    <div class="tracker-table-wrapper">
+                        <table class="tracker-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Sleep Time</th>
+                                    <th>In Bed</th>
+                                    <th>Fall Asleep</th>
+                                    <th>Woke Up</th>
+                                    <th>Rating</th>
+                                    <th>Naps</th>
+                                    <th>On Duty</th>
+                                    <th>Deployed</th>
+                                    <th>Meds</th>
+                                    <th>Comments</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${v1Entries.slice(0, 30).map(entry => `
+                                    <tr>
+                                        <td>${formatDateShort(entry.date)}</td>
+                                        <td>${formatTime(entry.timeAsleepHours, entry.timeAsleepMinutes)}</td>
+                                        <td>${formatTime(entry.inBedHours, entry.inBedMinutes)}</td>
+                                        <td>${formatTime(entry.fallAsleepHours, entry.fallAsleepMinutes)}</td>
+                                        <td>${entry.timesWokeUp || '-'}</td>
+                                        <td>${entry.sleepRating || '-'}</td>
+                                        <td>${entry.naps ? formatTime(entry.napTimeHours, entry.napTimeMinutes) : 'No'}</td>
+                                        <td>${formatYesNo(entry.isOnDuty)}</td>
+                                        <td>${formatYesNo(entry.isDeployed)}</td>
+                                        <td>${formatYesNo(entry.sleepMedications)}</td>
+                                        <td>${entry.comments ? escapeHtml(entry.comments) : '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${v1Entries.length > 30 ? `<p style="text-align: center; margin-top: 10px; color: #6c757d;">Showing 30 of ${v1Entries.length} entries</p>` : ''}
+                `;
+            }
+
+            return html;
         }
 
         function renderHealthTracker(healthData) {
@@ -1244,35 +1373,46 @@
             }
 
             return `
-                <table class="tracker-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Caffeine</th>
-                            <th>Sugary Drinks</th>
-                            <th>Vegetables</th>
-                            <th>Fast Food</th>
-                            <th>Exercise (min)</th>
-                            <th>Diet</th>
-                            <th>Stress</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${healthData.slice(0, 14).map(entry => `
+                <div class="tracker-table-wrapper">
+                    <table class="tracker-table">
+                        <thead>
                             <tr>
-                                <td>${formatDateShort(entry.date)}</td>
-                                <td>${entry.caffeine || '-'}</td>
-                                <td>${entry.sugaryDrinks || '-'}</td>
-                                <td>${entry.vegetables || '-'}</td>
-                                <td>${entry.fastFood || '-'}</td>
-                                <td>${entry.minPA || '-'}</td>
-                                <td>${entry.rateDiet || '-'}</td>
-                                <td>${entry.stressLevel || '-'}</td>
+                                <th>Date</th>
+                                <th>Caffeine</th>
+                                <th>Sugary Drinks</th>
+                                <th>Vegetables</th>
+                                <th>Fast Food</th>
+                                <th>Exercise (min)</th>
+                                <th>Diet</th>
+                                <th>Stress</th>
+                                <th>Weight</th>
+                                <th>Goals</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                ${healthData.length > 14 ? `<p style="text-align: center; margin-top: 15px; color: #6c757d;">Showing 14 of ${healthData.length} entries</p>` : ''}
+                        </thead>
+                        <tbody>
+                            ${healthData.slice(0, 30).map(entry => {
+                                const weight = entry.weight
+                                    ? `${entry.weight.value || '-'} ${entry.weight.unit || ''}`
+                                    : (entry.dailyWeight ? `${entry.dailyWeight} ${entry.weightUnit || ''}` : '-');
+                                return `
+                                    <tr>
+                                        <td>${formatDateShort(entry.date)}</td>
+                                        <td>${entry.caffeine || '-'}</td>
+                                        <td>${entry.sugaryDrinks || '-'}</td>
+                                        <td>${entry.vegetables || '-'}</td>
+                                        <td>${entry.fastFood || '-'}</td>
+                                        <td>${entry.minPA || '-'}</td>
+                                        <td>${entry.rateDiet || '-'}</td>
+                                        <td>${entry.stressLevel || '-'}</td>
+                                        <td>${weight}</td>
+                                        <td>${entry.goals ? escapeHtml(entry.goals) : '-'}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                ${healthData.length > 30 ? `<p style="text-align: center; margin-top: 15px; color: #6c757d;">Showing 30 of ${healthData.length} entries</p>` : ''}
             `;
         }
 
